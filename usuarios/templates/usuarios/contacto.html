@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4">
+            <div class="row">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Agregar Contacto</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 justify-content-center">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <fieldset class="form-group">
+                                        <legend class="border-bottom mb-4">Datos del contacto</legend>
+                                        {{ form|crispy}}
+                                        <div class="form-group mt-4">
+                                            <button class="btn btn-outline-info" type="submit" >Aceptar</button>
+                                        </div> 
+                                    </fieldset>
+                                </form>
+                                <a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

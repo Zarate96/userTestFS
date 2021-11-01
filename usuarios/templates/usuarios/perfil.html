@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4">
+            <div class="row">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Mi cuenta</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            {% if object.is_cliente %}
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <img src="{{ object.cliente.image.url }} " alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                            <h5 class="my-3">{{ object.username }} </h5>
+                            <p class="text-muted mb-1">{{ object.email }}</p>
+                            {% if object.is_empresa %}
+                            <p class="text-muted mb-4">Cliente Moral</p>
+                            {% else %}
+                            <p class="text-muted mb-4">Cliente</p>
+                            {% endif %}
+                            <!--<div class="d-flex justify-content-center mb-2">
+                                <button type="button" class="btn btn-primary">Editar</button>
+                            </div>-->
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                          <h5 class="card-title">Información fiscal</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Datos</h6>
+                          <p class="card-text"></p>
+                          {% if object.datosfiscales.has_rfc %}
+                          <p class="text-muted mb-1">RFC: {{ object.datosfiscales.rfc }}</p>
+                          <p class="text-muted mb-1">Nombre: {{ object.datosfiscales.nombre }}</p>
+                          <p class="text-muted mb-1">Teléfono: {{ object.datosfiscales.telefono }}</p>
+                          <p class="text-muted mb-1">Dirección: {{ object.datosfiscales.calle }} {{ object.datosfiscales.num_ext }} {{ object.datosfiscales.num_int }}, C.P {{ object.datosfiscales.cp }} {{ object.datosfiscales.colonia }} {{ object.datosfiscales.municipio }}, {{ object.datosfiscales.estado}}</p>
+                          {% else %}
+                          <p class="text-muted mb-1">No cuentas con información fiscal, porfavor actualiza tus datos para generar solicitudes.</p>
+                          {% endif %}
+                          <a href="{% url 'datosfiscales-update' pk=user.id %}" class="card-link">Editar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        {% if object.cliente.has_info %}
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Nombre</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">{{ object.cliente.nombre }} {{ object.cliente.ape_pat }} {{ object.cliente.ape_mat }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Teléfono</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">{{ object.cliente.telefono }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Dirección</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0">{{ object.cliente.calle }} {{ object.cliente.num_ext }} {{ object.cliente.num_int }}, C.P {{ object.cliente.cp }},  colonia {{ object.cliente.colonia }} {{ object.cliente.municipio }}, {{ object.cliente.estado}}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <a href="{% url 'perfil-cliente-update' pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
+                        </div>
+                        {% else %}
+                        <div class="card-body">
+                            <h5 class="card-title">Perfil incompleto</h5>
+                            <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
+                            <a href="{% url 'perfil-cliente-update' pk=object.id %}" class="btn btn-primary">Actualizar</a>
+                        </div>
+                        {% endif %} 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-4 mb-md-0">
+                            <div class="card-body">
+                                <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos</p>
+                                {% if contactos %}
+                                <table class="table table-sm">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for contacto in contactos %}
+                                        <tr>
+                                            <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
+                                            <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
+                                            <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}  
+                                <p>No tiene contactos registrados</p>
+                                {% endif %}
+                                <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                            </div>
+                            </div>
+                        </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4 mb-md-0">
+                        <div class="card-body">
+                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> solicitudes</p>  
+                            <p>No tiene solicitudes registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <img src="{{ object.transportista.image.url }} " alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                            <h5 class="my-3">{{ object.username }} </h5>
+                            <p class="text-muted mb-1">{{ object.email }}</p>
+                            {% if object.is_empresa %}
+                            <p class="text-muted mb-4">Transportista Moral</p>
+                            {% else %}
+                            <p class="text-muted mb-4">Transportista</p>
+                            {% endif %}
+                            <!--<div class="d-flex justify-content-center mb-2">
+                                <button type="button" class="btn btn-primary">Editar</button>
+                            </div>-->
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                          <h5 class="card-title">Información fiscal</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Datos</h6>
+                          {% if object.datosfiscales.has_rfc %}
+                          <p class="text-muted mb-1">RFC: {{ object.datosfiscales.rfc }}</p>
+                          <p class="text-muted mb-1">Nombre: {{ object.datosfiscales.nombre }} {{ object.datosfiscales.ape_pat }} {{ object.datosfiscales.ape_mat }}</p>
+                          <p class="text-muted mb-1">Teléfono: {{ object.datosfiscales.telefono }}</p>
+                          <p class="text-muted mb-1">Dirección: {{ object.datosfiscales.calle }} {{ object.datosfiscales.num_ext }} {{ object.datosfiscales.num_int }}, C.P {{ object.datosfiscales.cp }} {{ object.datosfiscales.colonia }} {{ object.datosfiscales.municipio }}, {{ object.datosfiscales.estado}}</p>
+                          {% else %}
+                          <p class="text-muted mb-1">No cuentas con información fiscal, porfavor actualiza tus datos para generar solicitudes.</p>
+                          {% endif %}
+                          <a href="{% url 'datosfiscales-update' pk=user.id %}" class="card-link">Editar</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        {% if object.transportista.has_info %}
+                        <div class="card-body">
+                            <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Nombre</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{ object.transportista.nombre }} {{ object.transportista.ape_pat }} {{ object.transportista.ape_mat }}</p>
+                            </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Teléfono</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{ object.transportista.telefono }}</p>
+                            </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Dirección</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{ object.transportista.calle }} {{ object.transportista.num_ext }} {{ object.transportista.num_int }}, C.P {{ object.transportista.cp }},  Colonia {{ object.transportista.colonia }} {{ object.transportista.municipio }}, {{ object.transportista.estado}}</p>
+                            </div>
+                            </div>
+                            <hr>
+                            <a href="{% url 'perfil-transportista-update' pk=object.id %}"><button type="button" class="btn btn-primary mt-4">Editar</button></a>
+                        </div>
+                        {% else %}
+                        <div class="card-body">
+                            <h5 class="card-title">Perfil incompleto</h5>
+                            <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
+                            <a href="{% url 'perfil-transportista-update' pk=object.id %}" class="btn btn-primary">Actualizar</a>
+                        </div>
+                        {% endif %} 
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4 mb-md-0">
+                        <div class="card-body">
+                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos</p>
+                            {% if contactos %}
+                            <table class="table table-sm">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col"></th>
+                                    <th scope="col"></th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    {% for contacto in contactos %}
+                                    <tr>
+                                        <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
+                                        <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
+                                        <td><a href="{% url 'delete-contacto' contacto.id %}"><i class="fas fa-trash-alt"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}  
+                            <p>No tiene contactos registrados</p>
+                            {% endif %}
+                            <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-4 mb-md-0">
+                        <div class="card-body">
+                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> unidades</p>  
+                            <p>No tienes unidades registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock content %}
