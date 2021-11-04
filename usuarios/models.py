@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -62,7 +63,7 @@ class MyUser(AbstractUser):
 
 class Cliente(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    image = models.ImageField(verbose_name="Foto de perfil", default='default.jpg', upload_to='profile_pics')
     nombre = models.CharField(
         verbose_name="Nombre o Razon social(empresas)",
         max_length=100)
@@ -95,7 +96,7 @@ class Cliente(models.Model):
 
 class Transportista(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    image = models.ImageField(verbose_name="Foto de perfil", default='default.jpg', upload_to='profile_pics')
     nombre = models.CharField(
         verbose_name="Nombre o Razon social(empresas)",
         max_length=100)
@@ -174,4 +175,35 @@ class DatosFiscales(models.Model):
             return True
 
     def __str__(self):
-        return f'{self.rfc} de {self.user.username} '
+        return f'{self.rfc} de {self.user.username}'
+
+class Encierro(models.Model):
+    nombre = models.CharField(verbose_name="Nombre para identificar el encierro", max_length=50)
+    calle = models.CharField(verbose_name="Calle", max_length=100)
+    num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
+    num_int = models.CharField(verbose_name="Numero interior", max_length=100, default="", blank=True)
+    colonia = models.CharField(verbose_name="Colonia", max_length=100)
+    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100, null=True)
+    cp = models.CharField(verbose_name="Código postal",max_length=100,)
+    estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.nombre}' 
+
+YEAR_CHOICES = [(r,r) for r in range(1950, datetime.date.today().year+1)]
+class Unidades(models.Model):
+    marca = models.CharField(verbose_name="Marca", max_length=50)
+    modelo = models.CharField(verbose_name="Modelo", max_length=50)
+    año = models.IntegerField(verbose_name="Año", choices=YEAR_CHOICES, default=datetime.datetime.now().year)
+    tipo_caja = models.CharField(verbose_name="Tipo de caja", max_length=50)
+    capacidad_carga = models.FloatField(verbose_name="Capacidad de carga(toneladas)")
+    tarjeta_circulacion = models.CharField(verbose_name="Tarjeta de circulación", max_length=50)
+    foto2 = models.ImageField(verbose_name="Tarjeta de circulación", upload_to='tarjetas_circulacion')
+    foto1 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
+    foto2 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
+    encierro = models.ForeignKey(Encierro, on_delete=models.CASCADE,)
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.marca} {self.marca} {self.año}' 

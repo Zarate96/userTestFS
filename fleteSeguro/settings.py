@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from decouple import config
@@ -144,6 +145,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #Manage users
 AUTH_USER_MODEL = 'usuarios.MyUser'
+LOGIN_URL = "/usuarios/login"
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-secondary',
@@ -156,5 +159,14 @@ MESSAGE_TAGS = {
 # Third party apps configuration
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+# EMAIL CONFIG
+EMAIL_FROM_USER = config('EMAIL_FROM_USER')
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = config('EMAIL_FROM_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+
+#RECAPTCHA GOOGLE CONFIG
 GOOGLE_RECAPTCHA_SITE_KEY = config('RECAPTCHA_SITE_KEY', default='')
 GOOGLE_RECAPTCHA_SECRET_KEY = config('RECAPTCHA_SECRET_KEY', default='')

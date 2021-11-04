@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro
 
 class ClienteSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -146,3 +146,13 @@ class DatosFiscalesUpdateForm(forms.ModelForm):
     class Meta:
         model = DatosFiscales
         fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','rfc']
+
+class UnidadesForm(forms.ModelForm):
+    class Meta:
+        model = Unidades
+        exclude = ('user',)
+
+class EncierroForm(forms.ModelForm):
+    class Meta:
+        model = Encierro
+        exclude = ('user',)

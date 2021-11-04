@@ -19,7 +19,13 @@
         <div class="border-top pt-3">
             <small class="text-muted">
                 ¿No tienes cuenta? Registrate ahora como 
-                <a class="ml-2" href="">Cliente</a> o <a class="ml-2" href="">Transportista</a>
+                <a class="ml-2" href="{% url 'registro-cliente' %}">Cliente</a> o <a class="ml-2" href="{% url 'registro-transportista' %}">Transportista</a>
+            </small>
+        </div>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                ¿Olvidaste tu contraseña?
+                <a class="ml-2" href="{% url 'reset_password' %}">Clic aquí</a>
             </small>
         </div>
     </div>

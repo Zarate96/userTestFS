@@ -22,9 +22,9 @@
                             <h5 class="my-3">{{ object.username }} </h5>
                             <p class="text-muted mb-1">{{ object.email }}</p>
                             {% if object.is_empresa %}
-                            <p class="text-muted mb-4">Cliente Moral</p>
+                            <p class="text-muted mb-4">Persona Moral</p>
                             {% else %}
-                            <p class="text-muted mb-4">Cliente</p>
+                            <p class="text-muted mb-4">Persona Física</p>
                             {% endif %}
                             <!--<div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Editar</button>
@@ -92,42 +92,42 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card mb-4 mb-md-0">
-                            <div class="card-body">
-                                <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos</p>
-                                {% if contactos %}
-                                <table class="table table-sm">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for contacto in contactos %}
+                                <div class="card-body">
+                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos</p>
+                                    {% if contactos %}
+                                    <table class="table table-sm">
+                                        <thead>
                                         <tr>
-                                            <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
-                                            <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
-                                            <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                            <th scope="col">Nombre</th>
+                                            <th scope="col"></th>
+                                            <th scope="col"></th>
                                         </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% else %}  
-                                <p>No tiene contactos registrados</p>
-                                {% endif %}
-                                <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            {% for contacto in contactos %}
+                                            <tr>
+                                                <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
+                                                <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
+                                                <td><a href="{% url 'delete-contacto' contacto.id %} class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}  
+                                    <p>No tiene contactos registrados</p>
+                                    {% endif %}
+                                    <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                </div>
                             </div>
                         </div>
-                    <div class="col-md-6">
-                        <div class="card mb-4 mb-md-0">
-                        <div class="card-body">
-                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> solicitudes</p>  
-                            <p>No tiene solicitudes registradas</p>
+                        <div class="col-md-6">
+                            <div class="card mb-4 mb-md-0">
+                                <div class="card-body">
+                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> solicitudes</p>  
+                                    <p>No tiene solicitudes registradas</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </div>
                 </div>
             </div>
@@ -140,9 +140,9 @@
                             <h5 class="my-3">{{ object.username }} </h5>
                             <p class="text-muted mb-1">{{ object.email }}</p>
                             {% if object.is_empresa %}
-                            <p class="text-muted mb-4">Transportista Moral</p>
+                            <p class="text-muted mb-4">Persona Moral</p>
                             {% else %}
-                            <p class="text-muted mb-4">Transportista</p>
+                            <p class="text-muted mb-4">Persona Física</p>
                             {% endif %}
                             <!--<div class="d-flex justify-content-center mb-2">
                                 <button type="button" class="btn btn-primary">Editar</button>
@@ -225,7 +225,7 @@
                                     <tr>
                                         <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
                                         <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'delete-contacto' contacto.id %}"><i class="fas fa-trash-alt"></i></a></td>
+                                        <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -239,11 +239,34 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card mb-4 mb-md-0">
-                        <div class="card-body">
-                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> unidades</p>  
-                            <p>No tienes unidades registradas</p>
+                            <div class="card mb-4 mb-md-0">
+                                <div class="card-body">
+                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> unidades</p>  
+                                    {% if unidades %}
+                                    <table class="table table-sm">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Nombre</th>
+                                            <th scope="col"></th>
+                                            <th scope="col"></th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for unidad in unidades %}
+                                            <tr>
+                                                <td>{{ unidad.marca }} {{ unidad.modelo }} </td>
+                                                <td><a href=""><i class="far fa-edit"></i></a></td>
+                                                <td><a href="{% url 'delete-unidad' unidad.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{unidad.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}  
+                                    <p>No tiene unidades registradas</p>
+                                    {% endif %}
+                                    <a href="{% url 'agregar-unidad' pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                </div>
                             </div>
-                        </div>
                     </div>
                     </div>
                 </div>

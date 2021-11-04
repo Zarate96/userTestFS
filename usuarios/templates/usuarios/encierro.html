@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
     <section style="background-color: #eee;">
         <div class="container py-5 mt-4">
             <div class="row">
                 <div class="col">
                     <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+                            <li class="breadcrumb-item active" aria-current="page">Agregar Encierro</li>
                         </ol>
                     </nav>
                 </div>
@@ -17,17 +18,17 @@
                     <div class="card mb-4">
                         <div class="card-body">
                             <div class="row">
-                                <form method="post" enctype="multipart/form-data"> 
+                                <form method="post">
                                     {% csrf_token %}
                                     <fieldset class="form-group">
-                                        <legend class="border-bottom mb-4">{{subtitle}}</legend>
+                                        <legend class="border-bottom mb-4">Datos del encierro</legend>
                                         {{ form|crispy}}
                                         <div class="form-group mt-4">
-                                            <button class="btn btn-outline-info" type="submit" value="Update">Actualizar</button>
+                                            <button class="btn btn-outline-info" type="submit" >Aceptar</button>
                                         </div> 
                                     </fieldset>
                                 </form>
-                                <a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>
+                                <a href="{% url 'agregar-unidad' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>
                             </div>
                         </div>
                     </div>
@@ -36,6 +37,3 @@
         </div>
     </section>
 {% endblock content %}
-
-
-
