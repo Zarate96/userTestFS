@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     #My_apps
     'usuarios',
+    'fletes',
 
     #Third_apps
     'crispy_forms',

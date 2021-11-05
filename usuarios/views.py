@@ -292,6 +292,11 @@ class UnidadesAgregar(CreateView):
         messages.success(self.request, f'Unidad agregada correctamente')
         return redirect(reverse('profile-cliente', kwargs={'pk': self.request.user.id}))
 
+def UnidadDelete(request, pk):
+    unidad = Unidad.objects.get(id=pk)
+    unidad.delete()
+    return redirect(reverse('profile-cliente', kwargs={'pk': self.request.user.id}))
+
 class EncierroAgregar(CreateView):
     model = Encierro
     form_class = EncierroForm
