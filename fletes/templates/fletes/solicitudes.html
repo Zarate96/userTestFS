@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'usuarios/confirm_delete_modal.html' %}
+
+<section style="background-color: #eee;">
+    <div class="container py-5 mt-4r">
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Mis solicitudes</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha Solicitud</th>
+                                        <th>Descripción</th>
+                                        <th>Características de carga</th>
+                                        <th>Fecha de servicio</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if solicitudes %}
+                                    {% for solicitud in solicitudes%}
+                                    <tr>
+                                        <td>{{solicitud.folio}}</td>
+                                        <td>{{solicitud.creado|date:"d-m-Y"}}</td>
+                                        <td>{{solicitud.descripcion_servicio}}</td>
+                                        <td>{{solicitud.caracteristicas_carga}}</td>
+                                        <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
+                                        <td>ESTADO</td>
+                                        <td><i class="far fa-eye"></i></td>
+                                        <td><i class="far fa-trash-alt"></i></td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <h2>No tienes solicitudes registradas</h2>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
