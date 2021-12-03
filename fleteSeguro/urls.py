@@ -10,4 +10,5 @@ urlpatterns = [
     path('', home, name='home'),
     path('usuarios/', include('usuarios.urls')),
     path('fletes/', include('fletes.urls')),
-] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+] 
+#+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

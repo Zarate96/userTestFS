@@ -15,104 +15,129 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-7 col-md-12 justify-content-center">
+                <div class="col-12 justify-content-center">
                     <nav>
                         <div class="nav nav-pills nav-fill mt-3 mb-5" id="nav-tab" role="tablist">
-                          <a class="nav-link disabled" id="step1-tab" data-bs-toggle="tab" >Paso 1</a>
-                          <a class="nav-link active" id="step2-tab" data-bs-toggle="tab" href="#step2">Paso 2</a>
-                          <a class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" href="#step3">Paso 3</a>
+                        <a class="nav-link disabled" id="step1-tab" data-bs-toggle="tab" >Paso 1</a>
+                        <a class="nav-link active" id="step2-tab" data-bs-toggle="tab" href="#step2">Paso 2</a>
+                        <a class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" href="#step3">Paso 3</a>
                         </div>
                     </nav>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row">
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <fieldset class="form-group">
-                                        <legend class="border-bottom mb-4">Agregar destino a ruta de solicitud</legend>
-                                    </fieldset>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-7 mb-1">
-                                            {{ form.tiempo_descarga|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-7 mb-1">
-                                            {{ form.unidades_entregar|as_crispy_field }}
-                                        </div>
+                    <div class="row">
+                        <div class="col-lg-7 col-md-12 justify-content-center">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <form method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <fieldset class="form-group">
+                                                <legend class="border-bottom mb-4">Agregar destino a solicitud</legend>
+                                            </fieldset>
+                                            {% if form.errors %}
+                                                {% for field in form %}
+                                                    {% for error in field.errors %} 
+                                                        <div class="alert alert-danger">
+                                                            <strong>Error "{{ error|escape }}" en el campo {{field.name}} </strong>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-7 mb-1">
+                                                    {{ form.tiempo_descarga|as_crispy_field }}
+                                                </div>
+                                                <div class="form-group col-md-7 mb-1">
+                                                    {{ form.unidades_entregar|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            <p class="h5 mt-4">Domicilio de entrega</p>
+                                                <div class="form-group col-md-12 mb-1">
+                                                    {{ form.domicilio_id|as_crispy_field }}
+                                                </div> 
+                                            <div class="row justify-content-between mt-4">
+                                                <div class="col-auto">
+                                                <button type="submit" class="btn btn-primary">Agregar</button>
+                                                </div>
+                                        </form>
                                     </div>
-                                    <p class="h5 mt-4">Domicilio de entrega</p>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-12 mb-1">
-                                            {{ form.calle|as_crispy_field }}
-                                        </div>
+                                    <div class="col-auto mt-3"><a href="{% url 'profile-user' %}"><button class="btn btn-danger">Cancelar</button></a></div>
+
+                                    <div class="col-auto mt-3">
+                                        <a href="{% url 'finalizar-solicitud' solicitud.id %}"><button class="btn btn-secondary">Finalizar</button></a>
                                     </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.num_ext|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.num_int|as_crispy_field }}
-                                        </div>
+                                        <!--<a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
                                     </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-8 mb-1">
-                                            {{ form.colonia|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-4 mb-1">
-                                            {{ form.cp|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.municipio|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.estado|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-between mt-4">
-                                        <div class="col-auto"><a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-danger">Cancelar</button></a></div>
-                                        <div class="col-auto">
-                                          <button type="submit" class="btn btn-primary">Siguiente</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <!--<a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-lg-5 col-md-12 justify-content-center">
-                    
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <fieldset class="form-group">
-                                    <legend class="border-bottom mt-2">Ruta actual</legend>
-                                </fieldset>
-                                {% if destinos %}
-                                <table class="table table-sm">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">Nombre</th>
-                                        <th scope="col"></th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for destino in destinos %}
-                                        <tr>
-                                            <td>{{ destino.colonia }} {{ destino.estado }} </td>
-                                            <td><a href=""><i class="far fa-edit"></i></a></td>
-                                            <td><a href="" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% else %}  
-                                <p>Esta ruta no cuenta con destinos</p>
-                                {% endif %}
-                                <!--<a href=""><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
-                                <a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                        <div class="col-lg-5 col-md-12 justify-content-center">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <fieldset class="form-group">
+                                            <legend class="border-bottom mt-2">Ruta actual</legend>
+                                        </fieldset>
+                                        <h5 class="card-title mt-2">Salida</h5>
+                                        <p class="card-text">De {{solicitud.domicilio_id}} con {{solicitud.unidades_totales}} unidades totales a entregar.</p>
+                                        <h5 class="card-title mt-2">Destinos</h5>
+                                        {% if destinos %}
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th class="text-center" scope="col">Nombre</th>
+                                                <th class="text-center" scope="col">Unidades a entregar en este destino</th>
+                                                <th class="text-center" scope="col"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for destino in destinos %}
+                                                <tr>
+                                                    <td class="text-center">{{ forloop.counter }}</td>
+                                                    <td class="text-center">Destino a {{ destino.domicilio_id }} </td>
+                                                    <td class="text-center">{{ destino.unidades_entregar }}</td>
+                                                    <td class="text-center"><a href="{% url 'delete-destino' id=destino.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>Esta solicitud no cuenta con destinos</p>
+                                        {% endif %}
+                                        <!--<a href=""><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                        <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mt-5">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <fieldset class="form-group">
+                                            <legend class="border-bottom mb-4">Mis domicilios</legend>
+                                        </fieldset>
+                                        {% if domicilios %}
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Nombre</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for domicilio in domicilios %}
+                                                <tr>
+                                                    <td>{{ domicilio.nombre }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>No tiene domicilios registrados</p>
+                                        {% endif %}
+                                        <a href="{% url 'domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
+                                        <!--<a href=""><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                        <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -7,9 +7,12 @@
       <div  class="container mb-2 mt-2">
         <h2>Bienvenido {{user.username}}</h2>
       </div>
-      
+      {% if user.is_cliente%}
       <div class="container px-4 py-5" id="featured-3">
         <h2 class="pb-2 border-bottom">Menú de clientes</h2>
+        {% if not user.has_datosfiscales or not user.cliente.has_info %}
+          <p class="mt-3">Perfil y/o datos fiscales no completados, porfavor actualizelos para poder crear solicitudes.</p>
+        {% endif %}
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
@@ -17,8 +20,8 @@
             </div>
             <h2>Crear solicitud</h2>
             <p>Realiza una solicitud de flete para recibir cotizaciones por parte de los transportistas.</p>
-            <a href="{% url 'agregar-solicitud' pk=user.id %}" class="icon-link">
-              Call to action
+            <a href="{% url 'agregar-solicitud'  %}" class="icon-link">
+              Ir
               <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
             </a>
           </div>
@@ -27,36 +30,61 @@
               <i class="fas fa-eye"></i>
             </div>
             <h2>Mis solicitudes</h2>
-            <p>Gestiona y revisa el estado tus solicitudes.</p>
-            <a href="{% url 'solicitudes'%}" class="icon-link">
-              Call to action
+            <p>Gestiona y revisa el estado de tus solicitudes realizadas.</p>
+            <a href="{% url 'solicitudes-cliente'%}" class="icon-link">
+              Ir
               <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
             </a>
           </div>
-          <!--<div class="feature col">
+          
+          <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
-              <svg class="bi" width="1em" height="1em"><use xlink:href="#toggles2"></use></svg>
+              <i class="fas fa-eye"></i>
             </div>
-            <h2>Mis cotizaciones</h2>
-            <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
-            <a href="#" class="icon-link">
-              Call to action
+            <h2>Mis domicilios</h2>
+            <p>Gestiona y revisa tus domicilios.</p>
+            <a href="{% url 'domicilios'%}" class="icon-link">
+              Ir
+              <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="container px-4 py-5" id="featured-3">
+        <h2 class="pb-2 border-bottom">Menú de transportistas</h2>
+        {% if not user.has_datosfiscales or not user.transportista.has_info %}
+          <p class="mt-4">Perfil y/o datos fiscales no completados, porfavor actualizelos para poder crear cotizaciones.</p>
+        {% endif %}
+        {% if not user.transportista.has_unidades %}
+        <p class="mt-4">No tienes unidades registradas no puedes realizar cotizaciones. Agregalas desde tu perfil!!</p>
+        {% endif %}
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+          <div class="feature col">
+            <div class="feature-icon bg-primary bg-gradient">
+              <i class="fas fa-plus-square"></i>
+            </div>
+            <h2>Solicitudes vigentes</h2>
+            <p>Revisa las solicitudes de viaje vigentes.</p>
+            <a href="{% url 'solicitudes' %}" class="icon-link">
+              Ir
               <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
             </a>
           </div>
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
-              <svg class="bi" width="1em" height="1em"><use xlink:href="#toggles2"></use></svg>
+              <i class="fas fa-eye"></i>
             </div>
-            <h2>Viajes asignados</h2>
-            <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
-            <a href="#" class="icon-link">
-              Call to action
+            <h2>Mis cotizaciones</h2>
+            <p>Gestiona tus cotizaciones realizadas.</p>
+            <a href="{% url 'cotizaciones'%}" class="icon-link">
+              Ir
               <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
             </a>
-          </div>-->
+          </div>
         </div>
       </div>
+      {% endif %}
     </main>
   </div>
   {% else %}

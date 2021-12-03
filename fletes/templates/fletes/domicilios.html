@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'usuarios/confirm_delete_modal.html' %}
+
+<section style="background-color: #eee;">
+    <div class="container py-5 mt-4r">
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Mis domicilios</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+                                <a href="{% url 'agregar-domiclio' %}"><button class="btn btn-primary" type="button">Agregar domicilio</button></a>
+                                <a href="{% url 'solicitudes' %}"><button class="btn btn-secondary" type="button">Ir a solicitudes</button></a>
+                            </div>
+                            {% if domicilios %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Calle</th>
+                                        <th>Número exterior</th>
+                                        <th>Número interior</th>
+                                        <th>Colonia</th>
+                                        <th>Municipio</th>
+                                        <th>C.P.</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    {% for domicilio in domicilios%}
+                                    <tr>
+                                        <td>{{domicilio.nombre}}</td>
+                                        <td>{{domicilio.calle}}</td>
+                                        <td>{{domicilio.num_ext}}</td>
+                                        <td>{{domicilio.num_int}}</td>
+                                        <td>{{domicilio.colonia}}</td>
+                                        <td>{{domicilio.municipio}}</td>
+                                        <td>{{domicilio.cp}}</td>
+                                        <td>{{domicilio.estado}}</td>
+                                        <td><a href="{% url 'update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
+                                        <td><a href="{% url 'delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <h2>No tienes domicilios registradas</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

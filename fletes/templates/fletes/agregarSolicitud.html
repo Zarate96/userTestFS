@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-8 col-md-12 offset-lg-2 justify-content-center">
+                <div class="col-12 justify-content-center">
                     <nav>
                         <div class="nav nav-pills nav-fill mt-3 mb-5" id="nav-tab" role="tablist">
                           <a class="nav-link active" id="step1-tab" data-bs-toggle="tab" >Paso 1</a>
@@ -23,87 +23,106 @@
                           <a class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" href="#step3">Paso 3</a>
                         </div>
                     </nav>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row">
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <fieldset class="form-group">
-                                        <legend class="border-bottom mb-4">Información de la solicitud</legend>
-                                    </fieldset>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-7 mb-1">
-                                            {{ form.fecha_servicio|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-7 mb-1">
-                                            {{ form.hora|as_crispy_field }}
-                                        </div>
+                    <div class="row">
+                        <div class="col-lg-8 col-md-12 justify-content-center">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <form method="post" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <fieldset class="form-group">
+                                                <legend class="border-bottom mb-4">Información de la solicitud</legend>
+                                            </fieldset>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-7 mb-1">
+                                                    {{ form.fecha_servicio|as_crispy_field }}
+                                                </div>
+                                                <div class="form-group col-md-7 mb-1">
+                                                    {{ form.hora|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-4 mb-1 mt-2 text-center">
+                                                    {{ form.tiempo_carga|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            <p class="h5 mt-4">Domicilio de recolección</p>
+                                                <div class="form-group col-md-12 mb-1">
+                                                    {{ form.domicilio_id|as_crispy_field }}
+                                                </div>                                            
+                                            <p class="h5 mt-4">Características de la carga</p>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-12 mb-1">
+                                                    {{ form.caracteristicas_carga|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-4 mb-1">
+                                                    {{ form.peso_carga|as_crispy_field }}
+                                                </div>
+                                                <div class="form-group col-md-4 mb-1">
+                                                    {{ form.volumen_carga|as_crispy_field }}
+                                                </div>
+                                                <div class="form-group col-md-4 mb-1">
+                                                    {{ form.unidades_totales|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-12 mb-1">
+                                                    {{ form.descripcion_servicio|as_crispy_field }}
+                                                </div>
+                                            </div>
+                                            {% if form.errors %}
+                                                {% for field in form %}
+                                                    {% for error in field.errors %} 
+                                                        <div class="alert alert-danger">
+                                                            <strong>Error "{{ error|escape }}" en el campo {{field.name}} </strong>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            <div class="row justify-content-between mt-4">
+                                                <div class="col-auto"><a href="{% url 'profile-user' %}"><button class="btn btn-danger">Cancelar</button></a></div>
+                                                <div class="col-auto">
+                                                <button type="submit" class="btn btn-primary">Siguiente</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <!--<a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
                                     </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-4 mb-1 mt-2 text-center">
-                                            {{ form.tiempo_carga|as_crispy_field }}
-                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 justify-content-center">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <fieldset class="form-group">
+                                            <legend class="border-bottom mb-4">Mis domicilios</legend>
+                                        </fieldset>
+                                        {% if domicilios %}
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Nombre</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for domicilio in domicilios %}
+                                                <tr>
+                                                    <td>{{ domicilio.nombre }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>No tiene domicilios registrados</p>
+                                        {% endif %}
+                                        <a href="{% url 'domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
+                                    
+                                        <!--<a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
                                     </div>
-                                    <p class="h5 mt-4">Domicilio de recolección</p>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-12 mb-1">
-                                            {{ form.calle|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.num_ext|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.num_int|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-8 mb-1">
-                                            {{ form.colonia|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-4 mb-1">
-                                            {{ form.cp|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.municipio|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-6 mb-1">
-                                            {{ form.estado|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <p class="h5 mt-4">Características de la carga</p>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-12 mb-1">
-                                            {{ form.caracteristicas_carga|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-4 mb-1">
-                                            {{ form.peso_carga|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-4 mb-1">
-                                            {{ form.volumen_carga|as_crispy_field }}
-                                        </div>
-                                        <div class="form-group col-md-4 mb-1">
-                                            {{ form.unidades_totales|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-center align-items-center">
-                                        <div class="form-group col-md-12 mb-1">
-                                            {{ form.descripcion_servicio|as_crispy_field }}
-                                        </div>
-                                    </div>
-                                    <div class="row justify-content-between mt-4">
-                                        <div class="col-auto"><a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-danger">Cancelar</button></a></div>
-                                        <div class="col-auto">
-                                          <button type="submit" class="btn btn-primary">Siguiente</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                <!--<a href="{% url 'profile-cliente' pk=user.id %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'usuarios/confirm_delete_modal.html' %}
+
+<section style="background-color: #eee;">
+    <div class="container py-5 mt-4r">
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Mis cotizaciones recibidas</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-lg-5 justify-content-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Folio de solicitud: {{solicitud.folio}}</h5>
+                            <p class="card-text">Fecha del servicio: {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
+                            <h5 class="card-text mt-4">Salida:</h5>
+                            <p class="card-text">De C.P.: {{solicitud.domicilio_id.cp}}</p>
+                            <h5 class="card-text mt-4">Ruta:</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% if destinos %}
+                                {% for destino in destinos %}
+                                    <li class="list-group-item">Destino {{ forloop.counter }}: C.P.{{ destino.domicilio_id.cp }} con entrega de {{ destino.unidades_entregar}} unidades </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="list-group-item">No hay destinos</li>
+                            {% endif %}
+                        </ul>
+                        <div class="card-body mt-3">
+                            <h5 class="card-text mt-4">Descripción del servicio:</h5>
+                            <p class="card-text">{{solicitud.descripcion_servicio}}</p>
+                        </div>
+                        <div class="card-body mt-3">
+                            <p class="h5">Caracteristicas de carga</p>
+                        </div>
+                        <div class="col-md-12 mb-1">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Tipo de carga</th>
+                                        <th scope="col">Peso</th>
+                                        <th scope="col">Volumen</th>
+                                        <th scope="col">Unidades totales</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>{{solicitud.caracteristicas_carga}}</td>
+                                    <td>{{solicitud.peso_carga}} kg</td>
+                                    <td>{{solicitud.volumen_carga}} mt3</td>
+                                    <td>{{solicitud.unidades_totales}} unidades</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 justify-content-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> cotizaciones</p> 
+                        </div>
+                        {% if cotizaciones %}
+                        <div class="col-md-12 mb-1 table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Folio</th>
+                                        <th scope="col">Transportista</th>
+                                        <th scope="col">Unidad</th>
+                                        <th scope="col">Precio</th>
+                                        <th scope="col">Estado</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cotizacion in cotizaciones%}
+                                    <tr>
+                                        <td>{{cotizacion.folio}}</td>
+                                        <td><a href="{% url 'profile-transportista' cotizacion.transportista_id.slug %}">{{cotizacion.transportista_id}}</a></td>
+                                        <td><a href="{% url 'detalle-unidad' pk=cotizacion.unidad_id.id %}">{{cotizacion.unidad_id}}</a></td>
+                                        <td>${{cotizacion.monto}}</td>
+                                        <td>{{cotizacion.estado_cotizacion}}</td>
+                                        {% if cotizacion.estado_cotizacion == 'Aceptada' or  cotizacion.estado_cotizacion == 'Rechazada' %}
+                                        <td></td>
+                                        {% else %}
+                                        <td><a href="{% url 'aceptar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Aceptar</button></a></td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}  
+                        <p>No tiene contactos registrados</p>
+                        {% endif %}
+                    </div>
+                </div>
+        </div>
+</section>
+
+{% endblock content %}

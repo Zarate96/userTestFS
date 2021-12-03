@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
+
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4r">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Actualizar cotización</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 justify-content-center">
+                        <div class="col-lg-6 offset-lg-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="h4 mt-3">Información actual de la cotización</h4>
+                                    <h6 class="card-text">Folio: {{cotizacion.folio}}</h6>
+                                        <ul class="list-group list-group-flush">
+                                          <li class="list-group-item">Unidad: {{cotizacion.unidad_id}}</li>
+                                          <li class="list-group-item">Precio: {{cotizacion.monto}}</li>
+                                        </ul>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-8 offset-2">
+                                        <h5 class="card-text">Nueva cotización</h5>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                                {{ form|crispy}}
+                                                <div class="form-group mt-4">
+                                                    <button class="btn btn-outline-info" type="submit" >Cotizar</button>
+                                                </div> 
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock content %}

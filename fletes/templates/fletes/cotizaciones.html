@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'usuarios/confirm_delete_modal.html' %}
+
+<section style="background-color: #eee;">
+    <div class="container py-5 mt-4r">
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Mis cotizaciones</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            {% if cotizaciones %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Folio solicitud</th>
+                                        <th>Fecha servicio</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cotizacion in cotizaciones%}
+                                    <tr>
+                                        <td>{{cotizacion.folio}}</td>
+                                        <td>{{cotizacion.solicitud_id.folio}}</td>
+                                        <td>{{cotizacion.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
+                                        <td>{{cotizacion.monto}}</td>
+                                        <td>{{cotizacion.estado_cotizacion}}</td>
+                                        <td><a href="{% url 'detalle-cotizacion' cotizacion.slug %}"><i class="far fa-eye"></i></a></td>
+                                        {% if cotizacion.estado_cotizacion == 'Aceptada' %}
+                                            <td><a href="{% url 'confirmar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Confirmar</button></a></td>
+                                            <td><a href=""><button class="btn btn-danger btn-sm">Cancelar</button></a></td>
+                                        {% else %}
+                                            {% if cotizacion.estado_cotizacion == 'Confirmada' %}
+                                            <td><a href=""><button class="btn btn-danger btn-sm">Cancelar</button></a></td>
+                                            {% else %}
+                                            <td><a href="{% url 'delete-cotizacion' cotizacion.slug %}"><i class="far fa-trash-alt"></i></a></td>
+                                            {% endif %}
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <h2>No tienes cotizaciones registradas</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

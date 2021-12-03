@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-=y(gi(7@k2tu!sru!-2q*z258(x^8f0ccjoj_7q^4a#i#h+elp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     #Third_apps
     'crispy_forms',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -171,3 +172,12 @@ EMAIL_PORT = 587
 #RECAPTCHA GOOGLE CONFIG
 GOOGLE_RECAPTCHA_SITE_KEY = config('RECAPTCHA_SITE_KEY', default='')
 GOOGLE_RECAPTCHA_SECRET_KEY = config('RECAPTCHA_SECRET_KEY', default='')
+
+#s3 BUCKET CONFIG
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME', default='')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'

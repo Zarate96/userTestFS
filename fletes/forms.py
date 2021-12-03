@@ -1,5 +1,5 @@
 from django import forms
-from .models import Solicitud, Ruta, Destino
+from .models import Solicitud, Destino, Domicilios, Cotizacion
 
 class DateInput(forms.DateInput):
     input_type = 'date'
@@ -18,15 +18,13 @@ class SolicitudForm(forms.ModelForm):
         label="Tiempo de espera",
         help_text='Tiempo máximo de espera para la carga',
     )
-    colonia = forms.CharField(
-        label="Colonia o alcadía",
-    )
+    
     unidades_totales = forms.IntegerField(
         label="Unidades totales",
     )
     class Meta:
         model = Solicitud
-        exclude = ('cliente_id','modificado')
+        exclude = ('cliente_id','modificado','estado_solicitud',)
         widgets = {
             'fecha_servicio': DateInput(),
             'hora': TimeInput(),
@@ -39,14 +37,24 @@ class DestinoForm(forms.ModelForm):
         label="Tiempo de espera",
         help_text='Tiempo máximo de espera para la descarga',
     )
-    colonia = forms.CharField(
-        label="Colonia o alcadía",
-    )
     unidades_entregar = forms.IntegerField(
         label="Unidades a entregar en este destino",
     )
     class Meta:
         model = Destino
-        exclude = ('ruta_id',)
+        exclude = ('solicitud_id',)
     
     #field_order = ['fecha_servicio','hora','tiempo_carga']
+
+class DomicilioForm(forms.ModelForm):
+    colonia = forms.CharField(
+        label="Colonia o alcadía",
+    )
+    class Meta:
+        model = Domicilios
+        exclude = ('cliente_id','modificado','slug')
+
+class CotizacionForm(forms.ModelForm):
+    class Meta:
+        model = Cotizacion
+        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','activo',)

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
+    
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4r">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Unidad {{unidad.placa}}</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 mt-3">
+                    <div class="row">
+                        <div class="col-12 justify-content-center">
+                            <div class="card">
+                                <div class="card-body">
+                                <h5 class="card-text mt-4">Características de la  unidad:</h5>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Marca: {{unidad.marca}}</li>
+                                    <li class="list-group-item">Modelo: {{unidad.modelo}}</li>
+                                    <li class="list-group-item">Año: {{unidad.año}}</li>
+                                    <li class="list-group-item">Placa: {{unidad.placa}}</li>
+                                    <li class="list-group-item">Tipo de caja: {{unidad.tipo_caja}}</li>
+                                    <li class="list-group-item">Capacidad de carga: {{unidad.capacidad_carga}} toneladas</li>
+                                    <li class="list-group-item">Dueño: {{unidad.user}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-3">
+                    <div class="row justify-content-around">
+                        <div class="col-3">
+                            <div class="card">
+                            <img src="{{unidad.foto1.url}}" class="card-img-top" alt="..." style="height: 25%;">
+                            <div class="card-body">
+                                <h5 class="card-title">Foto 1</h5>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                            <img src="{{unidad.foto2.url}}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">Foto 2</h5>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </section>
+{% endblock content %}

@@ -1,5 +1,6 @@
 import datetime
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
 
 ESTADOS = (
@@ -60,6 +61,16 @@ class MyUser(AbstractUser):
     @property
     def is_transportista(self):
         return self.es_transportista == True
+    
+    @property 
+    def has_datosfiscales(self):
+        try:
+            if self.datosfiscales.has_rfc:
+                return True
+            else:
+                return False
+        except:
+            return False
 
 class Cliente(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
@@ -68,9 +79,9 @@ class Cliente(models.Model):
         verbose_name="Nombre o Razon social(empresas)",
         max_length=100)
     ape_pat = models.CharField(
-        verbose_name="Apellido paterno", max_length=100, blank=True, default=" ")
+        verbose_name="Apellido paterno", max_length=100, blank=True, default="")
     ape_mat = models.CharField(
-        verbose_name="Apellido materno", max_length=100, blank=True, default=" ")
+        verbose_name="Apellido materno", max_length=100, blank=True, default="")
     telefono = models.CharField(verbose_name="Numero teléfonico a 10 digitos", max_length=100)
     calle = models.CharField(verbose_name="Calle", max_length=100)
     num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
@@ -79,10 +90,16 @@ class Cliente(models.Model):
     municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100,)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
+    slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):
         return str(self.user.username)
     
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = slugify(self.user.username)
+        super(Cliente, self).save(*args, **kwargs)
+
     @property
     def is_empresa(self):
         return self.user.es_empresa == True
@@ -93,6 +110,7 @@ class Cliente(models.Model):
             return False
         else:
             return True
+
 
 class Transportista(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
@@ -112,10 +130,18 @@ class Transportista(models.Model):
     municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100,)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
-    
+    calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
+    viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
+    slug = models.SlugField(null=True, blank=True)
+
     def __str__(self):
         return f'{self.user.username}'
     
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = slugify(self.user.username)
+        super(Transportista, self).save(*args, **kwargs)
+
     @property
     def is_empresa(self):
         return self.user.es_empresa == True
@@ -126,6 +152,17 @@ class Transportista(models.Model):
             return False
         else:
             return True
+    
+    @property 
+    def has_unidades(self):
+        try:
+            unidades = Unidades.objects.filter(user=self.user.id)
+            if unidades:
+                return True
+            else:
+                return False
+        except:
+            return False
 
 class Contacto(models.Model):
     nombre = models.CharField(
@@ -149,14 +186,14 @@ class DatosFiscales(models.Model):
         verbose_name="Nombre o Razon social(empresas)",
         max_length=100)
     ape_pat = models.CharField(
-        verbose_name="Apellido paterno", max_length=100, blank=True, default=" ")
+        verbose_name="Apellido paterno", max_length=100, blank=True, default="")
     ape_mat = models.CharField(
-        verbose_name="Apellido materno", max_length=100,blank=True, default=" ")
+        verbose_name="Apellido materno", max_length=100,blank=True, default="")
     calle = models.CharField(verbose_name="Calle", max_length=100)
     num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
-    num_int = models.CharField(verbose_name="Numero interior", max_length=100, default="", blank=True)
+    num_int = models.CharField(verbose_name="Numero interior", max_length=100, blank=True)
     colonia = models.CharField(verbose_name="Colonia", max_length=100)
-    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100, null=True)
+    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     telefono = models.CharField(verbose_name="Numero teléfonico", max_length=30)
@@ -198,6 +235,7 @@ class Unidades(models.Model):
     año = models.IntegerField(verbose_name="Año", choices=YEAR_CHOICES, default=datetime.datetime.now().year)
     tipo_caja = models.CharField(verbose_name="Tipo de caja", max_length=50)
     capacidad_carga = models.FloatField(verbose_name="Capacidad de carga(toneladas)")
+    placa = models.CharField(verbose_name="Placa", max_length=50, default="")
     tarjeta_circulacion = models.CharField(verbose_name="Tarjeta de circulación", max_length=50, default="")
     tarjeta_circulacion_foto = models.ImageField(verbose_name="Foto de tarjeta de circulación", upload_to='tarjetas_circulacion')
     foto1 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
@@ -206,4 +244,4 @@ class Unidades(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.marca} {self.marca} {self.año}' 
+        return f'{self.placa}' 

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <main>
+        <div  class="container mb-2 mt-2">
+            <h2>No tienes permiso para visualizar este contenido</h2>
+        </div>
+    </main>
+    <hr>
+    <p class="lead">
+        <a href="{% url 'home' %}">Regresar</a>.
+    </p>
+</div>
+{% endblock %}

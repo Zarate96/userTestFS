@@ -12,7 +12,7 @@
               </li>
               {% if user.is_authenticated %}
               <li class="nav-item">
-                <a class="nav-item nav-link" href="{% url 'profile-cliente' pk=user.id %}">Perfil</a>
+                <a class="nav-item nav-link" href="{% url 'profile-user'%}">Perfil</a>
               </li>
               <li class="nav-item">
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>

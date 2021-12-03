@@ -111,6 +111,7 @@ class ProfileClienteUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
         profile = kwargs.pop('profile',None)
+        print(f'perfil desde form: {profile}')
         super(ProfileClienteUpdateForm, self).__init__(*args,**kwargs)
         
         if profile.is_empresa:
@@ -148,6 +149,9 @@ class DatosFiscalesUpdateForm(forms.ModelForm):
         fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','rfc']
 
 class UnidadesForm(forms.ModelForm):
+    # encierro = forms.ChoiceField(
+    #     label="Lugar de encierro",
+    # )
     class Meta:
         model = Unidades
         exclude = ('user',)

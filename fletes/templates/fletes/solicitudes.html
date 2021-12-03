@@ -5,6 +5,57 @@
 
 <section style="background-color: #eee;">
     <div class="container py-5 mt-4r">
+        {% if user.is_transportista %}
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Solicitudes vigentes</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            {% if solicitudes %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha Solicitud</th>
+                                        <th>Tipo de viaje</th>
+                                        <th>Descripción</th>
+                                        <th>Características de carga</th>
+                                        <th>Fecha de servicio</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for solicitud in solicitudes%}
+                                    <tr>
+                                        <td>{{solicitud.folio}}</td>
+                                        <td>{{solicitud.creado|date:"d-m-Y"}}</td>
+                                        <td>{{solicitud.has_destinos}}</td>
+                                        <td>{{solicitud.descripcion_servicio}}</td>
+                                        <td>{{solicitud.caracteristicas_carga}}</td>
+                                        <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
+                                        <td><a href="{% url 'agregar-cotizacion' solicitud.slug %}"><button class="btn btn-primary">Cotizar</button></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <h2>No tienes solicitudes registradas</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
         <div class="row justify-content-center">
             <div class="col">
                 <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
@@ -19,11 +70,16 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="row">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+                                <a href="{% url 'agregar-solicitud' %}"><button class="btn btn-primary" type="button">Agregar solicitud</button></a>
+                            </div>
+                            {% if solicitudes %}
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Folio</th>
                                         <th>Fecha Solicitud</th>
+                                        <th>Tipo de viaje</th>
                                         <th>Descripción</th>
                                         <th>Características de carga</th>
                                         <th>Fecha de servicio</th>
@@ -31,29 +87,37 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% if solicitudes %}
                                     {% for solicitud in solicitudes%}
                                     <tr>
                                         <td>{{solicitud.folio}}</td>
                                         <td>{{solicitud.creado|date:"d-m-Y"}}</td>
+                                        <td>{{solicitud.has_destinos}}</td>
                                         <td>{{solicitud.descripcion_servicio}}</td>
                                         <td>{{solicitud.caracteristicas_carga}}</td>
                                         <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
-                                        <td>ESTADO</td>
-                                        <td><i class="far fa-eye"></i></td>
-                                        <td><i class="far fa-trash-alt"></i></td>
+                                        <td>{{solicitud.estado_solicitud}}</td>
+                                        {% if solicitud.estado_solicitud == 'Guardada' %}
+                                        <td><a href="{% url 'agregar-destino' solicitud.id %}"><i class="fas fa-plus"></i></a></td>
+                                        {% else %}
+                                        <td><a href="{% url 'detalle-solicitud' solicitud.slug %}"><i class="far fa-eye"></i></a></td>
+                                        {% endif %}
+                                        <td><a href="{% url 'delete-solicitud' solicitud.id %}"><i class="far fa-trash-alt"></i></a></td>
+                                        {% if solicitud.estado_solicitud == 'Cotizada' %}
+                                        <td><a href="{% url 'cotizaciones-cliente' solicitud.slug %}"><button class="btn btn-primary btn-sm">Cotizaciones</button></a></td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
-                                    {% else %}
-                                    <h2>No tienes solicitudes registradas</h2>
-                                    {% endif %}
                                 </tbody>
                             </table>
+                            {% else %}
+                            <h2>No tienes solicitudes registradas</h2>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </section>
 

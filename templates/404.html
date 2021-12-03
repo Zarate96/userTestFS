@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <main>
+        <div  class="container mb-2 mt-2">
+            <h2>Pagina 404</h2>
+            <p>Página no encontrada</p>
+        </div>
+    </main>
+    <hr>
+    <p class="lead">
+        <a href="{% url 'home' %}">Regresar</a>.
+    </p>
+</div>
+{% endblock %}

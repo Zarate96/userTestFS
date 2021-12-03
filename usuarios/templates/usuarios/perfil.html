@@ -79,13 +79,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <a href="{% url 'perfil-cliente-update' pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
+                            <a href="{% url 'perfil-cliente-update' slug=object.cliente.slug%}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
                         </div>
                         {% else %}
                         <div class="card-body">
                             <h5 class="card-title">Perfil incompleto</h5>
                             <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
-                            <a href="{% url 'perfil-cliente-update' pk=object.id %}" class="btn btn-primary">Actualizar</a>
+                            <a href="{% url 'perfil-cliente-update' slug=object.cliente.slug %}" class="btn btn-primary">Actualizar</a>
                         </div>
                         {% endif %} 
                     </div>
@@ -117,14 +117,6 @@
                                     <p>No tiene contactos registrados</p>
                                     {% endif %}
                                     <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card mb-4 mb-md-0">
-                                <div class="card-body">
-                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> solicitudes</p>  
-                                    <p>No tiene solicitudes registradas</p>
                                 </div>
                             </div>
                         </div>
@@ -196,13 +188,13 @@
                             </div>
                             </div>
                             <hr>
-                            <a href="{% url 'perfil-transportista-update' pk=object.id %}"><button type="button" class="btn btn-primary mt-4">Editar</button></a>
+                            <a href="{% url 'perfil-transportista-update' slug=object.transportista.slug %}"><button type="button" class="btn btn-primary mt-4">Editar</button></a>
                         </div>
                         {% else %}
                         <div class="card-body">
                             <h5 class="card-title">Perfil incompleto</h5>
                             <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
-                            <a href="{% url 'perfil-transportista-update' pk=object.id %}" class="btn btn-primary">Actualizar</a>
+                            <a href="{% url 'perfil-transportista-update' slug=object.transportista.slug %}" class="btn btn-primary">Actualizar</a>
                         </div>
                         {% endif %} 
                     </div>
@@ -264,7 +256,7 @@
                                     {% else %}  
                                     <p>No tiene unidades registradas</p>
                                     {% endif %}
-                                    <a href="{% url 'agregar-unidad' pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                    <a href="{% url 'agregar-unidad' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
                                 </div>
                             </div>
                     </div>
