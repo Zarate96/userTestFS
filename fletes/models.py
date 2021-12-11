@@ -73,6 +73,8 @@ ESTADO_SOLICITUD = (
     ('Guardada','Guardada'),
     ('Publicada','Publicada'),
     ('Cotizada','Cotizada'),
+    ('Asignada','Asignada'),
+    ('Cancelada','Cancelada'),
 )
 
 def validate_date(date):
@@ -95,6 +97,10 @@ class Solicitud(models.Model):
     domicilio_id = models.ForeignKey(Domicilios, on_delete=models.PROTECT, verbose_name="Domicilio")
     estado_solicitud = models.CharField(verbose_name="Estado", choices=ESTADO_SOLICITUD, max_length=40, default="Guardada")
     slug = models.SlugField(null=True, blank=True)
+    material_peligroso = models.BooleanField(
+        verbose_name="Es material peligroso",
+        default=False,)
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", default="", blank=True)
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
@@ -133,8 +139,6 @@ class Solicitud(models.Model):
         cotizaciones =  Cotizacion.objects.filter(solicitud_id=self.pk)
         return True if cotizaciones else False
 
-
-
 def createFolioSolicitud(sender,instance,**kwargs):
     folio = instance.id
     Solicitud.objects.filter(
@@ -149,7 +153,6 @@ def createFolioSolicitud(sender,instance,**kwargs):
                 slug=slugify(f"{instance.cliente_id.user.username}-{instance.id}")
     )
     
-
 post_save.connect(createFolioSolicitud, sender=Solicitud)
 
 class Destino(models.Model):
@@ -166,6 +169,8 @@ ESTADO_COTIZACION = (
     ('Aceptada','Aceptada'),
     ('Rechazada','Rechazada'),
     ('Confirmada','Confirmada'),
+    ('Cancelada','Cancelada'),
+    ('Solicitud cancelada','Solicitud cancelada'),
 )
 
 class Cotizacion(models.Model):
@@ -187,6 +192,7 @@ class Cotizacion(models.Model):
         verbose_name="Monto")
     folio = models.CharField(verbose_name="Folio", max_length=20, editable=False, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", default="", blank=True)
     slug = models.SlugField(null=True, blank=True)
     activo = models.BooleanField(
         verbose_name="Activo",
@@ -201,6 +207,23 @@ class Cotizacion(models.Model):
     
     def __str__(self):
         return f'Cotización de {self.transportista_id} para solicitud {self.solicitud_id}'
+
+# class Penalizacion(models.Model):
+#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+#     creado = models.DateTimeField(editable=False)
+#     modificado = models.DateTimeField()
+#     motivo = models.TextField(verbose_name="Motivo de cancelación")
+#     solicitud_id = models.ForeignKey(Solicitud, on_delete=models.CASCADE)
+
+#     def save(self, *args, **kwargs):
+#         ''' On save, update timestamps '''
+#         if not self.id:
+#             self.creado = timezone.now()
+#         self.modificado = timezone.now()
+#         return super(Penalizacion, self).save(*args, **kwargs)
+
+# class Aseguradora(models.Model):
+#     nombre = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
 
 @receiver(post_save, sender=Cotizacion)
 def create_ruta(sender, instance, **kwargs):
@@ -226,12 +249,7 @@ def createFolioCotizacion(sender,instance,**kwargs):
 @receiver(post_delete, sender=Cotizacion)
 def validarEsatdoCotizacion(sender,instance,**kwargs):
     solicitud = instance.solicitud_id
-    print(solicitud)
     if not solicitud.has_cotizaciones():
         solicitud.estado_solicitud = "Publicada"
         solicitud.save()
 
-# ejemplos de signals
-# @receiver(post_save, sender=Solicitud)
-# def save_ruta(sender, instance, **kwargs):
-#     instance.ruta.save() 

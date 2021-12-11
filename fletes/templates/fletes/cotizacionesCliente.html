@@ -86,12 +86,12 @@
                                         <td>{{cotizacion.folio}}</td>
                                         <td><a href="{% url 'profile-transportista' cotizacion.transportista_id.slug %}">{{cotizacion.transportista_id}}</a></td>
                                         <td><a href="{% url 'detalle-unidad' pk=cotizacion.unidad_id.id %}">{{cotizacion.unidad_id}}</a></td>
-                                        <td>${{cotizacion.monto}}</td>
+                                        <td>${{cotizacion.monto|floatformat:0 }}mn</td>
                                         <td>{{cotizacion.estado_cotizacion}}</td>
-                                        {% if cotizacion.estado_cotizacion == 'Aceptada' or  cotizacion.estado_cotizacion == 'Rechazada' %}
+                                        {% if cotizacion.estado_cotizacion == 'Aceptada' or  cotizacion.estado_cotizacion == 'Rechazada' or  cotizacion.estado_cotizacion == 'Confirmada'%}
                                         <td></td>
                                         {% else %}
-                                        <td><a href="{% url 'aceptar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Aceptar</button></a></td>
+                                        <td><a href="{% url 'fletes:aceptar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Aceptar</button></a></td>
                                         {% endif %}
                                     </tr>
                                     {% endfor %}

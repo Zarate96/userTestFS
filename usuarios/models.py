@@ -42,6 +42,7 @@ class MyUser(AbstractUser):
     email = models.EmailField(max_length=254)
     es_transportista = models.BooleanField(default=False)
     es_cliente = models.BooleanField(default=False)
+    penalizaciones = models.IntegerField(verbose_name="Número de penalizacionos", default=0)
     es_empresa = models.BooleanField(
         verbose_name="Persona moral",
         default=False,

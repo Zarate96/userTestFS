@@ -1,13 +1,6 @@
 from django import forms
 from .models import Solicitud, Destino, Domicilios, Cotizacion
 
-class DateInput(forms.DateInput):
-    input_type = 'date'
-    
-    def __init__(self, **kwargs):
-        kwargs["format"] = "%d-%m-%Y"
-        super().__init__(**kwargs)
-
 class TimeInput(forms.TimeInput):
     input_type = "time"
 
@@ -18,19 +11,38 @@ class SolicitudForm(forms.ModelForm):
         label="Tiempo de espera",
         help_text='Tiempo máximo de espera para la carga',
     )
-    
+    material_peligroso = forms.ChoiceField(choices=((True, 'Si'), (False, 'No')),
+                               widget=forms.RadioSelect)
     unidades_totales = forms.IntegerField(
         label="Unidades totales",
     )
+    fecha_servicio = forms.DateField(
+        widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
+    )
     class Meta:
         model = Solicitud
-        exclude = ('cliente_id','modificado','estado_solicitud',)
+        exclude = ('cliente_id','modificado','estado_solicitud','motivo_cancelacion','activo','slug')
         widgets = {
-            'fecha_servicio': DateInput(),
             'hora': TimeInput(),
         }
     
     field_order = ['fecha_servicio','hora','tiempo_carga']
+
+class SolicitudMotivoCancelacioForm(forms.ModelForm):
+    class Meta:
+        model = Solicitud
+        fields = ['motivo_cancelacion',]
+        labels = {
+            'motivo_cancelacion':'Motivo de la cancelación'
+        }
+        widgets = {
+            'motivo_cancelacion': forms.TextInput(
+                attrs = {
+                    'class':'form-control',
+                    'placeholder':'Inregese el motivo de cancelación'
+                } 
+            )
+        }
 
 class DestinoForm(forms.ModelForm):
     tiempo_descarga = forms.IntegerField(
@@ -57,4 +69,20 @@ class DomicilioForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','activo',)
+        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo',)
+
+class CotizacionMotivoCancelacioForm(forms.ModelForm):
+    class Meta:
+        model = Cotizacion
+        fields = ['motivo_cancelacion',]
+        labels = {
+            'motivo_cancelacion':'Motivo de la cancelación'
+        }
+        widgets = {
+            'motivo_cancelacion': forms.TextInput(
+                attrs = {
+                    'class':'form-control',
+                    'placeholder':'Inregese el motivo de cancelación'
+                } 
+            )
+        }

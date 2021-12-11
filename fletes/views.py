@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError, Sum
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views, login
@@ -14,9 +14,11 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 from .forms import (
     SolicitudForm,
+    SolicitudMotivoCancelacioForm,
     DestinoForm,
     DomicilioForm,
-    CotizacionForm,)
+    CotizacionForm,
+    CotizacionMotivoCancelacioForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion
 from usuarios.models import MyUser, Unidades
 
@@ -28,7 +30,9 @@ class SolicitudClienteListView(ListView):
     def get_queryset(self):
         return Solicitud.objects.filter(
             cliente_id=self.request.user.cliente
-        ).order_by('-creado')
+        ).order_by('-creado').exclude(
+            activo=False
+        )
 
 class SolicitudListView(ListView):
     model = Solicitud
@@ -36,7 +40,8 @@ class SolicitudListView(ListView):
     context_object_name = 'solicitudes'
 
     def get_queryset(self):
-        return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada")
+        user = self.request.user
+        return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(activo=False)
 
 class SolicitudesAgregar(UserPassesTestMixin, CreateView):
     model = Solicitud
@@ -72,7 +77,7 @@ class SolicitudesAgregar(UserPassesTestMixin, CreateView):
         self.object.estado_solicitud = "Guardada"
         self.object.save()
         messages.success(self.request, f'Solicitud agregada correctamente')
-        return redirect(reverse('agregar-destino', kwargs={'id': self.object.id}))
+        return redirect(reverse('fletes:agregar-destino', kwargs={'id': self.object.id}))
 
 class SolicitudDetalle(DetailView):
     model = Solicitud
@@ -85,18 +90,115 @@ class SolicitudDetalle(DetailView):
         context['destinos'] = destinos
         return context
 
+class SolicitudUpdate(UserPassesTestMixin, UpdateView):
+    model = Solicitud
+    form_class = SolicitudForm
+    template_name = 'fletes/updateSolicitud.html'
+
+    def test_func(self):
+        solicitud = self.get_object()
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if solicitud.estado_solicitud != "Guardada":
+            return False
+
+        if solicitud.cliente_id == cliente:
+            return True
+        else:
+            return False
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=self.form_class)
+        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.id)
+        # form.fields['material_peligroso'].initial = self.get_object().material_peligroso
+        form.fields['material_peligroso'].initial = True
+        return form
+        
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['solicitud'] = self.get_object()
+        domicilios = Domicilios.objects.filter(cliente_id=self.request.user.id)
+        context['domicilios'] = domicilios
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        messages.success(self.request, f'Solicitud actualizada correctamente')
+        
+        return redirect(reverse('fletes:agregar-destino', kwargs={'id': self.object.id}))
+
+class SolicitudCancel(UserPassesTestMixin, UpdateView):
+    model = Solicitud
+    form_class = SolicitudMotivoCancelacioForm
+    template_name = 'fletes/confirmations/cancel_solicitud_modal.html'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def test_func(self):
+        solicitud = self.get_object()
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if solicitud.estado_solicitud == "Cancelada":
+            return False
+
+        if solicitud.cliente_id == cliente:
+            return True
+        else:
+            return False
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        with transaction.atomic():
+            self.object.estado_solicitud = 'Cancelada'
+            self.object.activo = False
+            self.object.save()
+            user = self.request.user
+            user.penalizaciones = user.penalizaciones + 1
+            user.save()
+            Cotizacion.objects.filter(
+                solicitud_id=self.object.id).update(
+                estado_cotizacion='Solicitud cancelada')
+        messages.success(self.request, f'Solicitud cancelada correctamente')
+        
+        return redirect(reverse('fletes:solicitudes-cliente'))
+
+@login_required
+def cancelarSolicitud(request, slug):
+    solicitud = get_object_or_404(Solicitud, slug=slug)
+
+    with transaction.atomic():
+        solicitud.estado_solicitud = 'Cancelada'
+        solicitud.save()
+        Cotizacion.objects.filter(
+            solicitud_id=solicitud.id).update(
+            estado_cotizacion='Cancelada')
+    
+    messages.info(request, f'Cotización cancelada correctamente, esta cancelación te generara puntos negativos en tu historial.')
+    return HttpResponseRedirect(reverse('solicitudes-cliente'))
+
 @login_required
 def SolicitudDelete(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     cliente = request.user.cliente
-    if solicitud.estado_solicitud == 'Cotizada':
+    if solicitud.estado_solicitud == 'Cotizada' or solicitud.estado_solicitud == 'Asignada':
         messages.success(request, f'No puedes eliminar una solicitud con cotizaciones activas')
         return HttpResponseRedirect(reverse('solicitudes-cliente'))
     
     if solicitud.cliente_id == cliente:
-        solicitud.delete()
-        messages.success(request, f'Solicitud eliminado correctamente')
-        return HttpResponseRedirect(reverse('solicitudes-cliente'))
+        solicitud.activo = False
+        solicitud.estado_solicitud = 'Cancelada'
+        solicitud.save()
+        messages.success(request, f'Solicitud eliminada correctamente')
+        return HttpResponseRedirect(reverse('fletes:solicitudes-cliente'))
     else:
         raise PermissionDenied()
 
@@ -144,7 +246,7 @@ class DestinoAgregar(UserPassesTestMixin, CreateView):
             else:
                 messages.success(self.request, f'No puedes agreagr el mismo domicilio a la ruta actual')
 
-            return redirect(reverse('agregar-destino', kwargs={'id': solicitudId}))
+            return redirect(reverse('fletes:agregar-destino', kwargs={'id': solicitudId}))
 
         if solicitud.domicilio_id == self.object.domicilio_id:
             messages.success(self.request, f'El domicilio de entrega no puede ser igual al domicilio de distino')
@@ -153,7 +255,31 @@ class DestinoAgregar(UserPassesTestMixin, CreateView):
             self.object.save()
             messages.success(self.request, f'Destino agregado correctamente')
 
-        return redirect(reverse('agregar-destino', kwargs={'id': solicitudId}))
+        return redirect(reverse('fletes:agregar-destino', kwargs={'id': solicitudId}))
+
+class DestinoUpdate(UserPassesTestMixin, UpdateView):
+    model = Destino
+    form_class = DestinoForm
+    template_name = 'fletes/confirmations/updateDestino.html'
+
+    def test_func(self):
+        destino = self.get_object()
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if destino.solicitud_id.cliente_id == cliente:
+            return True
+        else:
+            return False
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        messages.success(self.request, f'Destino actualizada correctamente')
+        
+        return redirect(reverse('fletes:agregar-destino', kwargs={'id': self.object.solicitud_id.id}))
 
 @login_required
 def DestinoDelete(request, id):
@@ -163,7 +289,7 @@ def DestinoDelete(request, id):
     if destino.solicitud_id.cliente_id == cliente:
         destino.delete()
         messages.success(request, f'Destino eliminado correctamente')
-        return HttpResponseRedirect(reverse('agregar-destino', args=(solicitudId,)))
+        return HttpResponseRedirect(reverse('fletes:agregar-destino', args=(solicitudId,)))
     else:
         raise PermissionDenied()
 
@@ -247,6 +373,14 @@ def FinalizarSolicitud(request, id):
     cliente = request.user.cliente
     destinos = Destino.objects.filter(solicitud_id=solicitud)
     totales = Destino.objects.filter(solicitud_id=solicitud).aggregate(Sum('unidades_entregar'))
+    if solicitud.domicilio_id.id in solicitud.get_domiciliosid_destinos():
+            if Destino.objects.filter(solicitud_id=solicitud, domicilio_id=solicitud.domicilio_id).exists():
+                messages.success(request, f'No puedes agreagr el mismo domicilio a la ruta actual')
+            else:
+                messages.success(request, f'No puedes agreagr el mismo domicilio a la ruta actual')
+
+            return redirect(reverse('fletes:agregar-destino', kwargs={'id': solicitud.id}))
+
     if totales['unidades_entregar__sum'] == solicitud.unidades_totales:
         if solicitud.cliente_id == cliente:
             solicitud.estado_solicitud = "Publicada"
@@ -261,7 +395,7 @@ def FinalizarSolicitud(request, id):
             raise PermissionDenied()
     else:
         messages.success(request, f'Las unidades a entregar son mayores o menores que las unidades totales')
-        return HttpResponseRedirect((reverse('agregar-destino', kwargs={'id': solicitud.id})))
+        return HttpResponseRedirect((reverse('fletes:agregar-destino', kwargs={'id': solicitud.id})))
 
 class CotizacionListView(UserPassesTestMixin, ListView):
     model = Cotizacion
@@ -277,7 +411,7 @@ class CotizacionListView(UserPassesTestMixin, ListView):
     def get_queryset(self):
         return Cotizacion.objects.filter(
             transportista_id=self.request.user.transportista
-        ).order_by('-creado')
+        ).order_by('-creado').exclude(activo=False)
 
 class CotizacionAgregar(UserPassesTestMixin, CreateView):
     model = Cotizacion
@@ -315,7 +449,7 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
         self.object.transportista_id = user.transportista
         self.object.solicitud_id = solicitud
         if Cotizacion.objects.filter(solicitud_id=solicitud, transportista_id=user.transportista).exists():
-            messages.success(self.request, f'Ya creaste una cotización para la solicitud {solicitud.folio}')
+            messages.success(self.request, f'Ya has cotizado la solicitud {solicitud.folio}')
         else:  
             try:
                 self.object.save()
@@ -323,7 +457,7 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
             except IntegrityError:
                 messages.success(self.request, f'Ya creaste una cotización para esta solicitud')
         
-        return redirect(reverse('cotizaciones'))
+        return redirect(reverse('fletes:cotizaciones'))
 
 class CotizacionListClienteView(ListView):
     model = Cotizacion
@@ -363,13 +497,16 @@ def ContizacionDelete(request, slug):
     if cotizacion.transportista_id == transportista:
         if cotizacion.estado_cotizacion == 'Pendiente' or cotizacion.estado_cotizacion == 'Rechazada':
             try:
-                cotizacion.delete()
-                messages.success(request, f'Cotización eliminada correctamente')
+                with transaction.atomic():
+                    cotizacion.activo = False
+                    cotizacion.estado_cotizacion = "Cancelada"
+                    cotizacion.save()
+                    messages.success(request, f'Cotización eliminada correctamente')
             except ProtectedError:
                 messages.success(request, f'No se puede eliminar esta cotización se encuentra en estado de confirmada')
         else:
-            messages.success(request, f'Cotización activa si la eliminas recibiras una penalización')
-        return HttpResponseRedirect(reverse('cotizaciones'))
+            raise PermissionDenied()
+        return HttpResponseRedirect(reverse('fletes:cotizaciones'))
     else:
         raise PermissionDenied()
 
@@ -397,9 +534,9 @@ def aceptarCotizacion(request, slug):
         
         else:
             messages.success(request, f'Ya has aceptado esta solicitud')
-            return HttpResponseRedirect(reverse('cotizaciones-cliente', kwargs={'id': cotizacion.solicitud_id}))
+            return HttpResponseRedirect(reverse('fletes:cotizaciones-cliente', kwargs={'slug': cotizacion.solicitud_id.slug}))
         
-        return HttpResponseRedirect(reverse('solicitudes-cliente'))
+        return HttpResponseRedirect(reverse('fletes:solicitudes-cliente'))
     else:
         raise PermissionDenied()
 
@@ -410,7 +547,6 @@ def confirmarCotizacion(request, slug):
     try:
         transportista = request.user.transportista
     except ObjectDoesNotExist:
-        print("Error")
         raise PermissionDenied()
 
     if cotizacion.transportista_id == transportista:
@@ -418,15 +554,18 @@ def confirmarCotizacion(request, slug):
             try:
                 cotizacion.estado_cotizacion = "Confirmada"
                 cotizacion.save()
+                solicitud = get_object_or_404(Solicitud, id=cotizacion.solicitud_id.id)
+                solicitud.estado_solicitud = "Asignada"
+                solicitud.save()
                 messages.success(request, f'Cotización confirmada correctamente')
             except ProtectedError:
                 messages.success(request, f'Algo salio mal!!!')
         
         else:
             messages.success(request, f'No puedes modificar el estado de esta cotización')
-            return HttpResponseRedirect(reverse('cotizaciones-cliente', kwargs={'id': cotizacion.solicitud_id}))
+            return HttpResponseRedirect(reverse('fletes:cotizaciones'))
         
-        return HttpResponseRedirect(reverse('cotizaciones'))
+        return HttpResponseRedirect(reverse('fletes:cotizaciones'))
     else:
         raise PermissionDenied()
 
@@ -501,3 +640,41 @@ class CotizacionDetalle(DetailView):
         context['destinos'] = destinos
         context['solicitud'] = solicitud
         return context
+
+class CotizacionCancel(UserPassesTestMixin, UpdateView):
+    model = Cotizacion
+    form_class = CotizacionMotivoCancelacioForm
+    template_name = 'fletes/confirmations/cancel_solicitud_modal.html'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def test_func(self):
+        cotizacion = self.get_object()
+        try:
+            transportista = self.request.user.transportista
+        except ObjectDoesNotExist:
+            return False
+
+        if cotizacion.estado_cotizacion == "Cancelada" or cotizacion.estado_cotizacion == "Solicitud cancelada":
+            return False
+
+        if cotizacion.transportista_id == transportista:
+            return True
+        else:
+            return False
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        with transaction.atomic():
+            self.object.estado_cotizacion = 'Cancelada'
+            self.object.activo = False
+            self.object.save()
+            user = self.request.user
+            user.penalizaciones = user.penalizaciones + 1
+            user.save()
+
+        messages.success(self.request, f'Cotización cancelada correctamente')
+        
+        return redirect(reverse('fletes:cotizaciones'))

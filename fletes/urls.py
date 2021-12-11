@@ -2,14 +2,19 @@ from django.urls import include, path
 
 from .views import *
 
+app_name = 'fletes'
 urlpatterns = [
     path('solicitudes/', SolicitudListView.as_view(), name='solicitudes'),
     path('solicitudes/cliente', SolicitudClienteListView.as_view(), name='solicitudes-cliente'),
     path('solicitudes/agregar/', SolicitudesAgregar.as_view(), name='agregar-solicitud'),
     path('solicitudes/detalle/<slug:slug>', SolicitudDetalle.as_view(), name='detalle-solicitud'),
+    path('solicitudes/editar/<slug:slug>', SolicitudUpdate.as_view(), name='editar-solicitud'),
+    path('solicitudes/cancelar/<slug:slug>', SolicitudCancel.as_view(), name='cancelar-solicitud'),
     path('solicitudes/delete/<int:id>', SolicitudDelete, name='delete-solicitud'),
+    #path('solicitudes/cancelar/<slug:slug>', cancelarSolicitud, name='cancelar-solicitud'),
     path('solicitudes/finalizar/<int:id>', FinalizarSolicitud, name='finalizar-solicitud'),
     path('solicitudes/agregar/destino/<int:id>', DestinoAgregar.as_view(), name='agregar-destino'),
+    path('solicitudes/editar/destino/<int:pk>', DestinoUpdate.as_view(), name='editar-destino'),
     path('solicitudes/delete/destino/<int:id>', DestinoDelete, name='delete-destino'),
     path('domicilios/', DomiciliosListView.as_view(), name='domicilios'),
     path('domicilio/agregar/', DomicilioAgregar.as_view(), name='agregar-domiclio'),
@@ -24,4 +29,5 @@ urlpatterns = [
     path('cotizaciones/rechazar/<slug:slug>', rechazarCotizacion, name='rechazar-cotizacion'),
     path('cotizaciones/editar/<slug:slug>', CotizacionUpdate.as_view(), name='editar-cotizacion'),
     path('cotizaciones/detalle/<slug:slug>', CotizacionDetalle.as_view(), name='detalle-cotizacion'),
+    path('cotizaciones/cancelar/<slug:slug>', CotizacionCancel.as_view(), name='cancelar-cotizacion'),
 ]

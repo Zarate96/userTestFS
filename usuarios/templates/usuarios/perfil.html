@@ -210,14 +210,14 @@
                                     <th scope="col">Nombre</th>
                                     <th scope="col"></th>
                                     <th scope="col"></th>
-                                  </tr>
+                                  </tr> 
                                 </thead>
                                 <tbody>
                                     {% for contacto in contactos %}
                                     <tr>
-                                        <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
+                                        <td>{{ contacto.nombre }} {{ contacto.ape_pat }}</td>
                                         <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -248,7 +248,7 @@
                                             <tr>
                                                 <td>{{ unidad.marca }} {{ unidad.modelo }} </td>
                                                 <td><a href=""><i class="far fa-edit"></i></a></td>
-                                                <td><a href="{% url 'delete-unidad' unidad.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{unidad.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                                <td><a href="{% url 'delete-unidad' unidad.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{unidad.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>

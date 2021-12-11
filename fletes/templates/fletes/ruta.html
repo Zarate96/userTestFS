@@ -56,14 +56,20 @@
                                                 </div> 
                                             <div class="row justify-content-between mt-4">
                                                 <div class="col-auto">
-                                                <button type="submit" class="btn btn-primary">Agregar</button>
-                                                </div>
+                                                <button type="submit" class="btn btn-primary">Agregar destino</button>
+                                            </div>
                                         </form>
                                     </div>
-                                    <div class="col-auto mt-3"><a href="{% url 'profile-user' %}"><button class="btn btn-danger">Cancelar</button></a></div>
-
-                                    <div class="col-auto mt-3">
-                                        <a href="{% url 'finalizar-solicitud' solicitud.id %}"><button class="btn btn-secondary">Finalizar</button></a>
+                                    <div class="row mt-4">
+                                        <div class="col-4 mt-3">
+                                            <a href="{% url 'fletes:editar-solicitud' solicitud.slug %}"><button class="btn btn-secondary">Atrás</button></a>
+                                        </div>
+                                        <div class="col-4 mt-3">
+                                            <a href="{% url 'profile-user' %}"><button class="btn btn-danger">Salir</button></a>
+                                        </div>
+                                        <div class="col-4 mt-3">
+                                            <a href="{% url 'fletes:finalizar-solicitud' solicitud.id %}"><button class="btn btn-success">Finalizar</button></a>
+                                        </div>
                                     </div>
                                         <!--<a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
                                     </div>
@@ -88,6 +94,8 @@
                                                 <th class="text-center" scope="col">Nombre</th>
                                                 <th class="text-center" scope="col">Unidades a entregar en este destino</th>
                                                 <th class="text-center" scope="col"></th>
+                                                <th></th>
+                                                <th class="text-center" scope="col"></th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -96,7 +104,8 @@
                                                     <td class="text-center">{{ forloop.counter }}</td>
                                                     <td class="text-center">Destino a {{ destino.domicilio_id }} </td>
                                                     <td class="text-center">{{ destino.unidades_entregar }}</td>
-                                                    <td class="text-center"><a href="{% url 'delete-destino' id=destino.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                                    <td><button onclick="abrir_modal_edit_destino('{% url 'fletes:editar-destino' destino.id %}')" class="btn btn-info btn-sm">Editar</button></td>
+                                                    <td class="text-center"><a href="{% url 'fletes:delete-destino' id=destino.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
@@ -104,8 +113,6 @@
                                         {% else %}  
                                         <p>Esta solicitud no cuenta con destinos</p>
                                         {% endif %}
-                                        <!--<a href=""><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
-                                        <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
                                     </div>
                                 </div>
                             </div>
@@ -133,9 +140,7 @@
                                         {% else %}  
                                         <p>No tiene domicilios registrados</p>
                                         {% endif %}
-                                        <a href="{% url 'domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
-                                        <!--<a href=""><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
-                                        <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>-->
+                                        <a href="{% url 'fletes:domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
                                     </div>
                                 </div>
                             </div>
@@ -145,4 +150,19 @@
             </div>
         </div>
     </section>
-{% endblock content %}
+    <div class="modal fade" id="editDestino" role="dialog">
+
+    </div>
+    
+    {% endblock content %}
+
+    {% block extrajs %}
+        <script type="text/javascript">
+            var $ = jQuery.noConflict();
+            function abrir_modal_edit_destino(url){
+                $('#editDestino').load(url,function(){
+                    $(this).modal('show');
+                });
+            }
+        </script>
+    {% endblock extrajs %}

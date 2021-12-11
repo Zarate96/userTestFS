@@ -1,0 +1,4 @@
+-r ./base.txt
+
+psycopg2==2.7.4
+dj-database-url==0.5.0

@@ -9,20 +9,13 @@
                 <div class="col">
                     <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item active" aria-current="page">Nueva solicitud</li>
+                            <li class="breadcrumb-item active" aria-current="page">Editar solicitud</li>
                         </ol>
                     </nav>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 justify-content-center">
-                    <nav>
-                        <div class="nav nav-pills nav-fill mt-3 mb-5" id="nav-tab" role="tablist">
-                          <a class="nav-link active" id="step1-tab" data-bs-toggle="tab" >Paso 1</a>
-                          <a class="nav-link disabled" id="step2-tab" data-bs-toggle="tab" href="#step2">Paso 2</a>
-                          <a class="nav-link disabled" id="step3-tab" data-bs-toggle="tab" href="#step3">Paso 3</a>
-                        </div>
-                    </nav>
                     <div class="row">
                         <div class="col-lg-8 col-md-12 justify-content-center">
                             <div class="card mb-4">
@@ -87,7 +80,7 @@
                                                 {% endfor %}
                                             {% endif %}
                                             <div class="row justify-content-between mt-4">
-                                                <div class="col-auto"><a href="{% url 'profile-user' %}"><button class="btn btn-danger">Cancelar</button></a></div>
+                                                <div class="col-auto"><a href="{% url 'fletes:solicitudes-cliente' %}"><button class="btn btn-danger">Salir</button></a></div>
                                                 <div class="col-auto">
                                                 <button type="submit" class="btn btn-primary">Siguiente</button>
                                                 </div>
@@ -123,7 +116,6 @@
                                         <p>No tiene domicilios registrados</p>
                                         {% endif %}
                                         <a href="{% url 'fletes:domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
-                                    
                                     </div>
                                 </div>
                             </div>
