@@ -20,8 +20,8 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-                                <a href="{% url 'agregar-domiclio' %}"><button class="btn btn-primary" type="button">Agregar domicilio</button></a>
-                                <a href="{% url 'solicitudes' %}"><button class="btn btn-secondary" type="button">Ir a solicitudes</button></a>
+                                <a href="{% url 'fletes:agregar-domiclio' %}"><button class="btn btn-primary" type="button">Agregar domicilio</button></a>
+                                <a href="{% url 'fletes:solicitudes' %}"><button class="btn btn-secondary" type="button">Ir a solicitudes</button></a>
                             </div>
                             {% if domicilios %}
                             <table class="table table-striped">
@@ -49,8 +49,8 @@
                                         <td>{{domicilio.municipio}}</td>
                                         <td>{{domicilio.cp}}</td>
                                         <td>{{domicilio.estado}}</td>
-                                        <td><a href="{% url 'update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        <td><a href="{% url 'fletes:update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
+                                        <td><a href="{% url 'fletes:delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

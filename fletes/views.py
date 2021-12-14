@@ -327,7 +327,7 @@ class DomicilioAgregar(UserPassesTestMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.cliente_id = user
         self.object.save()
-        return redirect(reverse('domicilios'))
+        return redirect(reverse('fletes:domicilios'))
 
 class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
     model = Domicilios
@@ -349,7 +349,7 @@ class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, f'Domicilio editado correctamente')
-        return reverse('domicilios')
+        return reverse('fletes:domicilios')
 
 @login_required
 def DomiciliosDelete(request, slug):

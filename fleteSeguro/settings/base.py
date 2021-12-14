@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
     #My_apps
     'usuarios',
-    'fletes',
+    'fletes.apps.FletesConfig',
 
     #Third_apps
     'crispy_forms',
