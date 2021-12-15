@@ -176,20 +176,6 @@ class SolicitudCancel(UserPassesTestMixin, UpdateView):
         return redirect(reverse('fletes:solicitudes-cliente'))
 
 @login_required
-def cancelarSolicitud(request, slug):
-    solicitud = get_object_or_404(Solicitud, slug=slug)
-
-    with transaction.atomic():
-        solicitud.estado_solicitud = 'Cancelada'
-        solicitud.save()
-        Cotizacion.objects.filter(
-            solicitud_id=solicitud.id).update(
-            estado_cotizacion='Cancelada')
-    
-    messages.info(request, f'Cotización cancelada correctamente, esta cancelación te generara puntos negativos en tu historial.')
-    return HttpResponseRedirect(reverse('solicitudes-cliente'))
-
-@login_required
 def SolicitudDelete(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     cliente = request.user.cliente

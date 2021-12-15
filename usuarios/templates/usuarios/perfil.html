@@ -44,7 +44,7 @@
                           {% else %}
                           <p class="text-muted mb-1">No cuentas con información fiscal, porfavor actualiza tus datos para generar solicitudes.</p>
                           {% endif %}
-                          <a href="{% url 'datosfiscales-update' pk=user.id %}" class="card-link">Editar</a>
+                          <a href="{% url 'datosfiscales-update' %}" class="card-link">Editar</a>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@
                           {% else %}
                           <p class="text-muted mb-1">No cuentas con información fiscal, porfavor actualiza tus datos para generar solicitudes.</p>
                           {% endif %}
-                          <a href="{% url 'datosfiscales-update' pk=user.id %}" class="card-link">Editar</a>
+                          <a href="{% url 'datosfiscales-update' %}" class="card-link">Editar</a>
                         </div>
                     </div>
                 </div>

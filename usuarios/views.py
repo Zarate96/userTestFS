@@ -304,24 +304,23 @@ def ContactoDelete(request, pk):
     else:
         raise PermissionDenied()
 
-class DatosFiscalesUpdate(UserPassesTestMixin,UpdateView):
+class DatosFiscalesUpdate(UpdateView):
     model = DatosFiscales
     template_name = 'usuarios/updatePerfil.html'
     fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','rfc']
 
-    def test_func(self):
-        user = self.get_object().user
-        if self.request.user == user:
-            return True
-        else:
-            return False
+    def get_object(self):
+        """
+        Returns the request's user.
+        """
+        user = self.request.user.datosfiscales
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        user = context['object']
+        user = self.request.user
         context['title'] = "Actualizar información fiscal"
         context['subtitle'] = "Datos fiscales"
-        context['form'] = DatosFiscalesUpdateForm(instance=user, profile=user.user)
+        context['form'] = DatosFiscalesUpdateForm(instance=user.datosfiscales, profile=user)
         return context
     
     def get_success_url(self):
