@@ -34,6 +34,7 @@ urlpatterns = [
     path('contacto/update/<int:pk>', ContactoUpdate.as_view(), name='update-contacto'),
     path('contacto/delete/<pk>', ContactoDelete, name='delete-contacto'),
     path('unidades/agregar/<int:user_pk>/', UnidadesAgregar.as_view(), name='agregar-unidad'),
+    path('unidades/update/<int:pk>/', UnidadesUpdate.as_view(), name='update-unidad'),
     path('unidades/delete/<pk>', UnidadDelete, name='delete-unidad'),
     path('unidades/detalle/<int:pk>', UnidadesDetalle.as_view(), name='detalle-unidad'),
     path('encierro/agregar/<int:user_pk>', EncierroAgregar.as_view(), name='agregar-encierro'),

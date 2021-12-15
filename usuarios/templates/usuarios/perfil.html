@@ -120,6 +120,34 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> domicilios</p>
+                                        {% if domicilios %}
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Nombre</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for domicilio in domicilios %}
+                                                <tr>
+                                                    <td>{{ domicilio.nombre }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>Añade dos o más domicilios para generar tus solicitudes, dado que se requiere de origen-destino para generar una ruta.</p>
+                                        {% endif %}
+                                        <a href="{% url 'fletes:domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,7 +275,7 @@
                                             {% for unidad in unidades %}
                                             <tr>
                                                 <td>{{ unidad.marca }} {{ unidad.modelo }} </td>
-                                                <td><a href=""><i class="far fa-edit"></i></a></td>
+                                                <td><a href="{% url 'update-unidad' unidad.id %}"><i class="far fa-edit"></i></a></td>
                                                 <td><a href="{% url 'delete-unidad' unidad.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{unidad.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                             </tr>
                                             {% endfor %}

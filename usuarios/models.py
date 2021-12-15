@@ -42,11 +42,12 @@ class MyUser(AbstractUser):
     email = models.EmailField(max_length=254)
     es_transportista = models.BooleanField(default=False)
     es_cliente = models.BooleanField(default=False)
-    penalizaciones = models.IntegerField(verbose_name="Número de penalizacionos", default=0)
     es_empresa = models.BooleanField(
         verbose_name="Persona moral",
         default=False,
         help_text="Las empresas son personas morales")
+    es_validado = models.BooleanField(default=False)
+    penalizaciones = models.IntegerField(verbose_name="Número de penalizacionos", default=0)
 
     class Meta:
         db_table = 'auth_user'
@@ -112,7 +113,6 @@ class Cliente(models.Model):
         else:
             return True
 
-
 class Transportista(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
     image = models.ImageField(verbose_name="Foto de perfil", default='default.jpg', upload_to='profile_pics')
@@ -120,9 +120,9 @@ class Transportista(models.Model):
         verbose_name="Nombre o Razon social(empresas)",
         max_length=100)
     ape_pat = models.CharField(
-        verbose_name="Apellido paterno", max_length=100, blank=True, default=" ")
+        verbose_name="Apellido paterno", max_length=100, blank=True, default="")
     ape_mat = models.CharField(
-        verbose_name="Apellido materno", max_length=100, blank=True, default=" ")
+        verbose_name="Apellido materno", max_length=100, blank=True, default="")
     telefono = models.CharField(verbose_name="Numero teléfonico a 10 digitos", max_length=100)
     calle = models.CharField(verbose_name="Calle", max_length=100)
     num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
@@ -171,10 +171,10 @@ class Contacto(models.Model):
         max_length=100)
     ape_pat = models.CharField(
         verbose_name="Apellido paterno", max_length=100,
-        default=" ",)
+        default="",)
     ape_mat = models.CharField(
         verbose_name="Apellido materno", max_length=100,
-        default=" ",)
+        default="",)
     telefono = models.CharField(verbose_name="Numero teléfonico", max_length=50)
     email = models.EmailField(verbose_name="Correo electronico", max_length=254)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
@@ -221,7 +221,7 @@ class Encierro(models.Model):
     num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
     num_int = models.CharField(verbose_name="Numero interior", max_length=100, default="", blank=True)
     colonia = models.CharField(verbose_name="Colonia", max_length=100)
-    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100, null=True)
+    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
@@ -240,7 +240,7 @@ class Unidades(models.Model):
     tarjeta_circulacion = models.CharField(verbose_name="Tarjeta de circulación", max_length=50, default="")
     tarjeta_circulacion_foto = models.ImageField(verbose_name="Foto de tarjeta de circulación", upload_to='tarjetas_circulacion')
     foto1 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
-    foto2 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
+    foto2 = models.ImageField(verbose_name="Foto 2 de unidad", upload_to='unidades_pics', null=True, blank=True)
     encierro = models.ForeignKey(Encierro, on_delete=models.CASCADE,)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
 

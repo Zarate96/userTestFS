@@ -62,6 +62,10 @@ class SolicitudesAgregar(UserPassesTestMixin, CreateView):
         context = super().get_context_data(*args, **kwargs)
         id = self.request.user.id
         domicilios = Domicilios.objects.filter(cliente_id=id)
+        if domicilios:
+            context['lenDom'] = len(domicilios)
+        else:
+            context['lenDom'] = 0
         context['domicilios'] = domicilios
         return context
 
@@ -363,7 +367,7 @@ def DomiciliosDelete(request, slug):
         except ProtectedError:
             messages.success(request, f'No se puede eliminar este domicilio, esta referenciado a una o mas solicitudes')
         
-        return HttpResponseRedirect(reverse('domicilios'))
+        return HttpResponseRedirect(reverse('fletes:domicilios'))
     else:
         raise PermissionDenied()
 

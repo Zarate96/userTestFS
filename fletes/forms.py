@@ -62,6 +62,7 @@ class DomicilioForm(forms.ModelForm):
     colonia = forms.CharField(
         label="Colonia o alcadía",
     )
+    referencias = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}))
     class Meta:
         model = Domicilios
         exclude = ('cliente_id','modificado','slug')

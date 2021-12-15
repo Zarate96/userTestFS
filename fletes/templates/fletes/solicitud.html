@@ -16,28 +16,65 @@
             </div>
             <div class="row">
                 <div class="col-12 justify-content-center">
-                        <div class="col-lg-6 offset-lg-3">
-                            <div class="card">
-                                <div class="card-body">
-                                  <h5 class="card-title">Folio: {{solicitud.folio}}</h5>
-                                  <p class="card-text">Fecha del servicio {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
-                                  <h5 class="card-text mt-4">Salida:</h5>
-                                  <p class="card-text">De {{solicitud.domicilio_id}}</p>
-                                  <h5 class="card-text mt-4">Ruta:</h5>
+                    <div class="col-lg-8 offset-lg-2">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row">
+                                    <legend class="border-bottom mb-4">Información de solicitud</legend>
+                                    <div class="row justify-content-center align-items-center">
+                                        <div class="col-md-6 mb-1">
+                                            FOLIO: {{solicitud.folio}}<br>
+                                            CP ORIGEN: {{solicitud.domicilio_id.cp}}
+                                        </div>
+                                        <div class="col-md-6 mb-1">
+                                            FECHA DEL SERVICO: {{solicitud.fecha_servicio|date:"d-m-Y"}}<br>
+                                            HORA DEL SERVICO: {{solicitud.hora}}
+                                        </div>
+                                    </div>
+                                    <p class="h5 mt-5">Caracteristicas de carga</p>
+                                    <div class="col-md-12 mb-1">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">Tipo de carga</th>
+                                                <th scope="col">Peso</th>
+                                                <th scope="col">Volumen</th>
+                                                <th scope="col">Unidades totales</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                <td>{{solicitud.caracteristicas_carga}}</td>
+                                                <td>{{solicitud.peso_carga}} kg</td>
+                                                <td>{{solicitud.volumen_carga}} mt3</td>
+                                                <td>{{solicitud.unidades_totales}} unidades</td>
+                                                </tr>
+                                            </tbody>
+                                            </table>
+                                    </div>
+                                    <h5 class="card-text mt-4">Ruta</h5>
+                                    <ul class="list-group list-group-flush">
+                                        {% if destinos %}
+                                            {% for destino in destinos %}
+                                                <li class="list-group-item">{{ destino.domicilio_id }} </li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <li class="list-group-item">No hay destinos</li>
+                                        {% endif %}
+                                    </ul>
+                                    <p class="h5 mt-4">Información general</p>
+                                    <div class="card" style="width: 18rem;">
+                                        <ul class="list-group list-group-flush">
+                                          <li class="list-group-item">Descripción: {{ solicitud.descripcion_servicio }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="row justify-content-between mt-4">
+                                        <div class="col-auto">
+                                            <a href="{% url 'fletes:solicitudes' %}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
+                                    </div>
                                 </div>
-                                <ul class="list-group list-group-flush">
-                                    {% if destinos %}
-                                        {% for destino in destinos %}
-                                            <li class="list-group-item">{{ destino.domicilio_id }}</li>
-                                        {% endfor %}
-                                    {% else %}
-                                        <li class="list-group-item">No hay destinos</li>
-                                    {% endif %}
-                                </ul>
-                                <div class="card-body justify-content-between">
-                                  <a href="{% url 'fletes:solicitudes-cliente' %}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
-                                </div>
-                              </div>
+                            </div>
+                        </div>
                         </div>
                     </div>
                 </div>

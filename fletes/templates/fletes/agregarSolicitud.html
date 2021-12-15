@@ -24,6 +24,42 @@
                         </div>
                     </nav>
                     <div class="row">
+                        <div class="col-lg-4 col-md-12 justify-content-center">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <fieldset class="form-group">
+                                            <legend class="border-bottom mb-4">Mis domicilios</legend>
+                                        </fieldset>
+                                        {% if domicilios %}
+                                        <table class="table table-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Nombre</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for domicilio in domicilios %}
+                                                <tr>
+                                                    <td>{{ domicilio.nombre }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% if lenDom <= 1 %}  
+                                            <p>Añade dos o más domicilios para generar tus solicitudes, dado que se requiere de origen-destino para generar una ruta.</p>
+                                        {% endif %}
+                                        {% else %}
+                                            {% if lenDom <= 1 %}  
+                                                <p>Añade dos o más domicilios para generar tus solicitudes, dado que se requiere de origen-destino para generar una ruta.</p>
+                                            {% endif %}
+                                        {% endif %}
+                                        <a href="{% url 'fletes:domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-lg-8 col-md-12 justify-content-center">
                             <div class="card mb-4">
                                 <div class="card-body">
@@ -93,37 +129,6 @@
                                                 </div>
                                             </div>
                                         </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-12 justify-content-center">
-                            <div class="card mb-4">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <fieldset class="form-group">
-                                            <legend class="border-bottom mb-4">Mis domicilios</legend>
-                                        </fieldset>
-                                        {% if domicilios %}
-                                        <table class="table table-sm">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">Nombre</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for domicilio in domicilios %}
-                                                <tr>
-                                                    <td>{{ domicilio.nombre }}</td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                        {% else %}  
-                                        <p>No tiene domicilios registrados</p>
-                                        {% endif %}
-                                        <a href="{% url 'fletes:domicilios' %}"><button type="button" class="btn btn-primary mt-4"> Gestionar domicilios </button></a>
-                                    
                                     </div>
                                 </div>
                             </div>

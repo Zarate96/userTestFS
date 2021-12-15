@@ -52,9 +52,10 @@ class Domicilios(models.Model):
     num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
     num_int = models.CharField(verbose_name="Numero interior", max_length=100, default="", blank=True)
     colonia = models.CharField(verbose_name="Colonia", max_length=100)
-    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100,)
+    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
+    referencias = models.TextField(verbose_name="Refrencias del domicilio")
     slug = models.SlugField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -100,7 +101,7 @@ class Solicitud(models.Model):
     material_peligroso = models.BooleanField(
         verbose_name="Es material peligroso",
         default=False,)
-    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", default="", blank=True)
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
@@ -192,7 +193,7 @@ class Cotizacion(models.Model):
         verbose_name="Monto")
     folio = models.CharField(verbose_name="Folio", max_length=20, editable=False, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
-    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", default="", blank=True)
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
     slug = models.SlugField(null=True, blank=True)
     activo = models.BooleanField(
         verbose_name="Activo",
@@ -207,23 +208,6 @@ class Cotizacion(models.Model):
     
     def __str__(self):
         return f'Cotización de {self.transportista_id} para solicitud {self.solicitud_id}'
-
-# class Penalizacion(models.Model):
-#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-#     creado = models.DateTimeField(editable=False)
-#     modificado = models.DateTimeField()
-#     motivo = models.TextField(verbose_name="Motivo de cancelación")
-#     solicitud_id = models.ForeignKey(Solicitud, on_delete=models.CASCADE)
-
-#     def save(self, *args, **kwargs):
-#         ''' On save, update timestamps '''
-#         if not self.id:
-#             self.creado = timezone.now()
-#         self.modificado = timezone.now()
-#         return super(Penalizacion, self).save(*args, **kwargs)
-
-# class Aseguradora(models.Model):
-#     nombre = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
 
 @receiver(post_save, sender=Cotizacion)
 def create_ruta(sender, instance, **kwargs):

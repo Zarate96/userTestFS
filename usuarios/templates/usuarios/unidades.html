@@ -8,32 +8,13 @@
                 <div class="col">
                     <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item active" aria-current="page">Agregar Unidad</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
                         </ol>
                     </nav>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-7 col-md-12 justify-content-center">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row">
-                                <form method="post" enctype="multipart/form-data">
-                                    {% csrf_token %}
-                                    <fieldset class="form-group">
-                                        <legend class="border-bottom mb-4">Datos de la unidad</legend>
-                                        {{ form|crispy}}
-                                        <div class="form-group mt-4">
-                                            <button class="btn btn-outline-info" type="submit" >Aceptar</button>
-                                        </div> 
-                                    </fieldset>
-                                </form>
-                                <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-5 col-md-12 justify-content-center">
+                <div class="col-lg-4 col-md-12 justify-content-center">
                     <div class="card mb-4 mb-md-0">
                         <div class="card-body">
                             <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> encierros</p>  
@@ -57,9 +38,28 @@
                                 </tbody>
                             </table>
                             {% else %}  
-                            <p>No tiene encierros registrados</p>
+                            <p>Es necesario tener encierros registrados para poder agregar unidades.</p>
                             {% endif %}
                             <a href="{% url 'agregar-encierro' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-md-12 justify-content-center">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <fieldset class="form-group">
+                                        <legend class="border-bottom mb-4">Datos de la unidad</legend>
+                                        {{ form|crispy}}
+                                        <div class="form-group mt-4">
+                                            <button class="btn btn-outline-info" type="submit" >Aceptar</button>
+                                        </div> 
+                                    </fieldset>
+                                </form>
+                                <a href="{% url 'profile-user' %}"><button class="btn btn-outline-danger mt-3">Cancelar</button></a>
+                            </div>
                         </div>
                     </div>
                 </div>

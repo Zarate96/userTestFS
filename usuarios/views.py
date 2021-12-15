@@ -20,6 +20,7 @@ from django.core.exceptions import PermissionDenied
 
 from .utils import generate_token
 from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro
+from fletes.models import Domicilios
 from .forms import (
     ClienteSignUpForm, 
     TransportistaSignUpForm, 
@@ -188,6 +189,7 @@ class ProfileView(DetailView):
         current_user = self.request.user
         contactos = Contacto.objects.filter(user=current_user.id)
         unidades = Unidades.objects.filter(user=current_user.id)
+        context['domicilios'] = Domicilios.objects.filter(cliente_id=current_user.id)
 
         context['contactos'] = contactos
         context['unidades'] = unidades
@@ -343,6 +345,7 @@ class UnidadesAgregar(UserPassesTestMixin, CreateView):
         id = self.request.user.id
         encierros = Encierro.objects.filter(user=id)
         context['encierros'] = encierros
+        context['title'] = 'Agregar unidad'
         return context
     
     def get_form(self, form_class=None):
@@ -362,6 +365,38 @@ class UnidadesDetalle(DetailView):
     model = Unidades
     template_name = 'usuarios/unidadesDetalle.html'
     context_object_name = 'unidad'
+
+class UnidadesUpdate(UpdateView):
+    model = Unidades
+    form_class = UnidadesForm
+    template_name = 'usuarios/unidades.html'
+
+    def test_func(self):
+        unidad = self.get_object() 
+        if self.request.user.id == unidad.user.id:
+            return True
+        else:
+            return False
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        id = self.request.user.id
+        encierros = Encierro.objects.filter(user=id)
+        context['encierros'] = encierros
+        context['title'] = 'Actualizar unidad'
+        return context
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=self.form_class)
+        form.fields['encierro'].queryset = Encierro.objects.filter(user=self.request.user.id)
+        return form
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        messages.success(self.request, f'Unidad actualizada correctamente')
+        return redirect(reverse('profile-user'))
 
 @login_required
 def UnidadDelete(request, pk):

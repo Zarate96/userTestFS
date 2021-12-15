@@ -101,6 +101,8 @@ class ProfileTransportistaUpdateForm(forms.ModelForm):
             self.fields['ape_pat'].widget = forms.HiddenInput()
         else:
             self.fields['nombre'].label='Nombre'
+            self.fields['ape_pat'].required = True
+            self.fields['ape_mat'].required = True
 
     class Meta:
         model = Transportista
@@ -120,6 +122,8 @@ class ProfileClienteUpdateForm(forms.ModelForm):
             self.fields['ape_pat'].widget = forms.HiddenInput()
         else:
             self.fields['nombre'].label='Nombre'
+            self.fields['ape_pat'].required = True
+            self.fields['ape_mat'].required = True
 
     class Meta:
         model = Cliente
@@ -143,18 +147,19 @@ class DatosFiscalesUpdateForm(forms.ModelForm):
             self.fields['ape_pat'].widget = forms.HiddenInput()
         else:
             self.fields['nombre'].label='Nombre'
+            self.fields['ape_pat'].required = True
+            self.fields['ape_mat'].required = True
 
     class Meta:
         model = DatosFiscales
         fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','rfc']
 
 class UnidadesForm(forms.ModelForm):
-    # encierro = forms.ChoiceField(
-    #     label="Lugar de encierro",
-    # )
     class Meta:
         model = Unidades
         exclude = ('user',)
+    
+    field_order = ['encierro']
 
 class EncierroForm(forms.ModelForm):
     class Meta:
