@@ -151,6 +151,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 DECIMAL_SEPARATOR = '.'
 
 # EMAIL CONFIG
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_FROM_USER = config('EMAIL_FROM_USER')
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
