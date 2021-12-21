@@ -32,7 +32,7 @@
                                     <tr>
                                         <td>{{ encierro.nombre }}</td>
                                         <td><a href="{% url 'update-encierro' pk=encierro.id %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'delete-encierro' encierro.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{encierro.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        <td><a href="{% url 'delete-encierro' encierro.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{encierro.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -40,7 +40,7 @@
                             {% else %}  
                             <p>Es necesario tener encierros registrados para poder agregar unidades.</p>
                             {% endif %}
-                            <a href="{% url 'agregar-encierro' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                            <a href="{% url 'agregar-encierro' %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
                         </div>
                     </div>
                 </div>

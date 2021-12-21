@@ -195,9 +195,12 @@ class ProfileView(DetailView):
         context['unidades'] = unidades
         return context
 
-class ProfileTransportista(DeleteView):
+class ProfileTransportista(DetailView):
     model = Transportista
     template_name = 'usuarios/perfilTransportista.html'
+
+    def get_object(self):
+        return get_object_or_404(MyUser, pk=self.request.user.id)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -205,30 +208,33 @@ class ProfileTransportista(DeleteView):
         context['transportista'] = transportista
         return context
 
-class ProfileClienteUpdateView(UserPassesTestMixin, UpdateView):
+class ProfileClienteUpdateView(UserPassesTestMixin,UpdateView):
     model = Cliente
     template_name = 'usuarios/updatePerfil.html'
     fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        user = context['object']
-        context['title'] = "Actualizar perfil"
-        context['subtitle'] = "Datos personales"
-        context['form'] = ProfileClienteUpdateForm(instance=user, profile=user)
-        return context
+    def get_object(self):
+        """
+        Returns the request's user.
+        """
+        return self.request.user.cliente
     
     def test_func(self):
-        user = self.get_object()
-        if self.request.user.is_transportista:
-            return False
-        elif self.request.user.cliente == user:
+        if self.request.user.es_cliente:
             return True
         else:
             return False
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        user = self.request.user
+        context['title'] = "Actualizar perfil"
+        context['subtitle'] = "Datos personales"
+        context['form'] = ProfileClienteUpdateForm(instance=user.cliente, profile=user)
+        return context
+    
     def get_success_url(self):
-        messages.success(self.request, f'Perfil actualizado correctamente')
+        messages.success(self.request, f'Perfil de cliente actualizado correctamente')
         return reverse('profile-user')
 
 class ProfileTransportistaUpdate(UserPassesTestMixin, UpdateView):
@@ -236,40 +242,41 @@ class ProfileTransportistaUpdate(UserPassesTestMixin, UpdateView):
     template_name = 'usuarios/updatePerfil.html'
     fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
+    def get_object(self):
+        """
+        Returns the request's user.
+        """
+        return self.request.user.transportista
+
     def test_func(self):
-        user = self.get_object()
-        if self.request.user.is_cliente:
-            return False
-        elif self.request.user.transportista == user:
+        if self.request.user.es_transportista:
             return True
         else:
             return False
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        user = context['object']
+        user = self.request.user
         context['title'] = "Actualizar perfil"
         context['subtitle'] = "Datos personales"
-        context['form'] = ProfileTransportistaUpdateForm(instance=user, profile=user)
+        context['form'] = ProfileTransportistaUpdateForm(instance=user.transportista, profile=user)
         return context
     
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
     def get_success_url(self):
         messages.success(self.request, f'Perfil actualizado correctamente')
         return reverse('profile-user')
 
-class ContactoAgregar(UserPassesTestMixin,CreateView):
+class ContactoAgregar(CreateView):
     model = Contacto
     form_class = ContactoForm
     template_name = 'usuarios/contacto.html'
 
-    def test_func(self):
-        if self.request.user.id == self.kwargs['user_pk']:
-            return True
-        else:
-            return False
-
     def form_valid(self, form):
-        user = MyUser.objects.get(pk=self.kwargs['user_pk'])
+        user = self.request.user
         self.object = form.save(commit=False)
         self.object.user = user
         self.object.save()
@@ -312,8 +319,9 @@ class DatosFiscalesUpdate(UpdateView):
     def get_object(self):
         """
         Returns the request's user.
+        its incorrect this method
         """
-        user = self.request.user.datosfiscales
+        user = get_object_or_404(MyUser, pk=self.request.user.id)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -323,8 +331,11 @@ class DatosFiscalesUpdate(UpdateView):
         context['form'] = DatosFiscalesUpdateForm(instance=user.datosfiscales, profile=user)
         return context
     
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
     def get_success_url(self):
-        #return reverse_lazy('home')
         messages.success(self.request, f'Información fiscal actualizada correctamente')
         return reverse('profile-user')
 
@@ -334,7 +345,7 @@ class UnidadesAgregar(UserPassesTestMixin, CreateView):
     template_name = 'usuarios/unidades.html'
 
     def test_func(self):
-        if self.request.user.id == self.kwargs['user_pk']:
+        if self.request.user.is_transportista:
             return True
         else:
             return False
@@ -353,7 +364,7 @@ class UnidadesAgregar(UserPassesTestMixin, CreateView):
         return form
 
     def form_valid(self, form):
-        user = MyUser.objects.get(pk=self.kwargs['user_pk'])
+        user = self.request.user
         self.object = form.save(commit=False)
         self.object.user = user
         self.object.save()
@@ -413,18 +424,18 @@ class EncierroAgregar(UserPassesTestMixin, CreateView):
     template_name = 'usuarios/encierro.html'
 
     def test_func(self):
-        if self.request.user.id == self.kwargs['user_pk']:
+        if self.request.user.is_transportista:
             return True
         else:
             return False
 
     def form_valid(self, form):
-        user = MyUser.objects.get(pk=self.kwargs['user_pk'])
+        user = self.request.user
         self.object = form.save(commit=False)
         self.object.user = user
         self.object.save()
         messages.success(self.request, f'Encierro agregado correctamente')
-        return redirect(reverse('agregar-unidad', kwargs={'user_pk': self.request.user.id}))
+        return redirect(reverse('agregar-unidad'))
 
 class EncierroUpdate(UserPassesTestMixin, UpdateView):
     model = Encierro
@@ -447,7 +458,7 @@ def EncierroDelete(request, pk):
     user = request.user
     if encierro.user == user:
         encierro.delete()
-        return redirect(reverse('agregar-unidad', kwargs={'user_pk': request.user.id}))
+        return redirect(reverse('agregar-unidad'))
     else:
         raise PermissionDenied()
 

@@ -39,7 +39,7 @@ ESTADOS = (
 )
 
 class MyUser(AbstractUser):
-    email = models.EmailField(max_length=254)
+    email = models.EmailField(max_length=254, unique=True)
     es_transportista = models.BooleanField(default=False)
     es_cliente = models.BooleanField(default=False)
     es_empresa = models.BooleanField(

@@ -38,7 +38,7 @@
                           <p class="card-text"></p>
                           {% if object.datosfiscales.has_rfc %}
                           <p class="text-muted mb-1">RFC: {{ object.datosfiscales.rfc }}</p>
-                          <p class="text-muted mb-1">Nombre: {{ object.datosfiscales.nombre }}</p>
+                          <p class="text-muted mb-1">Nombre: {{ object.datosfiscales.nombre }} {{ object.datosfiscales.ape_pat }} {{ object.datosfiscales.ape_mat }}</p>
                           <p class="text-muted mb-1">Teléfono: {{ object.datosfiscales.telefono }}</p>
                           <p class="text-muted mb-1">Dirección: {{ object.datosfiscales.calle }} {{ object.datosfiscales.num_ext }} {{ object.datosfiscales.num_int }}, C.P {{ object.datosfiscales.cp }} {{ object.datosfiscales.colonia }} {{ object.datosfiscales.municipio }}, {{ object.datosfiscales.estado}}</p>
                           {% else %}
@@ -79,13 +79,13 @@
                                 </div>
                             </div>
                             <hr>
-                            <a href="{% url 'perfil-cliente-update' slug=object.cliente.slug%}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
+                            <a href="{% url 'perfil-cliente-update' %}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
                         </div>
                         {% else %}
                         <div class="card-body">
                             <h5 class="card-title">Perfil incompleto</h5>
                             <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
-                            <a href="{% url 'perfil-cliente-update' slug=object.cliente.slug %}" class="btn btn-primary">Actualizar</a>
+                            <a href="{% url 'perfil-cliente-update' %}" class="btn btn-primary">Actualizar</a>
                         </div>
                         {% endif %} 
                     </div>
@@ -93,7 +93,7 @@
                         <div class="col-md-6">
                             <div class="card mb-4 mb-md-0">
                                 <div class="card-body">
-                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos</p>
+                                    <p class="mb-4"><span class="text-primary font-italic me-1">Mis</span> contactos h</p>
                                     {% if contactos %}
                                     <table class="table table-sm">
                                         <thead>
@@ -107,8 +107,8 @@
                                             {% for contacto in contactos %}
                                             <tr>
                                                 <td>{{ contacto.nombre }} {{ contacto.ape_pat }} </td>
-                                                <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
-                                                <td><a href="{% url 'delete-contacto' contacto.id %} class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                                <td><a href="{% url 'update-contacto' contacto.id %}"><i class="far fa-edit"></i></a></td>
+                                                <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -116,7 +116,7 @@
                                     {% else %}  
                                     <p>No tiene contactos registrados</p>
                                     {% endif %}
-                                    <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                    <a href="{% url 'agregar-contacto' %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
                                 </div>
                             </div>
                         </div>
@@ -216,13 +216,13 @@
                             </div>
                             </div>
                             <hr>
-                            <a href="{% url 'perfil-transportista-update' slug=object.transportista.slug %}"><button type="button" class="btn btn-primary mt-4">Editar</button></a>
+                            <a href="{% url 'perfil-transportista-update' %}"><button type="button" class="btn btn-primary mt-4">Editar</button></a>
                         </div>
                         {% else %}
                         <div class="card-body">
                             <h5 class="card-title">Perfil incompleto</h5>
                             <p class="card-text">Actualiza tu perfil para poder generar solicitudes.</p>
-                            <a href="{% url 'perfil-transportista-update' slug=object.transportista.slug %}" class="btn btn-primary">Actualizar</a>
+                            <a href="{% url 'perfil-transportista-update' %}" class="btn btn-primary">Actualizar</a>
                         </div>
                         {% endif %} 
                     </div>
@@ -244,7 +244,7 @@
                                     {% for contacto in contactos %}
                                     <tr>
                                         <td>{{ contacto.nombre }} {{ contacto.ape_pat }}</td>
-                                        <td><a href="{% url 'update-contacto' pk=contacto.id %}"><i class="far fa-edit"></i></a></td>
+                                        <td><a href="{% url 'update-contacto' contacto.id %}"><i class="far fa-edit"></i></a></td>
                                         <td><a href="{% url 'delete-contacto' contacto.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
@@ -253,7 +253,7 @@
                             {% else %}  
                             <p>No tiene contactos registrados</p>
                             {% endif %}
-                            <a href="{% url 'agregar-contacto' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                            <a href="{% url 'agregar-contacto' %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
                         </div>
                         </div>
                     </div>
@@ -284,7 +284,7 @@
                                     {% else %}  
                                     <p>No tiene unidades registradas</p>
                                     {% endif %}
-                                    <a href="{% url 'agregar-unidad' user_pk=user.id %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                    <a href="{% url 'agregar-unidad' %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
                                 </div>
                             </div>
                     </div>

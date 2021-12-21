@@ -50,7 +50,7 @@
                                         <td>{{domicilio.cp}}</td>
                                         <td>{{domicilio.estado}}</td>
                                         <td><a href="{% url 'fletes:update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'fletes:delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        <td><a href="{% url 'fletes:delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

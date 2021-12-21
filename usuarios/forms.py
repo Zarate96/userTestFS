@@ -113,7 +113,6 @@ class ProfileClienteUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
         profile = kwargs.pop('profile',None)
-        print(f'perfil desde form: {profile}')
         super(ProfileClienteUpdateForm, self).__init__(*args,**kwargs)
         
         if profile.is_empresa:
