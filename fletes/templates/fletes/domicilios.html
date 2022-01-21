@@ -24,37 +24,45 @@
                                 <a href="{% url 'fletes:solicitudes' %}"><button class="btn btn-secondary" type="button">Ir a solicitudes</button></a>
                             </div>
                             {% if domicilios %}
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Calle</th>
-                                        <th>Número exterior</th>
-                                        <th>Número interior</th>
-                                        <th>Colonia</th>
-                                        <th>Municipio</th>
-                                        <th>C.P.</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    
-                                    {% for domicilio in domicilios%}
-                                    <tr>
-                                        <td>{{domicilio.nombre}}</td>
-                                        <td>{{domicilio.calle}}</td>
-                                        <td>{{domicilio.num_ext}}</td>
-                                        <td>{{domicilio.num_int}}</td>
-                                        <td>{{domicilio.colonia}}</td>
-                                        <td>{{domicilio.municipio}}</td>
-                                        <td>{{domicilio.cp}}</td>
-                                        <td>{{domicilio.estado}}</td>
-                                        <td><a href="{% url 'fletes:update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
-                                        <td><a href="{% url 'fletes:delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Calle</th>
+                                            <th>Número exterior</th>
+                                            <th>Número interior</th>
+                                            <th>Colonia</th>
+                                            <th>Municipio</th>
+                                            <th>C.P.</th>
+                                            <th>Estado</th>
+                                            <th>Valido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        {% for domicilio in domicilios%}
+                                        <tr>
+                                            <td>{{domicilio.nombre}}</td>
+                                            <td>{{domicilio.calle}}</td>
+                                            <td>{{domicilio.num_ext}}</td>
+                                            <td>{{domicilio.num_int}}</td>
+                                            <td>{{domicilio.colonia}}</td>
+                                            <td>{{domicilio.municipio}}</td>
+                                            <td>{{domicilio.cp}}</td>
+                                            <td>{{domicilio.estado}}</td>
+                                            {% if domicilio.is_valid %}
+                                                <td class="text-center"><i class="fas fa-check"></i></td>
+                                            {% else %}
+                                                <td class="text-center"><i class="fas fa-times-circle"></i></td>
+                                            {% endif%}
+                                            <td><a href="{% url 'fletes:update-domicilio' slug=domicilio.slug %}"><i class="far fa-edit"></i></a></td>
+                                            <td><a href="{% url 'fletes:delete-domicilio' slug=domicilio.slug %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{domicilio.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             {% else %}
                             <h2>No tienes domicilios registradas</h2>
                             {% endif %}

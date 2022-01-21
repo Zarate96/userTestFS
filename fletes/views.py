@@ -1,3 +1,4 @@
+import googlemaps
 from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
@@ -21,6 +22,8 @@ from .forms import (
     CotizacionMotivoCancelacioForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion
 from usuarios.models import MyUser, Unidades
+
+gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
 
 class SolicitudClienteListView(ListView):
     model = Solicitud
@@ -61,7 +64,7 @@ class SolicitudesAgregar(UserPassesTestMixin, CreateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         id = self.request.user.id
-        domicilios = Domicilios.objects.filter(cliente_id=id)
+        domicilios = Domicilios.objects.filter(cliente_id=id, is_valid=True)
         if domicilios:
             context['lenDom'] = len(domicilios)
         else:
@@ -71,7 +74,7 @@ class SolicitudesAgregar(UserPassesTestMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class=self.form_class)
-        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.id)
+        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.id, is_valid=True)
         return form
 
     def form_valid(self, form):
@@ -116,7 +119,7 @@ class SolicitudUpdate(UserPassesTestMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class=self.form_class)
-        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.id)
+        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.id, is_valid=True)
         # form.fields['material_peligroso'].initial = self.get_object().material_peligroso
         form.fields['material_peligroso'].initial = True
         return form
@@ -124,7 +127,7 @@ class SolicitudUpdate(UserPassesTestMixin, UpdateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['solicitud'] = self.get_object()
-        domicilios = Domicilios.objects.filter(cliente_id=self.request.user.id)
+        domicilios = Domicilios.objects.filter(cliente_id=self.request.user.id, is_valid=True)
         context['domicilios'] = domicilios
         return context
 
@@ -214,7 +217,7 @@ class DestinoAgregar(UserPassesTestMixin, CreateView):
         solicitudId = int([i for i in str(self.request.path).split('/') if i][-1])
         id = self.request.user.id
         solicitud = get_object_or_404(Solicitud, id=solicitudId)
-        domicilios = Domicilios.objects.filter(cliente_id=id)
+        domicilios = Domicilios.objects.filter(cliente_id=id, is_valid=True)
         destinos = Destino.objects.filter(solicitud_id=solicitudId)
         context['domicilios'] = domicilios
         context['destinos'] = destinos
@@ -223,7 +226,7 @@ class DestinoAgregar(UserPassesTestMixin, CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class=self.form_class)
-        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.cliente)
+        form.fields['domicilio_id'].queryset = Domicilios.objects.filter(cliente_id=self.request.user.cliente, is_valid=True)
         return form
 
     def form_valid(self, form):
@@ -335,6 +338,7 @@ class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['titulo'] = "Editar domicilio"
+        context['domicilio'] = self.get_object()
         return context
 
     def get_success_url(self):
@@ -373,7 +377,30 @@ def FinalizarSolicitud(request, id):
 
     if totales['unidades_entregar__sum'] == solicitud.unidades_totales:
         if solicitud.cliente_id == cliente:
+            origen = solicitud.domicilio_id
+            origenCoordenadas = []
+            origenCoordenadas.append(origen.latitud)
+            origenCoordenadas.append(origen.longitud)
+            tiempoTotal = 0
+            kmTotal = 0
+            for destino in destinos:
+                currentDestinoCoordenadas = []
+                currentDestinoCoordenadas.append(destino.domicilio_id.latitud)
+                currentDestinoCoordenadas.append(destino.domicilio_id.longitud)
+                origins = [
+                    origenCoordenadas,
+                ]
+                destinations = [
+                    currentDestinoCoordenadas,
+                ]
+                currentMatrixData = gmaps.distance_matrix(origins,destinations)
+                kmTotal += float(currentMatrixData["rows"][0]["elements"][0]["distance"]["text"][0:2])
+                tiempoTotal += float(currentMatrixData["rows"][0]["elements"][0]["duration"]["text"][0:2])
+                origenCoordenadas = currentDestinoCoordenadas
+
             solicitud.estado_solicitud = "Publicada"
+            solicitud.tiempo_total = tiempoTotal
+            solicitud.km_total = kmTotal
             solicitud.save()
             context = {
                 'solicitud':solicitud,
@@ -668,3 +695,7 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
         messages.success(self.request, f'Cotización cancelada correctamente')
         
         return redirect(reverse('fletes:cotizaciones'))
+
+class CreatePago(DetailView):
+    model = Solicitud
+    template_name = 'fletes/pago.html'

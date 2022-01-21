@@ -29,4 +29,5 @@ urlpatterns = [
     path('cotizacion/editar/<slug:slug>', CotizacionUpdate.as_view(), name='editar-cotizacion'),
     path('cotizacion/detalle/<slug:slug>', CotizacionDetalle.as_view(), name='detalle-cotizacion'),
     path('cotizacion/cancelar/<slug:slug>', CotizacionCancel.as_view(), name='cancelar-cotizacion'),
+    path('pagar/<slug:slug>', CreatePago.as_view(), name='pagar-solicitud'),
 ]

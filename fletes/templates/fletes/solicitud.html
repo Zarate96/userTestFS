@@ -33,24 +33,26 @@
                                     </div>
                                     <p class="h5 mt-5">Caracteristicas de carga</p>
                                     <div class="col-md-12 mb-1">
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                <th scope="col">Tipo de carga</th>
-                                                <th scope="col">Peso</th>
-                                                <th scope="col">Volumen</th>
-                                                <th scope="col">Unidades totales</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                <td>{{solicitud.caracteristicas_carga}}</td>
-                                                <td>{{solicitud.peso_carga}} kg</td>
-                                                <td>{{solicitud.volumen_carga}} mt3</td>
-                                                <td>{{solicitud.unidades_totales}} unidades</td>
-                                                </tr>
-                                            </tbody>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                    <th scope="col">Tipo de carga</th>
+                                                    <th scope="col">Peso</th>
+                                                    <th scope="col">Volumen</th>
+                                                    <th scope="col">Unidades totales</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                    <td>{{solicitud.caracteristicas_carga}}</td>
+                                                    <td>{{solicitud.peso_carga}} kg</td>
+                                                    <td>{{solicitud.volumen_carga}} mt3</td>
+                                                    <td>{{solicitud.unidades_totales}} unidades</td>
+                                                    </tr>
+                                                </tbody>
                                             </table>
+                                        </div>
                                     </div>
                                     <h5 class="card-text mt-4">Ruta</h5>
                                     <ul class="list-group list-group-flush">

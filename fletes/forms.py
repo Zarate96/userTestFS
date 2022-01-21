@@ -65,7 +65,7 @@ class DomicilioForm(forms.ModelForm):
     referencias = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}))
     class Meta:
         model = Domicilios
-        exclude = ('cliente_id','modificado','slug')
+        exclude = ('cliente_id','modificado','slug','longitud','latitud','is_valid','google_format','google_place_id')
 
 class CotizacionForm(forms.ModelForm):
     class Meta:

@@ -93,13 +93,20 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
+                                    <p class="h5 mt-3">Detalles</p>
+                                    <div class="card" style="width: 18rem;">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">Duración total: {{ solicitud.tiempo_total }} minutos</li>
+                                            <li class="list-group-item"> Distancia total: {{ solicitud.km_total }} km</li>
+                                        </ul>
+                                    </div>
                                     {% else %}  
                                     <p>Esta solicitud no cuenta con destinos</p>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="card mt-5">
+                        <div class="card mt-3">
                             <div class="card-body">
                                 <div class="row">
                                     <fieldset class="form-group">

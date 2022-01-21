@@ -1,3 +1,5 @@
+import googlemaps
+import json
 from django.db import models
 from usuarios.models import MyUser, Cliente, Transportista, Unidades
 from django.urls import reverse
@@ -56,6 +58,11 @@ class Domicilios(models.Model):
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     referencias = models.TextField(verbose_name="Refrencias del domicilio")
+    longitud = models.FloatField(verbose_name="Longitud", null=True, blank=True)
+    latitud = models.FloatField(verbose_name="Latitud", null=True, blank=True)
+    is_valid = models.BooleanField(verbose_name="Es válido", default=True)
+    google_format = models.CharField(verbose_name="Dirección completa", max_length=100, null=True, blank=True)
+    google_place_id = models.CharField(verbose_name="Google place ID", max_length=40, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -76,6 +83,7 @@ ESTADO_SOLICITUD = (
     ('Cotizada','Cotizada'),
     ('Asignada','Asignada'),
     ('Cancelada','Cancelada'),
+    ('Pagada','Pagada'),
 )
 
 def validate_date(date):
@@ -95,8 +103,10 @@ class Solicitud(models.Model):
     fecha_servicio = models.DateTimeField(verbose_name="Fecha de servicio", validators=[validate_date])
     hora = models.TimeField(verbose_name="Hora de servicio")
     tiempo_carga = models.IntegerField(verbose_name="Tiempo máximo para la carga(min)")
-    domicilio_id = models.ForeignKey(Domicilios, on_delete=models.PROTECT, verbose_name="Domicilio")
+    domicilio_id = models.ForeignKey(Domicilios, on_delete=models.PROTECT, verbose_name="Origen")
     estado_solicitud = models.CharField(verbose_name="Estado", choices=ESTADO_SOLICITUD, max_length=40, default="Guardada")
+    tiempo_total = models.FloatField(verbose_name="Tiempo total del viaje", null=True, blank=True)
+    km_total = models.FloatField(verbose_name="Km totales del viaje", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
     material_peligroso = models.BooleanField(
         verbose_name="Es material peligroso",
@@ -237,3 +247,22 @@ def validarEsatdoCotizacion(sender,instance,**kwargs):
         solicitud.estado_solicitud = "Publicada"
         solicitud.save()
 
+@receiver(post_save, sender=Domicilios)
+def addLonLat(sender, instance, **kwargs):
+    gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+    direction = f'{instance.calle} {instance.num_ext} {instance.colonia} {instance.estado}'
+    geocode_result = gmaps.geocode(direction)
+    direccion_google = geocode_result[0]["formatted_address"]
+    if len(geocode_result) == 0 or len(direccion_google) < 50:
+        print("\n Favor de ingresar una direccion correcta")
+        Domicilios.objects.filter(id=instance.id).update(
+            is_valid = False,
+            google_format = "Dirección no válida favor de verificar la información"
+        )
+    else:
+        Domicilios.objects.filter(id=instance.id).update(
+            latitud = geocode_result[0]["geometry"]["location"]["lat"],
+            longitud = geocode_result[0]["geometry"]["location"]["lng"],
+            google_place_id = geocode_result[0]["place_id"],
+            google_format = direccion_google
+        )

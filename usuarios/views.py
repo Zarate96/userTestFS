@@ -199,12 +199,10 @@ class ProfileTransportista(DetailView):
     model = Transportista
     template_name = 'usuarios/perfilTransportista.html'
 
-    def get_object(self):
-        return get_object_or_404(MyUser, pk=self.request.user.id)
-
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         transportista = self.get_object()
+        print(transportista)
         context['transportista'] = transportista
         return context
 

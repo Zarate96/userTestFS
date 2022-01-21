@@ -114,7 +114,7 @@
                                                     <td class="text-center"><a href="{% url 'fletes:agregar-destino' solicitud.id %}" title="Agregar destino"><i class="fas fa-plus"></i></a></td>
                                                 {% endif %}
                                             <td class="text-center"><a href="{% url 'fletes:detalle-solicitud' solicitud.slug %}"><i class="far fa-eye"></i></a></td>
-                                            <td>
+                                            <td class="text-center">
                                                 <a href="{% url 'fletes:delete-solicitud' solicitud.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" 
                                                 data-bs-target="#confirmDeleteModal" id="deleteButton{{solicitud.id}}" title="Eliminar solicitud"><i class="far fa-trash-alt"></i></a>
                                             </td> 
@@ -124,7 +124,7 @@
                                             <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             {% endif %}
                                             {% if solicitud.estado_solicitud == 'Asignada' %}
-                                            <td class="text-center"><button class="btn btn-success btn-sm">Pagar</button></td>
+                                            <td class="text-center"><a href="{% url 'fletes:pagar-solicitud' solicitud.slug %}" title="Pagar solicitud"><i class="fas fa-credit-card"></i></a></td>
                                             <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             {% endif %}
                                         </tr>
