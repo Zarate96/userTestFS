@@ -1,7 +1,11 @@
 import json
 import threading
-
+import conekta
+import requests
 import urllib.request
+
+from http.client import HTTPSConnection
+from base64 import b64encode
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.http import HttpResponseRedirect
@@ -30,6 +34,10 @@ from .forms import (
     DatosFiscalesUpdateForm,
     UnidadesForm,
     EncierroForm,)
+
+conekta.locale = 'es'
+conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_version = "2.0.0"
 
 class EmailThread(threading.Thread):
 
@@ -72,8 +80,7 @@ def activate_user(request, uidb64, token):
         user.is_active = True
         user.save()
 
-        messages.add_message(request, messages.SUCCESS,
-                             'Email verificado, ya puede iniciar sesion')
+        messages.add_message(request, messages.SUCCESS, 'Email verificado, ya puede iniciar sesion')
         return redirect(reverse('login'))
 
     return render(request, 'usuarios/activate_failed.html', {"user": user})

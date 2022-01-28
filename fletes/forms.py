@@ -70,7 +70,7 @@ class DomicilioForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo',)
+        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo','es_asegurada','nivel_seguro')
 
 class CotizacionMotivoCancelacioForm(forms.ModelForm):
     class Meta:
@@ -87,3 +87,17 @@ class CotizacionMotivoCancelacioForm(forms.ModelForm):
                 } 
             )
         }
+
+class AgregarSeguroForm(forms.ModelForm):
+    es_asegurada = forms.ChoiceField(choices=((True, 'Si'), (False, 'No')),
+                               widget=forms.RadioSelect,
+                               label="¿Desea asegurar su viaje?",)
+    class Meta:
+        model = Cotizacion
+        fields = ['nivel_seguro','es_asegurada']
+        labels = {
+            'nivel_seguro':'Nivel de seguro',
+            'es_asegurada':'¿Desea asegurar su viaje?',
+        }
+    
+    field_order = ['es_asegurada','nivel_seguro']

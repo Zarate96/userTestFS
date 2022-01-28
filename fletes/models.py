@@ -83,7 +83,6 @@ ESTADO_SOLICITUD = (
     ('Cotizada','Cotizada'),
     ('Asignada','Asignada'),
     ('Cancelada','Cancelada'),
-    ('Pagada','Pagada'),
 )
 
 def validate_date(date):
@@ -150,6 +149,11 @@ class Solicitud(models.Model):
         cotizaciones =  Cotizacion.objects.filter(solicitud_id=self.pk)
         return True if cotizaciones else False
 
+    def cotizacionFinal(self):
+        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada')
+        return cotizacion[0]
+
+
 def createFolioSolicitud(sender,instance,**kwargs):
     folio = instance.id
     Solicitud.objects.filter(
@@ -182,7 +186,23 @@ ESTADO_COTIZACION = (
     ('Confirmada','Confirmada'),
     ('Cancelada','Cancelada'),
     ('Solicitud cancelada','Solicitud cancelada'),
+    ('Pagada','Pagada'),
 )
+
+NIVEL_SEGURO = (
+    ('Sin seguro', 'Sin seguro'),
+    ('Nivel 1','Nivel 1'),
+    ('Nivel 2','Nivel 2'),
+    ('Nivel 3','Nivel 3'),
+)
+
+class Seguro(models.Model):
+    nombre = models.CharField(verbose_name="Seguro", max_length=40, default="")
+    costo = models.FloatField(verbose_name="Costo del seguro")
+    cobertura = models.TextField()
+
+    def __str__(self):
+        return f'{self.nombre}'
 
 class Cotizacion(models.Model):
     transportista_id = models.ForeignKey(
@@ -205,9 +225,18 @@ class Cotizacion(models.Model):
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
     motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
     slug = models.SlugField(null=True, blank=True)
+    nivel_seguro = models.ForeignKey(
+        Seguro, 
+        verbose_name="Nivel de Seguro",
+        on_delete=models.CASCADE,
+        null=True)
+    es_asegurada = models.BooleanField(
+        verbose_name="Viaje asegurado",
+        default=False,)
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
+    checkoutUrl = models.URLField(max_length = 200, default="")
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
@@ -222,8 +251,9 @@ class Cotizacion(models.Model):
 @receiver(post_save, sender=Cotizacion)
 def create_ruta(sender, instance, **kwargs):
     solicitud = instance.solicitud_id
-    solicitud.estado_solicitud = "Cotizada"
-    solicitud.save()
+    if solicitud.estado_solicitud != 'Asignada':
+        solicitud.estado_solicitud = "Cotizada"
+        solicitud.save()
 
 @receiver(post_save, sender=Cotizacion)
 def createFolioCotizacion(sender,instance,**kwargs):

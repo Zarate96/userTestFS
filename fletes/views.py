@@ -1,4 +1,9 @@
 import googlemaps
+import conekta
+import requests
+import datetime
+from http.client import HTTPSConnection
+from base64 import b64encode
 from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
@@ -19,11 +24,15 @@ from .forms import (
     DestinoForm,
     DomicilioForm,
     CotizacionForm,
-    CotizacionMotivoCancelacioForm,)
+    CotizacionMotivoCancelacioForm,
+    AgregarSeguroForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion
 from usuarios.models import MyUser, Unidades
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+conekta.locale = 'es'
+conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_version = "2.0.0"
 
 class SolicitudClienteListView(ListView):
     model = Solicitud
@@ -471,8 +480,9 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
             try:
                 self.object.save()
                 messages.success(self.request, f'Cotización agregada correctamente')
-            except IntegrityError:
+            except IntegrityError as e:
                 messages.success(self.request, f'Ya creaste una cotización para esta solicitud')
+                print(e)
         
         return redirect(reverse('fletes:cotizaciones'))
 
@@ -541,6 +551,7 @@ def aceptarCotizacion(request, slug):
             try:
                 cotizacion.estado_cotizacion = "Aceptada"
                 cotizacion.save()
+                #Rechazar el resto de cotizaciones de la solicitud
                 Cotizacion.objects.exclude(
                         id=cotizacion.id).filter(
                         solicitud_id=cotizacion.solicitud_id.id).update(
@@ -696,6 +707,142 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
         
         return redirect(reverse('fletes:cotizaciones'))
 
-class CreatePago(DetailView):
-    model = Solicitud
-    template_name = 'fletes/pago.html'
+# class RealizarPago(DetailView):
+#     model = Cotizacion
+#     template_name = 'fletes/pago.html'
+#     context_object_name = 'cotizacion'
+#     cotizacion = self. get_object()
+
+#     if cotizacion.checkoutUrl:
+#         url = cotizacion.checkoutUrl
+    
+#     else:
+#         order = {
+#             "currency": "MXN",
+#             "customer_info": {
+#                 "customer_id": "cus_2rBcWudqH1mTmQvbP"
+#             },
+#             "line_items": [{
+#                 "name": "FLETE 20",
+#                 "unit_price": 500000,
+#                 "quantity": 1
+#             }],
+#             "shipping_lines": [{
+#                 "amount": 0
+#             }],
+#             "checkout": {
+#                 "type":"HostedPayment",
+#                 "success_url": "https://www.mysite.com/payment/confirmation",
+#                 "failure_url": "https://www.mysite.com/payment/negation",
+#                 "allowed_payment_methods": ["cash", "card", "bank_transfer"],
+#                 "multifactor_authentication": False,
+#                 "monthly_installments_enabled": True,
+#                 "monthly_installments_options": [3,6,9,12,18],
+#                 "expires_at": 1643156089,
+#                 "redirection_time": 20
+
+#             },
+#             "shipping_contact": {
+#                 "phone": "+5215555555555",
+#                 "receiver": "Marvin Fuller",
+#                 "address": {
+#                 "street1": "Nuevo Leon 4",
+#                 "country": "MX",
+#                 "postal_code": "06100"
+#                 }
+#             }
+#         }
+#         try:
+#             checkout = conekta.Order.create(order)
+#         except conekta.ConektaError as e:
+#             print(e.message)
+
+#         print(checkout)
+        
+class SeleccionarSeguro(UpdateView):
+    model = Cotizacion
+    form_class = AgregarSeguroForm
+    template_name = 'fletes/seleccionarSeguro.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        messages.success(self.request, f'Información validada correctamente')
+        
+        return redirect(reverse('fletes:pagar-solicitud', kwargs={'slug': self.object.slug}))
+    
+@login_required
+def PagarCotizacion(request, slug):
+    cotizacion = get_object_or_404(Cotizacion, slug=slug)
+
+    try:
+        cliente = request.user.cliente
+    except ObjectDoesNotExist:
+        raise PermissionDenied()
+
+    if cotizacion.estado_cotizacion != 'Confirmada':
+        raise PermissionDenied()
+        
+    if cotizacion.checkoutUrl:
+        url = cotizacion.checkoutUrl
+    else:
+        today = datetime.datetime.now()
+        fecha_limite = today + datetime.timedelta(days=3)
+        fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
+        order = {
+            "currency": "MXN",
+            "customer_info": {
+                "customer_id": request.user.cliente.conektaId
+            },
+            "line_items": [{
+                "name": cotizacion.folio,
+                "unit_price": 500000,
+                "quantity": 1
+            }],
+            "shipping_lines": [{
+                "amount": 0
+            }],
+            "checkout": {
+                "type":"HostedPayment",
+                "success_url": "http://127.0.0.1:8000/fletes/pagar/confirmado",
+                "failure_url": "http://127.0.0.1:8000/fletes/pagar/denegado",
+                "allowed_payment_methods": ["cash", "card", "bank_transfer"],
+                "multifactor_authentication": False,
+                "monthly_installments_enabled": False,
+                "expires_at": round(fecha_limite_timestamp),
+                "redirection_time": 20
+
+            }
+        }
+        try:
+            checkout = conekta.Order.create(order)
+            print("orden creada")
+            print(checkout.url)
+            url = checkout.url
+            cotizacion.checkoutUrl = url
+            cotizacion.save()
+
+        except conekta.ConektaError as e:
+            print(e.message)
+
+    return HttpResponseRedirect(reverse(url))
+    
+def PagoConfirmado(request):
+    print(request)
+    data = request.path
+    print(request.path)
+    context = {
+        'data' : data
+    }
+
+    return render(request, 'fletes/pagoConfirmado.html', context)
+
+def PagoDenegado(request):
+    print(request)
+    data = request.path
+    print(request.path)
+    context = {
+        'data' : data
+    }
+
+    return render(request, 'fletes/pagoDenegado.html', context)

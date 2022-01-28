@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
+    
+    <section style="background-color: #eee;">
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Seleccionar Seguro</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+                <div class="col">
+                    <div class="card mb-4 rounded-3 shadow-sm">
+                        <div class="card-header py-3">
+                            <h4 class="my-0 fw-normal">Nivel 1</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">$10,000<small class="text-muted fw-light"> mxm</small></h1>
+                            <ul class="list-unstyled mt-3 mb-4">
+                            <li>10 users included</li>
+                            <li>2 GB of storage</li>
+                            <li>Email support</li>
+                            <li>Help center access</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card mb-4 rounded-3 shadow-sm">
+                        <div class="card-header py-3">
+                            <h4 class="my-0 fw-normal">Nivel 2</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">$17,500<small class="text-muted fw-light"> mxm</small></h1>
+                            <ul class="list-unstyled mt-3 mb-4">
+                            <li>10 users included</li>
+                            <li>2 GB of storage</li>
+                            <li>Email support</li>
+                            <li>Help center access</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card mb-4 rounded-3 shadow-sm">
+                        <div class="card-header py-3">
+                            <h4 class="my-0 fw-normal">Nivel 3</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">$25,000<small class="text-muted fw-light"> mxm</small></h1>
+                            <ul class="list-unstyled mt-3 mb-4">
+                            <li>10 users included</li>
+                            <li>2 GB of storage</li>
+                            <li>Email support</li>
+                            <li>Help center access</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Seguro de flete</legend>
+                </fieldset>
+                <div class="row offset-1">
+                    <div class="col-md-5">
+                        {{ form.es_asegurada|as_crispy_field }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form.nivel_seguro|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row mt-5 mb-5">
+                    <div class="col-md-4">
+                        <button class="w-75 btn btn-danger">Cancelar</button>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="w-75 btn btn-primary" type="submit">Siguiente</button>
+                    </div>
+                </div> 
+            </form>
+        </div>
+    </section>
+{% endblock content %}

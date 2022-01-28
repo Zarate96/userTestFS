@@ -1,7 +1,14 @@
 import datetime
+import conekta
+import requests
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
+
+
+conekta.locale = 'es'
+conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_version = "2.0.0"
 
 ESTADOS = (
     ('Aguascalientes','Aguascalientes'),
@@ -93,6 +100,7 @@ class Cliente(models.Model):
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     slug = models.SlugField(null=True, blank=True)
+    conektaId = models.CharField(verbose_name="Conekta ID", max_length=30, default="", blank=True)
 
     def __str__(self):
         return str(self.user.username)
@@ -100,6 +108,18 @@ class Cliente(models.Model):
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.user.username)
+        
+        if self.conektaId is None or self.conektaId == "":
+            try:
+                customer = conekta.Customer.create({
+                    'name': self.user.username,
+                    'email': self.user.email,
+                })
+                print(f'Cliente creado: {customer.id}');
+                self.conektaId = customer.id
+            except conekta.ConektaError as e:
+                print(e.message)
+
         super(Cliente, self).save(*args, **kwargs)
 
     @property
