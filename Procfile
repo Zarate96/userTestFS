@@ -1,1 +1,1 @@
-web: gunicorn fleteSeguro.wsgi --log-file -
+web: gunicorn fleteSeguro.wsgi 
