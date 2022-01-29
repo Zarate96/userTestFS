@@ -12,7 +12,12 @@ ALLOWED_HOSTS = ['*']
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL')
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'fleteseguro',
+        'USER': 'endicom',
+        'PASSWORD': 'Endicom*1307',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
