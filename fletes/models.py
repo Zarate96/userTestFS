@@ -294,5 +294,6 @@ def addLonLat(sender, instance, **kwargs):
             latitud = geocode_result[0]["geometry"]["location"]["lat"],
             longitud = geocode_result[0]["geometry"]["location"]["lng"],
             google_place_id = geocode_result[0]["place_id"],
-            google_format = direccion_google
+            google_format = direccion_google,
+            is_valid = True
         )
