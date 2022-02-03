@@ -752,8 +752,8 @@ def PagarCotizacion(request, slug):
             }],
             "checkout": {
                 "type":"HostedPayment",
-                "success_url": "http://127.0.0.1:8000/fletes/pagar/confirmado",
-                "failure_url": "http://127.0.0.1:8000/fletes/pagar/denegado",
+                "success_url": "http://fleteseguro.mx/fletes/pagar/confirmado",
+                "failure_url": "http://fleteseguro.mx/fletes/pagar/denegado",
                 "allowed_payment_methods": ["cash", "card", "bank_transfer"],
                 "multifactor_authentication": False,
                 "monthly_installments_enabled": False,
