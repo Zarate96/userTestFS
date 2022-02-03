@@ -706,58 +706,6 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
         messages.success(self.request, f'Cotización cancelada correctamente')
         
         return redirect(reverse('fletes:cotizaciones'))
-
-# class RealizarPago(DetailView):
-#     model = Cotizacion
-#     template_name = 'fletes/pago.html'
-#     context_object_name = 'cotizacion'
-#     cotizacion = self. get_object()
-
-#     if cotizacion.checkoutUrl:
-#         url = cotizacion.checkoutUrl
-    
-#     else:
-#         order = {
-#             "currency": "MXN",
-#             "customer_info": {
-#                 "customer_id": "cus_2rBcWudqH1mTmQvbP"
-#             },
-#             "line_items": [{
-#                 "name": "FLETE 20",
-#                 "unit_price": 500000,
-#                 "quantity": 1
-#             }],
-#             "shipping_lines": [{
-#                 "amount": 0
-#             }],
-#             "checkout": {
-#                 "type":"HostedPayment",
-#                 "success_url": "https://www.mysite.com/payment/confirmation",
-#                 "failure_url": "https://www.mysite.com/payment/negation",
-#                 "allowed_payment_methods": ["cash", "card", "bank_transfer"],
-#                 "multifactor_authentication": False,
-#                 "monthly_installments_enabled": True,
-#                 "monthly_installments_options": [3,6,9,12,18],
-#                 "expires_at": 1643156089,
-#                 "redirection_time": 20
-
-#             },
-#             "shipping_contact": {
-#                 "phone": "+5215555555555",
-#                 "receiver": "Marvin Fuller",
-#                 "address": {
-#                 "street1": "Nuevo Leon 4",
-#                 "country": "MX",
-#                 "postal_code": "06100"
-#                 }
-#             }
-#         }
-#         try:
-#             checkout = conekta.Order.create(order)
-#         except conekta.ConektaError as e:
-#             print(e.message)
-
-#         print(checkout)
         
 class SeleccionarSeguro(UpdateView):
     model = Cotizacion
