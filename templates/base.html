@@ -21,6 +21,10 @@
 </head>
 
   <body>
+    <!-- DigiCert Seal HTML -->
+    <!-- Place HTML on your site where the seal should appear -->
+    <div id="DigiCertClickID_ZH7OIrOf"></div>
+
     {% include 'includes/header.html' %}
     <main role="main" class="container">
       <div class="row">
@@ -36,6 +40,13 @@
       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
       crossorigin="anonymous"></script>
     <!-- Optional JavaScript -->
+     <!-- DigiCert Seal Code -->
+     <script type="text/javascript">
+      var __dcid = __dcid || [];
+      __dcid.push({"cid":"DigiCertClickID_ZH7OIrOf","tag":"ZH7OIrOf"});
+      (function(){var cid=document.createElement("script");cid.async=true;cid.src="//seal.digicert.com/seals/cascade/seal.min.js";var s = document.getElementsByTagName("script");var ls = s[(s.length - 1)];ls.parentNode.insertBefore(cid, ls.nextSibling);}());
+    </script>
+    <!-- Place with DigiCert Seal HTML or with other scripts -->
     {% block extrajs %}
     {% endblock extrajs %}
   </body>

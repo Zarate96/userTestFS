@@ -26,7 +26,7 @@ from .forms import (
     CotizacionForm,
     CotizacionMotivoCancelacioForm,
     AgregarSeguroForm,)
-from .models import Solicitud, Destino, Domicilios,Cotizacion
+from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje
 from usuarios.models import MyUser, Unidades
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
@@ -794,3 +794,13 @@ def PagoDenegado(request):
     }
 
     return render(request, 'fletes/pagoDenegado.html', context)
+
+class ViajesClienteListView(ListView):
+    model = Viaje
+    template_name = 'fletes/viajes.html'
+    context_object_name = 'viajes'
+
+    def get_queryset(self):
+        return Viaje.objects.filter(
+            cotizacion_id.solicitud_id.cliente_id==self.request.user.cliente
+        ).order_by('-creado')

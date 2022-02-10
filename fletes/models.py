@@ -1,5 +1,6 @@
 import googlemaps
 import json
+import random
 from django.db import models
 from usuarios.models import MyUser, Cliente, Transportista, Unidades
 from django.urls import reverse
@@ -153,7 +154,6 @@ class Solicitud(models.Model):
         cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada')
         return cotizacion[0]
 
-
 def createFolioSolicitud(sender,instance,**kwargs):
     folio = instance.id
     Solicitud.objects.filter(
@@ -175,6 +175,13 @@ class Destino(models.Model):
     domicilio_id = models.ForeignKey(Domicilios, on_delete=models.PROTECT)
     tiempo_descarga = models.IntegerField(verbose_name="Tiempo máximo para la descarga(min)") 
     unidades_entregar = models.IntegerField(verbose_name="Unidades a entregar en este destino")
+    foto1 = models.ImageField(verbose_name="Foto 1 evidencia de entrega", upload_to='unidades_pics', null=True, blank=True)
+    foto2 = models.ImageField(verbose_name="Foto 2 evidencia de entrega", upload_to='unidades_pics', null=True, blank=True)
+    foto3 = models.ImageField(verbose_name="Foto 3 evidencia de entrega", upload_to='unidades_pics', null=True, blank=True)
+    foto4 = models.ImageField(verbose_name="Foto 4 evidencia de entrega", upload_to='unidades_pics', null=True, blank=True)
+    foto5 = models.ImageField(verbose_name="Foto 5 evidencia de entrega", upload_to='unidades_pics', null=True, blank=True)
+    #registro de llegada
+    #registo de hora de llegada
 
     def __str__(self):
         return f'Destino {self.id} de {self.solicitud_id}' 
@@ -248,6 +255,40 @@ class Cotizacion(models.Model):
     def __str__(self):
         return f'Cotización de {self.transportista_id} para solicitud {self.solicitud_id}'
 
+ESTADO_VIAJE = (
+    ('Creado','Creado'),
+    ('Iniciado','Iniciado'),
+    ('Cerrado','Cerrado'),
+    ('Terminado','Terminado'),
+    ('Disputa','Disputa'),
+    ('Accidente','Accidente'),
+)
+
+class Viaje(models.Model):
+    cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE, primary_key=True)
+    folio = models.CharField(verbose_name="Folio", max_length=20,  default="")
+    slug = models.SlugField(null=True, default="")
+    estado_solicitud = models.CharField(verbose_name="Estado", choices=ESTADO_VIAJE, max_length=40, default="Creado")
+    hora_inicio = models.TimeField(verbose_name="Hora de inicio", null=True, blank=True)
+    hora_llegada = models.TimeField(verbose_name="Hora de llegada", null=True, blank=True)
+    localizacion_transportista = models.CharField(verbose_name="Localización de transportista", max_length=40)
+    nip = models.IntegerField(verbose_name="NIP de seguridad de viaje", null=True, blank=True)
+    comentarios = models.TextField(null=True, blank=True)
+    es_validado = models.BooleanField(verbose_name="¿Esta válido por cliente?", default=False)
+
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        if self.nip is None:
+            number = f'{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
+            self.nip = int(number)
+        if self.folio is None:
+            folio = f'FLE-{cotizacion_id.folio}'
+        return super(Viaje, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return f'{self.cotizacion_id}'
+
+#signals
 @receiver(post_save, sender=Cotizacion)
 def create_ruta(sender, instance, **kwargs):
     solicitud = instance.solicitud_id
@@ -297,3 +338,25 @@ def addLonLat(sender, instance, **kwargs):
             google_format = direccion_google,
             is_valid = True
         )
+
+@receiver(post_save, sender=Cotizacion)
+def crearViaje(sender, instance, **kwargs):
+    cotizacion = instance
+    if cotizacion.estado_cotizacion == 'Pagada':
+        viaje = Viaje.objects.create(cotizacion_id=cotizacion)
+
+# @receiver(post_save, sender=Viaje)
+# def createFolioViaje(sender,instance,**kwargs):
+#     print(instance.id)
+#     folio = instance.id
+#     Viaje.objects.filter(
+#             id=folio
+#         ).update(
+#             folio=f'FLE00{folio}',
+#     )
+#     if instance.slug is None or instance.slug == "":
+#         Viaje.objects.filter(
+#                 id=folio
+#             ).update(
+#                 slug=slugify(f"fle-{instance.id}")
+#     )

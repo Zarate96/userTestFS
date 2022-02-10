@@ -33,4 +33,5 @@ urlpatterns = [
     path('pagar/<slug:slug>', PagarCotizacion, name='pagar-solicitud'),
     path('pagar/confirmado', PagoConfirmado, name='pagar-confirmado'),
     path('pagar/denegado', PagoDenegado, name='pagar-denegado'),
+    path('pagar/confirmado?<str:checkout_id>&<str:order_id>&<str:payment_status>', PagoConfirmado, name='pago-confirmado')
 ]
