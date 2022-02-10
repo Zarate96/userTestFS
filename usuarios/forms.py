@@ -14,7 +14,7 @@ class ClienteSignUpForm(UserCreationForm):
     username = forms.CharField(
         label="Nombre de usuario",
         strip=False,
-        help_text='Tu nombre de usuario puede con tener 150 carácteres o menos. Letras, digítos, and @/./+/-/_  solamente',
+        help_text='Tu nombre de usuario puede con tener 150 carácteres o menos. Letras, digítos, y @/./+/-/_  solamente, no están permitidos los espacios',
     )
     password1 = forms.CharField(
         label="Contraseña",
