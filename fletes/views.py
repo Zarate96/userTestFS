@@ -2,6 +2,7 @@ import googlemaps
 import conekta
 import requests
 import datetime
+import json
 from http.client import HTTPSConnection
 from base64 import b64encode
 from django.shortcuts import render
@@ -25,7 +26,8 @@ from .forms import (
     DomicilioForm,
     CotizacionForm,
     CotizacionMotivoCancelacioForm,
-    AgregarSeguroForm,)
+    AgregarSeguroForm,
+    AgregarEvidenciaForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje
 from usuarios.models import MyUser, Unidades
 
@@ -795,12 +797,136 @@ def PagoDenegado(request):
 
     return render(request, 'fletes/pagoDenegado.html', context)
 
-class ViajesClienteListView(ListView):
+class ViajesListView(ListView):
     model = Viaje
     template_name = 'fletes/viajes.html'
     context_object_name = 'viajes'
 
-    def get_queryset(self):
-        return Viaje.objects.filter(
-            cotizacion_id.solicitud_id.cliente_id==self.request.user.cliente
-        ).order_by('-creado')
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['user'] = self.request.user
+        return context
+
+class ViajesDetalle(DetailView):
+    model = Viaje
+    template_name = 'fletes/viajeDetalle.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        viaje = self.get_object()
+        destinos = Destino.objects.filter(solicitud_id=viaje.cotizacion_id.solicitud_id)
+        allEvidencias = True
+        for destino in destinos:
+            if destino.hasEvidencias is True:
+                allEvidencias = True
+                print(destino.hasEvidencias())
+            else:
+                allEvidencias = False
+                break;
+
+        print(allEvidencias)
+        context['destinos'] = destinos
+        context['allEvidencias'] = allEvidencias
+        return context
+
+class DestinoAregarEvidencia(UpdateView):
+    model = Destino
+    form_class = AgregarEvidenciaForm
+    template_name = 'fletes/confirmations/agregar_evidencia.html'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    # def test_func(self):
+    #     cotizacion = self.get_object()
+    #     try:
+    #         transportista = self.request.user.transportista
+    #     except ObjectDoesNotExist:
+    #         return False
+
+    #     if cotizacion.estado_cotizacion == "Cancelada" or cotizacion.estado_cotizacion == "Solicitud cancelada":
+    #         return False
+
+    #     if cotizacion.transportista_id == transportista:
+    #         return True
+    #     else:
+    #         return False
+
+    # def form_valid(self, form):
+    #     self.object = form.save(commit=False)
+    #     with transaction.atomic():
+    #         self.object.estado_cotizacion = 'Cancelada'
+    #         self.object.activo = False
+    #         self.object.save()
+    #         user = self.request.user
+    #         user.penalizaciones = user.penalizaciones + 1
+    #         user.save()
+
+    #     messages.success(self.request, f'Cotización cancelada correctamente')
+        
+    #     return redirect(reverse('fletes:cotizaciones'))
+
+@login_required
+def registrarLlegada(request, slug):
+    url = 'https://www.googleapis.com/geolocation/v1/geolocate'
+    keys = {'key': 'AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec'}
+    
+    try:
+        transportista = request.user.transportista
+    except ObjectDoesNotExist:
+        raise PermissionDenied()
+    
+    viaje = get_object_or_404(Viaje, slug=slug)
+    
+    if viaje.cotizacion_id.transportista_id != transportista:
+        raise PermissionDenied()
+
+    if viaje:
+        data = {
+            "homeMobileCountryCode": transportista.telefonia_movil.mcc,
+            "homeMobileNetworkCode": transportista.telefonia_movil.mnc,
+            "radioType": transportista.telefonia_movil.radioType,
+            "carrier": transportista.telefonia_movil.carrier,
+        }
+        location = requests.post(url, data = keys, json=data)
+        location = json.loads(location.text)
+        try:
+            viaje.hora_llegada = datetime.datetime.now().time()
+            viaje.localizacion_transportista = location['location']
+            viaje.save()
+        except ProtectedError:
+            messages.success(request, f'Algo salio mal!!!')
+    
+    return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
+
+@login_required
+def registrarSalida(request, slug):
+    
+    try:
+        transportista = request.user.transportista
+    except ObjectDoesNotExist:
+        raise PermissionDenied()
+    
+    viaje = get_object_or_404(Viaje, slug=slug)
+    
+    if viaje.cotizacion_id.transportista_id != transportista:
+        raise PermissionDenied()
+
+    if viaje:
+        if 'nip' in request.POST:
+            nip = request.POST['nip']
+            if int(nip) == viaje.nip:
+                try:
+                    viaje.hora_inicio = datetime.datetime.now().time()
+                    viaje.estado_viaje = 'Iniciado'
+                    viaje.save()
+                except ProtectedError:
+                    messages.success(request, f'Algo salio mal!!!')
+            else:
+                messages.success(request, f'NIP de viaje incorrecto!!!')
+        else:
+            messages.success(request, f'Algo salio mal!!!')
+    
+    return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
+        

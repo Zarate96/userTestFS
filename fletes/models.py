@@ -151,7 +151,7 @@ class Solicitud(models.Model):
         return True if cotizaciones else False
 
     def cotizacionFinal(self):
-        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada')
+        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada')
         return cotizacion[0]
 
 def createFolioSolicitud(sender,instance,**kwargs):
@@ -185,6 +185,9 @@ class Destino(models.Model):
 
     def __str__(self):
         return f'Destino {self.id} de {self.solicitud_id}' 
+    
+    def hasEvidencias(self):
+        return True if self.foto1 else False
 
 ESTADO_COTIZACION = (
     ('Pendiente','Pendiente'),
@@ -254,6 +257,10 @@ class Cotizacion(models.Model):
     
     def __str__(self):
         return f'Cotización de {self.transportista_id} para solicitud {self.solicitud_id}'
+    
+    def getClienteId(self):
+        cliente_id = self.solicitud_id.cliente_id
+        return cliente_id
 
 ESTADO_VIAJE = (
     ('Creado','Creado'),
@@ -268,7 +275,7 @@ class Viaje(models.Model):
     cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE, primary_key=True)
     folio = models.CharField(verbose_name="Folio", max_length=20,  default="")
     slug = models.SlugField(null=True, default="")
-    estado_solicitud = models.CharField(verbose_name="Estado", choices=ESTADO_VIAJE, max_length=40, default="Creado")
+    estado_viaje = models.CharField(verbose_name="Estado", choices=ESTADO_VIAJE, max_length=40, default="Creado")
     hora_inicio = models.TimeField(verbose_name="Hora de inicio", null=True, blank=True)
     hora_llegada = models.TimeField(verbose_name="Hora de llegada", null=True, blank=True)
     localizacion_transportista = models.CharField(verbose_name="Localización de transportista", max_length=40)
@@ -279,15 +286,27 @@ class Viaje(models.Model):
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
         if self.nip is None:
-            number = f'{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
+            number = f'{random.randint(1,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
             self.nip = int(number)
-        if self.folio is None:
-            folio = f'FLE-{cotizacion_id.folio}'
+        if self.folio is None or self.folio == "":
+            self.folio = f'FS{self.cotizacion_id.getClienteId()}00{self.cotizacion_id.id}'
+        if self.slug is None or self.slug == "":
+            self.slug = f'FS{self.cotizacion_id.getClienteId()}00{self.cotizacion_id.id}'
         return super(Viaje, self).save(*args, **kwargs)
     
     def __str__(self):
-        return f'{self.cotizacion_id}'
+        return f'{self.folio}'
 
+    def getClienteId(self):
+        return self.cotizacion_id.getClienteId()
+    
+    def hasLlegada(self):
+        return True if self.hora_llegada else False
+
+    def hasInicio(self):
+        return True if self.hora_inicio else False
+
+        
 #signals
 @receiver(post_save, sender=Cotizacion)
 def create_ruta(sender, instance, **kwargs):

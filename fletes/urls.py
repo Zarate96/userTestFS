@@ -33,5 +33,10 @@ urlpatterns = [
     path('pagar/<slug:slug>', PagarCotizacion, name='pagar-solicitud'),
     path('pagar/confirmado', PagoConfirmado, name='pagar-confirmado'),
     path('pagar/denegado', PagoDenegado, name='pagar-denegado'),
-    path('pagar/confirmado?<str:checkout_id>&<str:order_id>&<str:payment_status>', PagoConfirmado, name='pago-confirmado')
+    path('pagar/confirmado?<str:checkout_id>&<str:order_id>&<str:payment_status>', PagoConfirmado, name='pago-confirmado'),
+    path('viajes/', ViajesListView.as_view(), name='viajes'),
+    path('viaje/detalle/<slug:slug>', ViajesDetalle.as_view(), name='detalle-viaje'),
+    path('viaje/registrarllegada/<slug:slug>', registrarLlegada, name='registrar-llegada-viaje'),
+    path('viaje/registrarsalida/<slug:slug>', registrarSalida, name='registrar-salida-viaje'),
+    path('destino/agregarevidencia/<int:pk>', DestinoAregarEvidencia.as_view(), name='agregar-evidencia-destino'),
 ]

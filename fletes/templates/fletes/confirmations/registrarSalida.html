@@ -1,0 +1,24 @@
+<!--Cancel solicitud by user-->
+<div class="modal fade" id="confirmSalidaModal" tabindex="-1" caller-id="" role="dialog" aria-labelledby="confirmSalidaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar hora de salida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'fletes:registrar-salida-viaje' object.slug %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Ingresa NIP de seguridad proporcionado por el usuario</p>
+                        <div class="form-group">
+                            <input type="text" name="nip" placeholder="Ingresar NIP de viaje"  class="form-control">
+                        </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info">Aceptar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'fletes/confirmations/confirm_llegada.html' %}
+    {% include 'fletes/confirmations/registrarSalida.html' %}
+
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4r">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Información de viaje</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 justify-content-center">
+                        <div class="col-lg-8 offset-lg-2">
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Folio de viaje: {{viaje.folio}}</h5>
+                                    <p class="card-text">Fecha del servicio: {{viaje.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</p>
+                                    <p class="card-text">Hora del servicio: {{viaje.cotizacion_id.solicitud_id.hora}} hrs</p>
+                                    <div class="container mt-3 mb-4">
+                                        <div class="row align-items-center">
+                                            <div class="col-4">
+                                                {% if viaje.hasLlegada %}
+                                                    <button type="button" class="btn btn-warning btn disabled">Registrar llegada</button> 
+                                                {% else %}
+                                                    <a href="{% url 'fletes:registrar-llegada-viaje' slug=viaje.slug %}" class="confirm-delete" title="Registrar llegada" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{viaje.slug}}">
+                                                        <button type="button" class="btn btn-warning btn mt-1 mb-1">Registrar llegada</button>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-4">
+                                                {% if viaje.hasInicio or viaje.hasLlegada is False %}
+                                                    <button type="button" class="btn btn-warning btn disabled">Registrar salida</button>
+                                                {% else %}
+                                                    <a href="{% url 'fletes:registrar-salida-viaje' slug=viaje.slug %}" class="confirm-delete" title="Registrar salida" data-bs-toggle="modal" data-bs-target="#confirmSalidaModal" id="salidaModal">
+                                                        <button type="button" class="btn btn-warning btn mt-1 mb-1">Registrar salida</button>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h5 class="card-text mt-4">Recolección:</h5>
+                                    <p class="card-text">
+                                        {{ viaje.cotizacion_id.solicitud_id.domicilio_id.calle }} {{ viaje.cotizacion_id.solicitud_id.domicilio_id.num_ext }} {{ viaje.cotizacion_id.solicitud_id.domicilio_id.num_int }}, C.P {{ viaje.cotizacion_id.solicitud_id.domicilio_id.cp }},  colonia {{ viaje.cotizacion_id.solicitud_id.domicilio_id.colonia }} {{ viaje.cotizacion_id.solicitud_id.domicilio_id.municipio }}, {{ viaje.cotizacion_id.solicitud_id.domicilio_id.estado}}
+                                    </p>
+                                <h5 class="card-text mt-4">Ruta:</h5>
+                                </div>
+                                <!-- <ul class="list-group list-group-flush">    
+                                    {% if destinos %}
+                                        {% for destino in destinos %}
+                                            <li class="list-group-item">Destino {{ forloop.counter }}: {{ destino.domicilio_id.calle }} {{ destino.domicilio_id.num_ext }} {{ destino.domicilio_id.num_int }}, C.P {{ destino.domicilio_id.cp }},  colonia {{ destino.domicilio_id.colonia }} {{ destino.domicilio_id.municipio }}, {{ destino.domicilio_id.estado}} 
+                                            <br> Entrega de {{ destino.unidades_entregar}} unidades </li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <li class="list-group-item">No hay destinos</li>
+                                    {% endif %}
+                                </ul> -->
+                                {% if viaje.estado_viaje == 'Creado' %}
+                                    <div class="container">
+                                        <h5>Inicia viaje para ver ruta y subir evidencias de entrega</h5>
+                                    </div>
+                                {% else %}
+                                    {% if destinos %}
+                                    <div class="container">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Dirección</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            {% for destino in destinos %}
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">{{ forloop.counter }}</th>
+                                                    <td>{{ destino.domicilio_id.calle }} {{ destino.domicilio_id.num_ext }} {{ destino.domicilio_id.num_int }}, C.P {{ destino.domicilio_id.cp }},  colonia {{ destino.domicilio_id.colonia }} {{ destino.domicilio_id.municipio }}, {{ destino.domicilio_id.estado}}</td>
+                                                    <td>
+                                                        <button onclick="abrir_modal_agregar_evidencia('{% url 'fletes:agregar-evidencia-destino' destino.id %}')" class="btn btn-info btn-sm">Evidencias</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        {% endfor %}
+                                        </table>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                                <div class="card-body">
+                                    <div class="container">
+                                        <div class="row justify-content-center">
+                                            <div class="col-6">
+                                                <a href="{% url 'fletes:viajes' %}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
+                                            </div>
+                                            <div class="col-6">
+                                                {% if allEvidencias %}
+                                                    <a href="{% url 'fletes:viajes' %}"><button type="button" class="btn btn-secondary mt-4"> Finalizar </button></a>
+                                                {% endif %}
+                                            </div>
+                                        </div>    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="agregarEvidencia" role="dialog">
+    </div>
+    <div class="modal fade" id="registrarLlegada" role="dialog">
+    </div>
+    <div class="modal fade" id="salidaModal" role="dialog">
+    </div>
+{% endblock content %}
+
+{% block extrajs %}
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_agregar_evidencia(url){
+            $('#agregarEvidencia').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_registrar_llegada(url){
+            $('#registrarLlegada').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_registrar_llegada(url){
+            $('#salidaModal').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+{% endblock extrajs %}

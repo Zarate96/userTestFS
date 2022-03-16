@@ -10,6 +10,31 @@ conekta.locale = 'es'
 conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
 conekta.api_version = "2.0.0"
 
+TELEFONIAS = (
+    ('Telcel','Telcel'),
+    ('Movistar','Movistar'),
+    ('Unefón','Unefón'),
+    ('AT&T México','AT&T México'),
+    ('Altán Redes','Altán Redes'),
+)
+
+RADIO_TYPE = (
+    ('gsm','gsm'),
+    ('lte','lte'),
+)
+
+class Telefonias(models.Model):
+    carrier = models.CharField(verbose_name="Nombre de la compañia", choices=TELEFONIAS, max_length=50)
+    mcc = models.IntegerField(verbose_name="Mobile Country Code")
+    mnc = models.CharField(verbose_name="Home MobileNetwork Code", max_length=5)
+    radioType = models.CharField(verbose_name="Tipo de radio", choices=RADIO_TYPE, max_length=15)
+
+    class Meta:
+        verbose_name = 'Telefonias'
+
+    def __str__(self):
+        return f'{self.carrier}'
+
 ESTADOS = (
     ('Aguascalientes','Aguascalientes'),
     ('Baja California','Baja California'),
@@ -153,6 +178,7 @@ class Transportista(models.Model):
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
+    telefonia_movil = models.ForeignKey(Telefonias, verbose_name="Telefonía Movil", null=True, on_delete=models.CASCADE)
     slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):

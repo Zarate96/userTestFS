@@ -21,38 +21,33 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             {% if viajes %}
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Folio</th>
-                                        <th>Fecha Solicitud</th>
-                                        <th>Tipo de viaje</th>
-                                        <th>Descripción</th>
-                                        <th>Características de carga</th>
-                                        <th>Fecha de servicio</th>
-                                        <th class="text-center">Material peligroso</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for solicitud in viajes%}
-                                    <tr>
-                                        <td>{{solicitud.folio}}</td>
-                                        <td>{{solicitud.creado|date:"d-m-Y"}}</td>
-                                        <td>{{solicitud.has_destinos}}</td>
-                                        <td>{{solicitud.descripcion_servicio}}</td>
-                                        <td>{{solicitud.caracteristicas_carga}}</td>
-                                        <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
-                                        {% if solicitud.material_peligroso %}
-                                            <td class="text-center"><i class="fas fa-check"></i></td>
-                                        {% else %}
-                                            <td class="text-center">No</td>
-                                        {% endif%}
-                                        <td><a href="{% url 'fletes:agregar-cotizacion' solicitud.slug %}"><button class="btn btn-primary">Cotizar</button></a></td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio</th>
+                                            <th>Fecha</th>
+                                            <th>Hora</th>
+                                            <th>Estado</th>
+                                            <th>Cliente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for viaje in viajes%}
+                                            {# Get all viajes of curent user #}
+                                            {% if viaje.cotizacion_id.transportista_id == user.transportista %}
+                                            <tr>
+                                                <td><a href="{% url 'fletes:detalle-viaje' viaje.slug %}">{{viaje.folio}}</a></td>
+                                                <td>{{viaje.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
+                                                <td>{{viaje.cotizacion_id.solicitud_id.hora}}</td>
+                                                <td>{{viaje.estado_viaje}}</td>
+                                                <td>{{viaje.cotizacion_id.solicitud_id.cliente_id}}</td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             {% else %}
                             <h2>No tienes viajes registradas</h2>
                             {% endif %}
@@ -76,64 +71,35 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="row">
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-                                <a href="{% url 'fletes:agregar-solicitud' %}"><button class="btn btn-primary" type="button">Agregar solicitud</button></a>
-                            </div>
-                            {% if solicitudes %}
+                            
+                            {% if viajes %}
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th>Folio</th>
-                                            <th>Fecha Solicitud</th>
-                                            <th>Tipo de viaje</th>
-                                            <th>Descripción</th>
-                                            <th>Características de carga</th>
-                                            <th>Fecha de servicio</th>
-                                            <th>Material peligroso</th>
+                                            <th>NIP</th>
                                             <th>Estado</th>
+                                            <th>Usuario</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for solicitud in solicitudes%}
-                                        <tr>
-                                            <td>{{solicitud.folio}}</td>
-                                            <td>{{solicitud.creado|date:"d-m-Y"}}</td>
-                                            <td>{{solicitud.has_destinos}}</td>
-                                            <td>{{solicitud.descripcion_servicio}}</td>
-                                            <td>{{solicitud.caracteristicas_carga}}</td>
-                                            <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
-                                            {% if solicitud.material_peligroso %}
-                                                <td class="text-center"><i class="fas fa-check"></i></td>
-                                            {% else %}
-                                                <td class="text-center">No</td>
-                                            {% endif%}
-                                            <td>{{solicitud.estado_solicitud}}</td>
-                                            {% if solicitud.estado_solicitud == 'Guardada' or solicitud.estado_solicitud == 'Publicada' %}
-                                                {% if solicitud.estado_solicitud == 'Guardada' %}
-                                                    <td class="text-center"><a href="{% url 'fletes:agregar-destino' solicitud.id %}" title="Agregar destino"><i class="fas fa-plus"></i></a></td>
-                                                {% endif %}
-                                            <td class="text-center"><a href="{% url 'fletes:detalle-solicitud' solicitud.slug %}"><i class="far fa-eye"></i></a></td>
-                                            <td class="text-center">
-                                                <a href="{% url 'fletes:delete-solicitud' solicitud.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" 
-                                                data-bs-target="#confirmDeleteModal" id="deleteButton{{solicitud.id}}" title="Eliminar solicitud"><i class="far fa-trash-alt"></i></a>
-                                            </td> 
+                                        {% for viaje in viajes%}
+                                            {# Get all viajes of curent user #}
+                                            {% if viaje.getClienteId == user.cliente %}
+                                            <tr>
+                                                <td>{{viaje.folio}}</td>
+                                                <td>{{viaje.nip}}</td>
+                                                <td>{{viaje.estado_viaje}}</td>
+                                                <td>{{viaje.getClienteId}} {{user.cliente}}</td>
+                                            </tr>
                                             {% endif %}
-                                            {% if solicitud.estado_solicitud == 'Cotizada' %}
-                                            <td><a href="{% url 'fletes:cotizaciones-cliente' solicitud.slug %}" ><button class="btn btn-primary btn-sm">Cotizaciones</button></a></td>
-                                            <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
-                                            {% endif %}
-                                            {% if solicitud.estado_solicitud == 'Asignada' %}
-                                            <td class="text-center"><a href="{% url 'fletes:seleccionar-seguro' solicitud.cotizacionFinal.slug %}" title="Pagar solicitud"><i class="fas fa-credit-card"></i></a></td>
-                                            <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
-                                            {% endif %}
-                                        </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
                             {% else %}
-                            <h2>No tienes solicitudes registradas</h2>
+                            <h2>No tienes viajes registradas</h2>
                             {% endif %}
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Solicitud, Destino, Domicilios, Cotizacion
+from .models import Solicitud, Destino, Domicilios, Cotizacion, Viaje
 
 class TimeInput(forms.TimeInput):
     input_type = "time"
@@ -101,3 +101,15 @@ class AgregarSeguroForm(forms.ModelForm):
         }
     
     field_order = ['es_asegurada','nivel_seguro']
+
+class AgregarEvidenciaForm(forms.ModelForm):
+    class Meta:
+        model = Destino
+        fields = ['foto1','foto2','foto3','foto4','foto5',]
+        labels = {
+            'foto1':'Foto 1',
+            'foto2':'Foto 2',
+            'foto3':'Foto 3',
+            'foto4':'Foto 4',
+            'foto5':'Foto 5'
+        }
