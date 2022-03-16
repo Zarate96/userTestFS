@@ -26,12 +26,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-=y(gi(7@k2tu!sru!-2q*z258(x^8f0ccjoj_7q^4a#i#h+elp'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-
-
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     #My_apps
-    'usuarios',
+    'usuarios.apps.UusariosConfig',
     'fletes.apps.FletesConfig',
 
     #Third_apps
@@ -173,4 +167,4 @@ AWS_DEFAULT_ACL = None
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-DEFAULT_DOMAIN = 'https://fleteseguro.mx'
+#DEFAULT_DOMAIN = 'https://fleteseguro.mx'
