@@ -14,7 +14,7 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fsproduction',
+        'NAME': 'fsproductions',
         'USER': 'endicom',
         'PASSWORD': 'Endicom*1307',
         'HOST': 'localhost',
