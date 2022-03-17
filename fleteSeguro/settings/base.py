@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     #My_apps
-    'usuarios.apps.UsariosConfig',
+    'usuarios.apps.UsuariosConfig',
     'fletes.apps.FletesConfig',
 
     #Third_apps
