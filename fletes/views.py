@@ -879,9 +879,6 @@ def registrarLlegada(request, slug):
     if viaje:
         data = {
             "homeMobileCountryCode": transportista.telefonia_movil.mcc,
-            "homeMobileNetworkCode": transportista.telefonia_movil.mnc,
-            "radioType": transportista.telefonia_movil.radioType,
-            "carrier": transportista.telefonia_movil.carrier,
         }
         try:
             location = requests.post(url, data = keys, json=data)
