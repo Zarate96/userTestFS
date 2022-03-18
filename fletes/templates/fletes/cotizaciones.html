@@ -43,7 +43,7 @@
                                             <td><a href="{% url 'fletes:detalle-cotizacion' cotizacion.slug %}"><i class="far fa-eye"></i></a></td>
                                             {% if cotizacion.estado_cotizacion == 'Aceptada' %}
                                                 <td><a href="{% url 'fletes:confirmar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Confirmar</button></a></td>
-                                                <td><a href=""><button class="btn btn-danger btn-sm">Cancelar</button></a></td>
+                                                <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-cotizacion' cotizacion.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             {% else %}
                                                 {% if cotizacion.estado_cotizacion == 'Confirmada' %}
                                                 <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-cotizacion' cotizacion.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
