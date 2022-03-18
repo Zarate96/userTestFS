@@ -817,14 +817,14 @@ class ViajesDetalle(DetailView):
         destinos = Destino.objects.filter(solicitud_id=viaje.cotizacion_id.solicitud_id)
         allEvidencias = True
         for destino in destinos:
-            if destino.hasEvidencias is True:
+            if destino.hasEvidencias() is True:
                 allEvidencias = True
-                print(destino.hasEvidencias())
+                #print(destino.hasEvidencias())
             else:
                 allEvidencias = False
                 break;
 
-        print(allEvidencias)
+        #print(allEvidencias)
         context['destinos'] = destinos
         context['allEvidencias'] = allEvidencias
         return context
@@ -853,19 +853,13 @@ class DestinoAregarEvidencia(UpdateView):
     #     else:
     #         return False
 
-    # def form_valid(self, form):
-    #     self.object = form.save(commit=False)
-    #     with transaction.atomic():
-    #         self.object.estado_cotizacion = 'Cancelada'
-    #         self.object.activo = False
-    #         self.object.save()
-    #         user = self.request.user
-    #         user.penalizaciones = user.penalizaciones + 1
-    #         user.save()
-
-    #     messages.success(self.request, f'Cotización cancelada correctamente')
-        
-    #     return redirect(reverse('fletes:cotizaciones'))
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        destino = self.get_object()
+        viaje = destino.solicitud_id.cotizacionFinal().viaje
+        self.object .save()
+        messages.success(self.request, f'Evidencias agregadas correctamente')   
+        return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
 
 @login_required
 def registrarLlegada(request, slug):
@@ -889,14 +883,20 @@ def registrarLlegada(request, slug):
             "radioType": transportista.telefonia_movil.radioType,
             "carrier": transportista.telefonia_movil.carrier,
         }
-        location = requests.post(url, data = keys, json=data)
-        location = json.loads(location.text)
         try:
-            viaje.hora_llegada = datetime.datetime.now().time()
-            viaje.localizacion_transportista = location['location']
-            viaje.save()
+            location = requests.post(url, data = keys, json=data)
+            location = json.loads(location.text)
+            lat = location['location']['lat']
+            lng = location['location']['lng']
+            reverse_geocode_result = gmaps.reverse_geocode((lat,lng))
+            try:
+                viaje.hora_llegada = datetime.datetime.now().time()
+                viaje.localizacion_transportista = reverse_geocode_result[0]['formatted_address']
+                viaje.save()
+            except ProtectedError:
+                messages.success(request, f'Algo salio mal!!!')
         except ProtectedError:
-            messages.success(request, f'Algo salio mal!!!')
+                messages.success(request, f'Algo salio mal!!!')
     
     return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
 
@@ -929,4 +929,23 @@ def registrarSalida(request, slug):
             messages.success(request, f'Algo salio mal!!!')
     
     return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
-        
+
+@login_required
+def finalizarViaje(request, slug):
+    
+    try:
+        transportista = request.user.transportista
+    except ObjectDoesNotExist:
+        raise PermissionDenied()
+    
+    viaje = get_object_or_404(Viaje, slug=slug)
+    
+    if viaje.cotizacion_id.transportista_id != transportista:
+        raise PermissionDenied()
+
+    if viaje:
+        viaje.estado_viaje = "Cerrado"
+        viaje.save()
+        messages.success(request, f'Viaje finalizado correctamente')
+    
+    return HttpResponseRedirect(reverse('fletes:viajes'))

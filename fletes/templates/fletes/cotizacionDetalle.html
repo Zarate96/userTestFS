@@ -19,11 +19,12 @@
                         <div class="col-lg-6 offset-lg-3">
                             <div class="card">
                                 <div class="card-body">
-                                  <h5 class="card-title">Folio de cotización: {{cotizacion.folio}}</h5>
-                                  <p class="card-text">Fecha del servicio: {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
-                                  <h5 class="card-text mt-4">Salida:</h5>
-                                  <p class="card-text">De C.P.: {{solicitud.domicilio_id.cp}}</p>
-                                  <h5 class="card-text mt-4">Ruta:</h5>
+                                    <h5 class="card-title">Folio de cotización: {{cotizacion.folio}}</h5>
+                                    <p class="card-text">Fecha del servicio: {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
+                                    <p class="card-text">Hora del servicio: {{solicitud.hora}}</p>
+                                    <h5 class="card-text mt-4">Salida:</h5>
+                                    <p class="card-text">De C.P.: {{solicitud.domicilio_id.cp}}</p>
+                                    <h5 class="card-text mt-4">Ruta:</h5>
                                 </div>
                                 <ul class="list-group list-group-flush">
                                     {% if destinos %}

@@ -38,5 +38,6 @@ urlpatterns = [
     path('viaje/detalle/<slug:slug>', ViajesDetalle.as_view(), name='detalle-viaje'),
     path('viaje/registrarllegada/<slug:slug>', registrarLlegada, name='registrar-llegada-viaje'),
     path('viaje/registrarsalida/<slug:slug>', registrarSalida, name='registrar-salida-viaje'),
+    path('viaje/finalizar/<slug:slug>', finalizarViaje, name='finzalizar-viaje'),
     path('destino/agregarevidencia/<int:pk>', DestinoAregarEvidencia.as_view(), name='agregar-evidencia-destino'),
 ]

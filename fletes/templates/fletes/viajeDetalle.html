@@ -100,7 +100,7 @@
                                             </div>
                                             <div class="col-6">
                                                 {% if allEvidencias %}
-                                                    <a href="{% url 'fletes:viajes' %}"><button type="button" class="btn btn-secondary mt-4"> Finalizar </button></a>
+                                                    <a href="{% url 'fletes:finzalizar-viaje' viaje.slug %}"><button type="button" class="btn btn-secondary mt-4"> Finalizar </button></a>
                                                 {% endif %}
                                             </div>
                                         </div>    

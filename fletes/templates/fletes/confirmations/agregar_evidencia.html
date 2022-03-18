@@ -5,7 +5,7 @@
             <h5 class="modal-title">Agregar evidencias de entrega</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="{% url 'fletes:agregar-evidencia-destino' object.id %}" method="POST">
+        <form action="{% url 'fletes:agregar-evidencia-destino' object.id %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="modal-body">
                 <p>Agrega tus evidencias de entrega</p>

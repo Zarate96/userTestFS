@@ -83,7 +83,8 @@ def activate_user(request, uidb64, token):
         messages.add_message(request, messages.SUCCESS, 'Email verificado, ya puede iniciar sesion')
         return redirect(reverse('login'))
 
-    return render(request, 'usuarios/activate_failed.html', {"user": user})
+    messages.add_message(request, messages.SUCCESS, 'Lo sentimos algo salio mal!!!')
+    return redirect(reverse('login'))
 
 def home(request):
     return render(request, 'home.html')

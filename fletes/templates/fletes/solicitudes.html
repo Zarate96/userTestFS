@@ -25,11 +25,11 @@
                                 <thead>
                                     <tr>
                                         <th>Folio</th>
-                                        <th>Fecha Solicitud</th>
                                         <th>Tipo de viaje</th>
                                         <th>Descripción</th>
                                         <th>Características de carga</th>
                                         <th>Fecha de servicio</th>
+                                        <th>Hora del servicio</th>
                                         <th class="text-center">Material peligroso</th>
                                         <th>Estado</th>
                                     </tr>
@@ -38,11 +38,11 @@
                                     {% for solicitud in solicitudes%}
                                     <tr>
                                         <td>{{solicitud.folio}}</td>
-                                        <td>{{solicitud.creado|date:"d-m-Y"}}</td>
                                         <td>{{solicitud.has_destinos}}</td>
                                         <td>{{solicitud.descripcion_servicio}}</td>
                                         <td>{{solicitud.caracteristicas_carga}}</td>
                                         <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
+                                        <td>{{solicitud.hora}}</td>
                                         {% if solicitud.material_peligroso %}
                                             <td class="text-center"><i class="fas fa-check"></i></td>
                                         {% else %}
