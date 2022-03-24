@@ -209,7 +209,7 @@ NIVEL_SEGURO = (
 class Seguro(models.Model):
     nombre = models.CharField(verbose_name="Seguro", max_length=40, default="")
     costo = models.FloatField(verbose_name="Costo del seguro")
-    cobertura = models.TextField()
+    cobertura = models.FloatField(verbose_name="Costo del seguro")
 
     def __str__(self):
         return f'{self.nombre}'
@@ -233,7 +233,7 @@ class Cotizacion(models.Model):
         verbose_name="Monto")
     folio = models.CharField(verbose_name="Folio", max_length=20, editable=False, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
-    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", null=True, blank=True)
     total = models.FloatField(
         verbose_name="Total", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
@@ -249,7 +249,7 @@ class Cotizacion(models.Model):
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
-    checkoutUrl = models.URLField(max_length = 200, default="")
+    checkoutUrl = models.URLField(max_length = 200, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
