@@ -30,6 +30,7 @@ urlpatterns = [
     path('cotizacion/detalle/<slug:slug>', CotizacionDetalle.as_view(), name='detalle-cotizacion'),
     path('cotizacion/cancelar/<slug:slug>', CotizacionCancel.as_view(), name='cancelar-cotizacion'),
     path('pagar/seguro/<slug:slug>', SeleccionarSeguro.as_view(), name='seleccionar-seguro'),
+    path('pagar/checkout/<slug:slug>', checkout.as_view(), name='checkout'),
     path('pagar/<slug:slug>', PagarCotizacion, name='pagar-solicitud'),
     path('pagar/confirmado', PagoConfirmado, name='pagar-confirmado'),
     path('pagar/denegado', PagoDenegado, name='pagar-denegado'),

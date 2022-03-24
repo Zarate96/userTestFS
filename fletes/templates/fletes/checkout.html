@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include 'usuarios/confirm_delete_modal.html' %}
+    
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4r">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-5 col-lg-4 order-md-last">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-primary">Tu Cotización</span>
+                    <span class="badge bg-primary rounded-pill"></span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                            <h6 class="my-0">{{cotizacion.folio}}</h6>
+                            <small class="text-muted">Folio de cotización</small>
+                            </div>
+                            <span class="text-muted">${{cotizacion.monto}} mxm</span>
+                        </li>
+                        {% if cotizacion.es_asegurada %}
+                            <li class="list-group-item d-flex justify-content-between lh-sm">
+                                <div>
+                                <h6 class="my-0">{{cotizacion.nivel_seguro.nombre}}</h6>
+                                <small class="text-muted">Nivel de seguro seleccionado</small>
+                                </div>
+                                <span class="text-muted">${{cotizacion.nivel_seguro.costo}} mxm</span>
+                            </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Subtotal</span>
+                            <strong>${{subtotal}} mxm</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                            <h6 class="my-0">IVA</h6>
+                            <small class="text-muted">16% del total</small>
+                            </div>
+                            <span class="text-muted">${{iva}} mxm</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between bg-light">
+                            <div class="text-success">
+                            <h6 class="my-0">TOTAL</h6>
+                            <small></small>
+                            </div>
+                            <strong class="text-success">${{cotizacion.total}} mxm</strong>
+                        </li>
+                        
+                    </ul>
+            
+                    <button class="btn btn-secondary w-75" type="button">Pagar</button>
+                    
+                </div>
+                <div class="col-md-7 col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Folio de cotización: {{cotizacion.folio}}</h5>
+                            <p class="card-text">Fecha del servicio: {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
+                            <p class="card-text">Hora del servicio: {{solicitud.hora}}</p>
+                            <h5 class="card-text mt-4">Salida:</h5>
+                            <p class="card-text">De C.P.: {{solicitud.domicilio_id.cp}}</p>
+                            <h5 class="card-text mt-4">Ruta:</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% if destinos %}
+                                {% for destino in destinos %}
+                                    <li class="list-group-item">Destino {{ forloop.counter }}: C.P.{{ destino.domicilio_id.cp }} con entrega de {{ destino.unidades_entregar}} unidades </li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="list-group-item">No hay destinos</li>
+                            {% endif %}
+                        </ul>
+                        <div class="card-body mt-3">
+                            <h5 class="card-text mt-4">Descripción del servicio:</h5>
+                            <p class="card-text">{{solicitud.descripcion_servicio}}</p>
+                        </div>
+                        <div class="card-body mt-3">
+                            <p class="h5">Caracteristicas de carga</p>
+                        </div>
+                        
+                        <div class="col-md-12 mb-1">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Tipo de carga</th>
+                                        <th scope="col">Peso</th>
+                                        <th scope="col">Volumen</th>
+                                        <th scope="col">Unidades totales</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>{{solicitud.caracteristicas_carga}}</td>
+                                    <td>{{solicitud.peso_carga}} kg</td>
+                                    <td>{{solicitud.volumen_carga}} mt3</td>
+                                    <td>{{solicitud.unidades_totales}} unidades</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

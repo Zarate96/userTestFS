@@ -55,7 +55,7 @@ class SolicitudListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(activo=False)
+        return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(estado_solicitud="Asignada").exclude(estado_solicitud="Cancelada").exclude(activo=False)
 
 class SolicitudesAgregar(UserPassesTestMixin, CreateView):
     model = Solicitud
@@ -327,12 +327,28 @@ class DomicilioAgregar(UserPassesTestMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        user = self.request.user.cliente
         self.object = form.save(commit=False)
-        self.object.cliente_id = user
-        self.object.save()
+        user = self.request.user.cliente
+        current_name = self.object.nombre
+        domicilios = Domicilios.objects.filter(
+            cliente_id=user
+        )
+        flag = True
+        for domicilio in domicilios:
+            if flag == False:
+                flag = False
+            elif domicilio.nombre == current_name:
+                flag = False
+        
+        if flag == False:
+            messages.success(self.request, f'Ya existe un domicilio registrado con este nombre')
+        else:
+            self.object.cliente_id = user
+            self.object.save()
+            messages.success(self.request, f'Domicilio agregado correctamente')
+        
         return redirect(reverse('fletes:domicilios'))
-
+            
 class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
     model = Domicilios
     template_name = 'fletes/agregarDomicilio.html'
@@ -461,7 +477,15 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
         solicitud = get_object_or_404(Solicitud, slug=slug)
         destinos = Destino.objects.filter(solicitud_id=solicitud.id)
         context['destinos'] = destinos
+        locations = []
+        locations.append({'lat':float(solicitud.domicilio_id.latitud), 'lng':float(solicitud.domicilio_id.longitud)})
+        for destino in destinos:
+            locations.append({'lat':float(destino.domicilio_id.latitud), 'lng':float(destino.domicilio_id.longitud)})
+        center = locations[0]
+        #print(locations)
         context['solicitud'] = solicitud
+        context['center'] = center
+        context['locations'] = locations
         return context
 
     def get_form(self, form_class=None):
@@ -476,16 +500,18 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.transportista_id = user.transportista
         self.object.solicitud_id = solicitud
-        if Cotizacion.objects.filter(solicitud_id=solicitud, transportista_id=user.transportista).exists():
-            messages.success(self.request, f'Ya has cotizado la solicitud {solicitud.folio}')
-        else:  
-            try:
-                self.object.save()
-                messages.success(self.request, f'Cotización agregada correctamente')
-            except IntegrityError as e:
-                messages.success(self.request, f'Ya creaste una cotización para esta solicitud')
-                print(e)
-        
+        if solicitud.estado_solicitud == 'Publicada' or solicitud.estado_solicitud == 'Cotizada':
+            if Cotizacion.objects.filter(solicitud_id=solicitud, transportista_id=user.transportista).exists():
+                messages.success(self.request, f'Ya has cotizado la solicitud {solicitud.folio}')
+            else:  
+                try:
+                    self.object.save()
+                    messages.success(self.request, f'Cotización agregada correctamente')
+                except IntegrityError as e:
+                    messages.success(self.request, f'Ya creaste una cotización para esta solicitud')
+                    print(e)
+        else:
+            raise PermissionDenied()
         return redirect(reverse('fletes:cotizaciones'))
 
 class CotizacionListClienteView(ListView):
@@ -716,11 +742,39 @@ class SeleccionarSeguro(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        if self.object.es_asegurada:
+            if self.object.nivel_seguro == '' or self.object.nivel_seguro == None:
+                messages.success(self.request, f'Porfavor seleccione un nivel de seguro')
+                return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
+        else:
+            self.object.nivel_seguro = None
+
         self.object.save()
         messages.success(self.request, f'Información validada correctamente')
         
-        return redirect(reverse('fletes:pagar-solicitud', kwargs={'slug': self.object.slug}))
-    
+        return redirect(reverse('fletes:checkout', kwargs={'slug': self.object.slug}))
+
+class checkout(DetailView):
+    model = Cotizacion
+    template_name = 'fletes/checkout.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        cotizacion = self.get_object()
+        destinos = Destino.objects.filter(solicitud_id=cotizacion.solicitud_id)
+        solicitud = Solicitud.objects.get(id=cotizacion.solicitud_id.id)
+        iva = cotizacion.monto * 0.16
+        if cotizacion.es_asegurada:
+            subtotal = cotizacion.monto + cotizacion.nivel_seguro.costo
+        else:
+            subtotal = cotizacion.monto
+
+        context['destinos'] = destinos
+        context['solicitud'] = solicitud
+        context['subtotal'] = subtotal
+        context['iva'] = iva
+        return context
+
 @login_required
 def PagarCotizacion(request, slug):
     cotizacion = get_object_or_404(Cotizacion, slug=slug)
@@ -766,11 +820,11 @@ def PagarCotizacion(request, slug):
         }
         try:
             checkout = conekta.Order.create(order)
-            print("orden creada")
-            print(checkout.url)
-            url = checkout.url
-            cotizacion.checkoutUrl = url
-            cotizacion.save()
+            # print("orden creada")
+            # #print(checkout.url)
+            # url = checkout.url
+            # cotizacion.checkoutUrl = url
+            # cotizacion.save()
 
         except conekta.ConektaError as e:
             print(e.message)

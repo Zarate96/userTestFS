@@ -152,7 +152,7 @@ class Solicitud(models.Model):
 
     def cotizacionFinal(self):
         cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada')
-        return cotizacion[0]
+        return cotizacion[0] if cotizacion else False
 
 def createFolioSolicitud(sender,instance,**kwargs):
     folio = instance.id
@@ -234,12 +234,15 @@ class Cotizacion(models.Model):
     folio = models.CharField(verbose_name="Folio", max_length=20, editable=False, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
     motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
+    total = models.FloatField(
+        verbose_name="Total", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
     nivel_seguro = models.ForeignKey(
         Seguro, 
         verbose_name="Nivel de Seguro",
         on_delete=models.CASCADE,
-        null=True)
+        null=True,
+        blank=True)
     es_asegurada = models.BooleanField(
         verbose_name="Viaje asegurado",
         default=False,)
@@ -250,9 +253,19 @@ class Cotizacion(models.Model):
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
+        iva = 0.16
         if not self.id:
             self.creado = timezone.now()
+        
+        self.total = 0
+        if self.es_asegurada:
+            subtotal = self.monto + self.nivel_seguro.costo
+        else:
+            subtotal = self.monto
+        self.total = subtotal + subtotal * iva
+        
         self.modificado = timezone.now()
+        
         return super(Cotizacion, self).save(*args, **kwargs)
     
     def __str__(self):
