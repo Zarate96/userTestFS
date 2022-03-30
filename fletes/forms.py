@@ -70,7 +70,7 @@ class DomicilioForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo','es_asegurada','nivel_seguro','checkoutUrl')
+        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo','es_asegurada','nivel_seguro','checkoutUrl','total')
 
 class CotizacionMotivoCancelacioForm(forms.ModelForm):
     class Meta:
@@ -92,12 +92,16 @@ class AgregarSeguroForm(forms.ModelForm):
     es_asegurada = forms.ChoiceField(choices=((True, 'Si'), (False, 'No')),
                                widget=forms.RadioSelect,
                                label="¿Desea asegurar su viaje?",)
+    aceptar_tyc = forms.ChoiceField(choices=((True, 'Si'), (False, 'No')),
+                               widget=forms.RadioSelect,
+                               label="He leído y estoy de acuerdo con los términos y condiciones de la póliza de seguro de fleteseguro",)
     class Meta:
         model = Cotizacion
-        fields = ['nivel_seguro','es_asegurada']
+        fields = ['nivel_seguro','es_asegurada','aceptar_tyc']
         labels = {
             'nivel_seguro':'Nivel de seguro',
             'es_asegurada':'¿Desea asegurar su viaje?',
+            'aceptar_tyc':'He leído y estoy de acuerdo con los términos y condiciones de la póliza de seguro de fleteseguro'
         }
     
     field_order = ['es_asegurada','nivel_seguro']

@@ -58,7 +58,7 @@
                         
                     </ul>
             
-                    <button class="btn btn-secondary w-75" type="button">Pagar</button>
+                    <a href="{% url 'fletes:pagar-cotizacion' slug=cotizacion.slug %}"><button class="btn btn-secondary w-75" type="button">Pagar</button></a>
                     
                 </div>
                 <div class="col-md-7 col-lg-8">

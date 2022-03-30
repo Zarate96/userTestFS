@@ -746,6 +746,9 @@ class SeleccionarSeguro(UpdateView):
             if self.object.nivel_seguro == '' or self.object.nivel_seguro == None:
                 messages.success(self.request, f'Porfavor seleccione un nivel de seguro')
                 return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
+            if self.object.aceptar_tyc == False or self.object.aceptar_tyc == None:
+                messages.success(self.request, f'Porfavor acepte los términos y condiciones')
+                return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
         else:
             self.object.nivel_seguro = None
 
@@ -763,12 +766,12 @@ class checkout(DetailView):
         cotizacion = self.get_object()
         destinos = Destino.objects.filter(solicitud_id=cotizacion.solicitud_id)
         solicitud = Solicitud.objects.get(id=cotizacion.solicitud_id.id)
-        iva = cotizacion.monto * 0.16
+        
         if cotizacion.es_asegurada:
             subtotal = cotizacion.monto + cotizacion.nivel_seguro.costo
         else:
             subtotal = cotizacion.monto
-
+        iva = subtotal * 0.16
         context['destinos'] = destinos
         context['solicitud'] = solicitud
         context['subtotal'] = subtotal
@@ -789,47 +792,78 @@ def PagarCotizacion(request, slug):
         
     if cotizacion.checkoutUrl:
         url = cotizacion.checkoutUrl
+        return HttpResponseRedirect(url)
     else:
+        total = f'{int(cotizacion.total)}00'
         today = datetime.datetime.now()
         fecha_limite = today + datetime.timedelta(days=3)
         fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
         order = {
-            "currency": "MXN",
-            "customer_info": {
-                "customer_id": request.user.cliente.conektaId
-            },
-            "line_items": [{
-                "name": cotizacion.folio,
-                "unit_price": 500000,
-                "quantity": 1
-            }],
-            "shipping_lines": [{
-                "amount": 0
-            }],
-            "checkout": {
-                "type":"HostedPayment",
-                "success_url": "http://fleteseguro.mx/fletes/pagar/confirmado",
-                "failure_url": "http://fleteseguro.mx/fletes/pagar/denegado",
-                "allowed_payment_methods": ["cash", "card", "bank_transfer"],
-                "multifactor_authentication": False,
-                "monthly_installments_enabled": False,
-                "expires_at": round(fecha_limite_timestamp),
-                "redirection_time": 20
-
+            "name": cotizacion.folio,
+            "type": "PaymentLink",
+            "recurrent": False,
+            "expires_at": round(fecha_limite_timestamp),
+            "allowed_payment_methods": ["cash", "card", "bank_transfer"],
+            "needs_shipping_contact": False,
+            "monthly_installments_enabled": False,
+            "order_template": {
+                "line_items": [{
+                    "name": cotizacion.folio,
+                    "unit_price": int(total),
+                    "quantity": 1
+                }],
+                "currency": "MXN",
+                "customer_info": {
+                    "customer_id": request.user.cliente.conektaId
+                },
+                "metadata": {
+                    "mycustomkey": "12345",
+                    "othercustomkey": "abcd"
+                }
             }
         }
+        
         try:
-            checkout = conekta.Order.create(order)
-            # print("orden creada")
-            # #print(checkout.url)
-            # url = checkout.url
-            # cotizacion.checkoutUrl = url
-            # cotizacion.save()
-
+            checkout = conekta.Checkout.create(order)
+            url = checkout.url
+            cotizacion.checkoutUrl = url
+            cotizacion.save()
+            try:
+                dataMail = {
+                    "id": checkout.id,
+                    "name": "Payment Link Name",
+                    "type": "checkout",
+                    "recurrent": False,
+                    "expired_at": round(fecha_limite_timestamp),
+                    "allowed_payment_methods": ["cash", "card", "bank_transfer"],
+                    "needs_shipping_contact": False,
+                    "monthly_installments_enabled": False,
+                    "monthly_installments_options": [3, 6, 9, 12],
+                    "order_template": {
+                        "line_items": [{
+                            "name": cotizacion.folio,
+                            "unit_price": int(total),
+                            "quantity": 1
+                        }],
+                        "currency": "MXN",
+                        "customer_info": {
+                            "customer_id": request.user.cliente.conektaId,
+                            "email": request.user.email
+                        }
+                    }
+                }
+                conekta.Checkout.sendEmail(checkout,dataMail)
+                print('ENVIO DE MAIL CON PAGO')
+            except conekta.ConektaError as e:
+                print(e.message)
+            return HttpResponseRedirect(url)
+        
         except conekta.ConektaError as e:
             print(e.message)
+            messages.success(self.request, f'No se pudo generar la orden!!')
+            return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
 
-    return HttpResponseRedirect(reverse(url))
+    
     
 def PagoConfirmado(request):
     print(request)

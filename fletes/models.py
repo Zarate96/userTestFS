@@ -63,7 +63,7 @@ class Domicilios(models.Model):
     latitud = models.FloatField(verbose_name="Latitud", null=True, blank=True)
     is_valid = models.BooleanField(verbose_name="Es válido", default=True)
     google_format = models.CharField(verbose_name="Dirección completa", max_length=100, null=True, blank=True)
-    google_place_id = models.CharField(verbose_name="Google place ID", max_length=40, null=True, blank=True)
+    google_place_id = models.CharField(verbose_name="Google place ID", max_length=100, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -246,6 +246,9 @@ class Cotizacion(models.Model):
     es_asegurada = models.BooleanField(
         verbose_name="Viaje asegurado",
         default=False,)
+    aceptar_tyc = models.BooleanField(
+        verbose_name="Aceptación de términos y condiciones de seguro",
+        default=False,)
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
@@ -262,7 +265,7 @@ class Cotizacion(models.Model):
             subtotal = self.monto + self.nivel_seguro.costo
         else:
             subtotal = self.monto
-        self.total = subtotal + subtotal * iva
+        self.total = int(subtotal + subtotal * iva)
         
         self.modificado = timezone.now()
         
