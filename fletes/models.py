@@ -61,7 +61,7 @@ class Domicilios(models.Model):
     referencias = models.TextField(verbose_name="Refrencias del domicilio")
     longitud = models.FloatField(verbose_name="Longitud", null=True, blank=True)
     latitud = models.FloatField(verbose_name="Latitud", null=True, blank=True)
-    is_valid = models.BooleanField(verbose_name="Es válido", default=True)
+    is_valid = models.BooleanField(verbose_name="Es válido", default=False)
     google_format = models.CharField(verbose_name="Dirección completa", max_length=100, null=True, blank=True)
     google_place_id = models.CharField(verbose_name="Google place ID", max_length=100, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
