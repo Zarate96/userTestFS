@@ -735,10 +735,26 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
         
         return redirect(reverse('fletes:cotizaciones'))
         
-class SeleccionarSeguro(UpdateView):
+class SeleccionarSeguro(UserPassesTestMixin, UpdateView):
     model = Cotizacion
     form_class = AgregarSeguroForm
     template_name = 'fletes/seleccionarSeguro.html'
+
+    def test_func(self):
+        cotizacion = self.get_object()
+
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if cotizacion.getClienteId() == cliente:
+            return True
+        else:
+            return False
+
+        if cotizacion.estado_cotizacion == "Confirmada":
+            return True
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -757,10 +773,26 @@ class SeleccionarSeguro(UpdateView):
         
         return redirect(reverse('fletes:checkout', kwargs={'slug': self.object.slug}))
 
-class checkout(DetailView):
+class checkout(UserPassesTestMixin, DetailView):
     model = Cotizacion
     template_name = 'fletes/checkout.html'
 
+    def test_func(self):
+        cotizacion = self.get_object()
+
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if cotizacion.getClienteId() == cliente:
+            return True
+        else:
+            return False
+
+        if cotizacion.estado_cotizacion == "Confirmada":
+            return True
+            
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         cotizacion = self.get_object()

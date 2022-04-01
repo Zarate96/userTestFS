@@ -151,7 +151,7 @@ class Solicitud(models.Model):
         return True if cotizaciones else False
 
     def cotizacionFinal(self):
-        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada')
+        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pendiente de pago')
         return cotizacion[0] if cotizacion else False
 
 def createFolioSolicitud(sender,instance,**kwargs):
@@ -197,6 +197,7 @@ ESTADO_COTIZACION = (
     ('Cancelada','Cancelada'),
     ('Solicitud cancelada','Solicitud cancelada'),
     ('Pagada','Pagada'),
+    ('Pendiente de pago','Pendiente de pago')
 )
 
 NIVEL_SEGURO = (
@@ -377,8 +378,20 @@ def addLonLat(sender, instance, **kwargs):
 @receiver(post_save, sender=Cotizacion)
 def crearViaje(sender, instance, **kwargs):
     cotizacion = instance
+
     if cotizacion.estado_cotizacion == 'Pagada':
         viaje = Viaje.objects.create(cotizacion_id=cotizacion)
+
+
+@receiver(post_save, sender=Cotizacion)
+def estadoPago(sender, instance, **kwargs):
+    cotizacion = instance
+
+    if cotizacion.estado_cotizacion == 'Confirmada' and cotizacion.checkoutUrl:
+        Cotizacion.objects.filter(id=instance.id).update(
+            estado_cotizacion = 'Pendiente de pago'
+        )
+        
 
 # @receiver(post_save, sender=Viaje)
 # def createFolioViaje(sender,instance,**kwargs):
