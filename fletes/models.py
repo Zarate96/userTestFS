@@ -189,6 +189,7 @@ class Destino(models.Model):
     def hasEvidencias(self):
         return True if self.foto1 else False
 
+#Cambiar Rechazada a No exitosa
 ESTADO_COTIZACION = (
     ('Pendiente','Pendiente'),
     ('Aceptada','Aceptada'),
