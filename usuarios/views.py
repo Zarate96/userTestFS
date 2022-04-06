@@ -20,7 +20,9 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str, force_text, DjangoUnicodeDecodeError
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.views import PasswordResetView
 
 from .utils import generate_token
 from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro
@@ -85,6 +87,22 @@ def activate_user(request, uidb64, token):
 
     messages.add_message(request, messages.SUCCESS, 'Lo sentimos algo salio mal!!!')
     return redirect(reverse('login'))
+
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'usuarios/password_reset.html'
+    email_template_name = 'usuarios/password_reset_email.html'
+    subject_template_name = 'usuarios/password_reset_subject'
+    success_message = "Le hemos enviado instrucciones por correo electrónico para restablecer su contraseña, " \
+                      "si existe una cuenta con el correo electrónico que ingresó debería recibirlos en breve." \
+                      "Si no recibe un correo electrónico," \
+                      "asegúrese de haber ingresado la dirección con la que se registró y verifique su carpeta de correo no deseado."
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        kwargs['protocol'] = 'https'
+        return super().get_context_data(**kwargs)
+
+    success_url = reverse_lazy('home')
 
 def home(request):
     return render(request, 'home.html')

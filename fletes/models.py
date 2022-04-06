@@ -211,7 +211,7 @@ NIVEL_SEGURO = (
 class Seguro(models.Model):
     nombre = models.CharField(verbose_name="Seguro", max_length=40, default="")
     costo = models.FloatField(verbose_name="Costo del seguro")
-    cobertura = models.FloatField(verbose_name="Costo del seguro")
+    cobertura = models.FloatField(verbose_name="Cobertura del seguro")
 
     def __str__(self):
         return f'{self.nombre}'
