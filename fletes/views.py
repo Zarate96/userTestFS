@@ -880,12 +880,9 @@ def PagarCotizacion(request, slug):
                         "currency": "MXN",
                         "customer_info": {
                             "customer_id": request.user.cliente.conektaId,
-                            "email": request.user.email
                         }
                     }
                 }
-                conekta.Checkout.sendEmail(checkout,dataMail)
-                print('ENVIO DE MAIL CON PAGO')
             except conekta.ConektaError as e:
                 print(e.message)
             return HttpResponseRedirect(url)

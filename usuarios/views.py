@@ -93,7 +93,7 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     email_template_name = 'usuarios/password_reset_email.html'
     subject_template_name = 'usuarios/password_reset_subject'
     success_message = "Le hemos enviado instrucciones por correo electrónico para restablecer su contraseña, " \
-                      "si existe una cuenta con el correo electrónico que ingresó debería recibirlos en breve." \
+                      "si existe una cuenta con el correo electrónico que ingresó debería recibirlo en breve." \
                       "Si no recibe un correo electrónico," \
                       "asegúrese de haber ingresado la dirección con la que se registró y verifique su carpeta de correo no deseado."
     
