@@ -826,34 +826,37 @@ def PagarCotizacion(request, slug):
         url = cotizacion.checkoutUrl
         return HttpResponseRedirect(url)
     else:
-        total = f'{int(cotizacion.total)}00'
-        today = datetime.datetime.now()
-        fecha_limite = today + datetime.timedelta(days=3)
-        fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
-        order = {
-            "name": cotizacion.folio,
-            "type": "PaymentLink",
-            "recurrent": False,
-            "expires_at": round(fecha_limite_timestamp),
-            "allowed_payment_methods": ["cash", "card", "bank_transfer"],
-            "needs_shipping_contact": False,
-            "monthly_installments_enabled": False,
-            "order_template": {
-                "line_items": [{
-                    "name": cotizacion.folio,
-                    "unit_price": int(total),
-                    "quantity": 1
-                }],
-                "currency": "MXN",
-                "customer_info": {
-                    "customer_id": request.user.cliente.conektaId
-                },
-                "metadata": {
-                    "mycustomkey": "12345",
-                    "othercustomkey": "abcd"
+        try:
+            total = f'{int(cotizacion.total)}00'
+            today = datetime.datetime.now()
+            fecha_limite = today + datetime.timedelta(days=3)
+            fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
+            order = {
+                "name": cotizacion.folio,
+                "type": "PaymentLink",
+                "recurrent": False,
+                "expires_at": round(fecha_limite_timestamp),
+                "allowed_payment_methods": ["cash", "card", "bank_transfer"],
+                "needs_shipping_contact": False,
+                "monthly_installments_enabled": False,
+                "order_template": {
+                    "line_items": [{
+                        "name": cotizacion.folio,
+                        "unit_price": int(total),
+                        "quantity": 1
+                    }],
+                    "currency": "MXN",
+                    "customer_info": {
+                        "customer_id": request.user.cliente.conektaId
+                    },
+                    "metadata": {
+                        "mycustomkey": "12345",
+                        "othercustomkey": "abcd"
+                    }
                 }
             }
-        }
+        except Exception as e:
+            print(e)
         
         try:
             checkout = conekta.Checkout.create(order)
@@ -885,6 +888,9 @@ def PagarCotizacion(request, slug):
                 }
             except conekta.ConektaError as e:
                 print(e.message)
+                messages.success(self.request, f'No se pudo generar la orden!!')
+                return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
+                
             return HttpResponseRedirect(url)
         
         except conekta.ConektaError as e:
@@ -892,8 +898,6 @@ def PagarCotizacion(request, slug):
             messages.success(self.request, f'No se pudo generar la orden!!')
             return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
 
-    
-    
 def PagoConfirmado(request):
     print(request)
     data = request.path
