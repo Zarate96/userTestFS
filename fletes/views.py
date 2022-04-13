@@ -33,7 +33,7 @@ from usuarios.models import MyUser, Unidades
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
 conekta.locale = 'es'
-conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_key = "key_PtyP3WfyszqxXyKyKCcuzA"
 conekta.api_version = "2.0.0"
 
 class SolicitudClienteListView(ListView):
@@ -863,34 +863,6 @@ def PagarCotizacion(request, slug):
             url = checkout.url
             cotizacion.checkoutUrl = url
             cotizacion.save()
-            try:
-                dataMail = {
-                    "id": checkout.id,
-                    "name": "Payment Link Name",
-                    "type": "checkout",
-                    "recurrent": False,
-                    "expired_at": round(fecha_limite_timestamp),
-                    "allowed_payment_methods": ["cash", "card", "bank_transfer"],
-                    "needs_shipping_contact": False,
-                    "monthly_installments_enabled": False,
-                    "monthly_installments_options": [3, 6, 9, 12],
-                    "order_template": {
-                        "line_items": [{
-                            "name": cotizacion.folio,
-                            "unit_price": int(total),
-                            "quantity": 1
-                        }],
-                        "currency": "MXN",
-                        "customer_info": {
-                            "customer_id": request.user.cliente.conektaId,
-                        }
-                    }
-                }
-            except conekta.ConektaError as e:
-                print(e.message)
-                messages.success(self.request, f'No se pudo generar la orden!!')
-                return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
-                
             return HttpResponseRedirect(url)
         
         except conekta.ConektaError as e:

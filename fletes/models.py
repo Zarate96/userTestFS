@@ -254,7 +254,6 @@ class Cotizacion(models.Model):
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
-    checkoutUrl = models.URLField(max_length = 200, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
@@ -280,6 +279,14 @@ class Cotizacion(models.Model):
         cliente_id = self.solicitud_id.cliente_id
         return cliente_id
 
+class Orden(models.Model):
+    cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE, primary_key=True)
+    link_id = models.CharField(max_length = 200, null=True, blank=True)
+    link_url = models.URLField(max_length = 200, null=True, blank=True)
+    link_status = models.CharField(max_length = 200, null=True, blank=True)
+    orden_id = models.CharField(max_length = 200, null=True, blank=True)
+    orden_status = models.CharField(max_length = 200, null=True, blank=True)
+    
 ESTADO_VIAJE = (
     ('Creado','Creado'),
     ('Iniciado','Iniciado'),
