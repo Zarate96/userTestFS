@@ -273,20 +273,27 @@ class Cotizacion(models.Model):
         return super(Cotizacion, self).save(*args, **kwargs)
     
     def __str__(self):
-        return f'Cotización de {self.transportista_id} para solicitud {self.solicitud_id}'
+        return f'{self.folio}'
     
     def getClienteId(self):
         cliente_id = self.solicitud_id.cliente_id
         return cliente_id
 
+ESTADO_ORDEN = (
+    ('Pagada','Pagada'),
+    ('Pendiente','Pendiente'),
+)
+
 class Orden(models.Model):
-    cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE, primary_key=True)
+    cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE)
     link_id = models.CharField(max_length = 200, null=True, blank=True)
     link_url = models.URLField(max_length = 200, null=True, blank=True)
     link_status = models.CharField(max_length = 200, null=True, blank=True)
     orden_id = models.CharField(max_length = 200, null=True, blank=True)
-    orden_status = models.CharField(max_length = 200, null=True, blank=True)
-    
+    orden_status = models.CharField(max_length = 200, null=True, blank=True, choices=ESTADO_ORDEN,)
+    def __str__(self):
+        return f'Orden de cotización {self.cotizacion_id}'
+
 ESTADO_VIAJE = (
     ('Creado','Creado'),
     ('Iniciado','Iniciado'),
@@ -297,33 +304,37 @@ ESTADO_VIAJE = (
 )
 
 class Viaje(models.Model):
-    cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE, primary_key=True)
+    orden_id = models.OneToOneField(Orden, on_delete=models.CASCADE, primary_key=True)
     folio = models.CharField(verbose_name="Folio", max_length=20,  default="")
     slug = models.SlugField(null=True, default="")
     estado_viaje = models.CharField(verbose_name="Estado", choices=ESTADO_VIAJE, max_length=40, default="Creado")
     hora_inicio = models.TimeField(verbose_name="Hora de inicio", null=True, blank=True)
     hora_llegada = models.TimeField(verbose_name="Hora de llegada", null=True, blank=True)
     localizacion_transportista = models.CharField(verbose_name="Localización de transportista", max_length=40)
-    nip = models.IntegerField(verbose_name="NIP de seguridad de viaje", null=True, blank=True)
+    nip_checkin = models.IntegerField(verbose_name="NIP de seguridad checkin", null=True, blank=True)
+    nip_checkout = models.IntegerField(verbose_name="NIP de seguridad checkout", null=True, blank=True)
     comentarios = models.TextField(null=True, blank=True)
     es_validado = models.BooleanField(verbose_name="¿Esta válido por cliente?", default=False)
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
-        if self.nip is None:
+        if self.nip_checkin is None:
             number = f'{random.randint(1,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
-            self.nip = int(number)
+            self.nip_checkin = int(number)
+        if self.nip_checkout is None:
+            number = f'{random.randint(1,9)}{random.randint(0,9)}{random.randint(0,9)}{random.randint(0,9)}'
+            self.nip_checkout = int(number)
         if self.folio is None or self.folio == "":
-            self.folio = f'FS{self.cotizacion_id.getClienteId()}00{self.cotizacion_id.id}'
+            self.folio = f'FS{self.orden_id.cotizacion_id.getClienteId()}00{self.orden_id.cotizacion_id.id}'
         if self.slug is None or self.slug == "":
-            self.slug = f'FS{self.cotizacion_id.getClienteId()}00{self.cotizacion_id.id}'
+            self.slug = f'FS{self.orden_id.cotizacion_id.getClienteId()}00{self.orden_id.cotizacion_id.id}'
         return super(Viaje, self).save(*args, **kwargs)
     
     def __str__(self):
         return f'{self.folio}'
 
     def getClienteId(self):
-        return self.cotizacion_id.getClienteId()
+        return self.orden_id.cotizacion_id.getClienteId()
     
     def hasLlegada(self):
         return True if self.hora_llegada else False
@@ -383,22 +394,22 @@ def addLonLat(sender, instance, **kwargs):
             is_valid = True
         )
 
-@receiver(post_save, sender=Cotizacion)
+@receiver(post_save, sender=Orden)
 def crearViaje(sender, instance, **kwargs):
-    cotizacion = instance
+    orden = instance
 
-    if cotizacion.estado_cotizacion == 'Pagada':
-        viaje = Viaje.objects.create(cotizacion_id=cotizacion)
+    if orden.orden_status == 'Pagada':
+        viaje = Viaje.objects.create(orden_id=orden)
 
 
-@receiver(post_save, sender=Cotizacion)
-def estadoPago(sender, instance, **kwargs):
-    cotizacion = instance
+# @receiver(post_save, sender=Cotizacion)
+# def estadoPago(sender, instance, **kwargs):
+#     cotizacion = instance
 
-    if cotizacion.estado_cotizacion == 'Confirmada' and cotizacion.checkoutUrl:
-        Cotizacion.objects.filter(id=instance.id).update(
-            estado_cotizacion = 'Pendiente de pago'
-        )
+#     if cotizacion.estado_cotizacion == 'Confirmada' and cotizacion.checkoutUrl:
+#         Cotizacion.objects.filter(id=instance.id).update(
+#             estado_cotizacion = 'Pendiente de pago'
+#         )
         
 
 # @receiver(post_save, sender=Viaje)

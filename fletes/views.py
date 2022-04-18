@@ -28,7 +28,7 @@ from .forms import (
     CotizacionMotivoCancelacioForm,
     AgregarSeguroForm,
     AgregarEvidenciaForm,)
-from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje
+from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
@@ -345,7 +345,7 @@ class DomicilioAgregar(UserPassesTestMixin, CreateView):
         else:
             self.object.cliente_id = user
             self.object.save()
-            messages.success(self.request, f'Domicilio agregado correctamente')
+            messages.success(self.request, f'Domicilio agregado correctamente, porfavor verifique su validación.')
         
         return redirect(reverse('fletes:domicilios'))
             
@@ -369,7 +369,12 @@ class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        messages.success(self.request, f'Domicilio editado correctamente')
+        print(self.get_object())
+        domicilio = self.get_object()
+        if domicilio.is_valid:
+            messages.success(self.request, f'Domicilio editado correctamente')
+        else:
+            messages.success(self.request, f'Domicilio incorrecto porfavor verifique la información propocionada')
         return reverse('fletes:domicilios')
 
 @login_required
@@ -753,8 +758,10 @@ class SeleccionarSeguro(UserPassesTestMixin, UpdateView):
         else:
             return False
 
-        if cotizacion.estado_cotizacion == "Confirmada":
-            return True
+        if cotizacion.getClienteId() == cliente:
+            return False if cotizacion.estado_cotizacion != "Confirmada" else True
+        else:
+            return False
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -779,19 +786,15 @@ class checkout(UserPassesTestMixin, DetailView):
 
     def test_func(self):
         cotizacion = self.get_object()
-
         try:
             cliente = self.request.user.cliente
         except ObjectDoesNotExist:
             return False
 
         if cotizacion.getClienteId() == cliente:
-            return True
+            return False if cotizacion.estado_cotizacion != "Confirmada" else True
         else:
             return False
-
-        if cotizacion.estado_cotizacion == "Confirmada":
-            return True
             
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -822,9 +825,6 @@ def PagarCotizacion(request, slug):
     if cotizacion.estado_cotizacion != 'Confirmada':
         raise PermissionDenied()
         
-    if cotizacion.checkoutUrl:
-        url = cotizacion.checkoutUrl
-        return HttpResponseRedirect(url)
     else:
         try:
             total = f'{int(cotizacion.total)}00'
@@ -860,11 +860,12 @@ def PagarCotizacion(request, slug):
         
         try:
             checkout = conekta.Checkout.create(order)
-            url = checkout.url
-            cotizacion.checkoutUrl = url
+            id_link = checkout.id
+            url_link = checkout.url
+            orden = Orden.objects.create(cotizacion_id=cotizacion, link_id=id_link, link_url=url_link)
+            cotizacion.estado_cotizacion = 'Pendiente de pago'
             cotizacion.save()
-            return HttpResponseRedirect(url)
-        
+            return HttpResponseRedirect(url_link)
         except conekta.ConektaError as e:
             print(e.message)
             messages.success(self.request, f'No se pudo generar la orden!!')
@@ -907,7 +908,7 @@ class ViajesDetalle(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         viaje = self.get_object()
-        destinos = Destino.objects.filter(solicitud_id=viaje.cotizacion_id.solicitud_id)
+        destinos = Destino.objects.filter(solicitud_id=viaje.orden_id.cotizacion_id.solicitud_id)
         allEvidencias = True
         for destino in destinos:
             if destino.hasEvidencias() is True:
@@ -955,10 +956,21 @@ class DestinoAregarEvidencia(UpdateView):
         return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
 
 @login_required
-def registrarLlegada(request, slug):
-    url = 'https://www.googleapis.com/geolocation/v1/geolocate'
-    keys = {'key': 'AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec'}
+def dataViajeSeguridad(request, slug):
+    try:
+        cliente = request.user.cliente
+    except ObjectDoesNotExist:
+        raise PermissionDenied()
     
+    viaje = get_object_or_404(Viaje, slug=slug)
+    
+    if viaje.orden_id.cotizacion_id.getClienteId() != cliente:
+        raise PermissionDenied()
+    print(viaje)
+    return render(request, 'fletes/viajeSeguridad.html',{'viaje':viaje})
+
+@login_required
+def registrarLlegada(request, slug):
     try:
         transportista = request.user.transportista
     except ObjectDoesNotExist:
@@ -966,27 +978,22 @@ def registrarLlegada(request, slug):
     
     viaje = get_object_or_404(Viaje, slug=slug)
     
-    if viaje.cotizacion_id.transportista_id != transportista:
+    if viaje.orden_id.cotizacion_id.transportista_id != transportista:
         raise PermissionDenied()
 
     if viaje:
-        data = {
-            "homeMobileCountryCode": transportista.telefonia_movil.mcc,
-        }
-        try:
-            location = requests.post(url, data = keys, json=data)
-            location = json.loads(location.text)
-            lat = location['location']['lat']
-            lng = location['location']['lng']
-            reverse_geocode_result = gmaps.reverse_geocode((lat,lng))
-            try:
-                viaje.hora_llegada = datetime.datetime.now().time()
-                viaje.localizacion_transportista = reverse_geocode_result[0]['formatted_address']
-                viaje.save()
-            except ProtectedError:
-                messages.success(request, f'Algo salio mal!!!')
-        except ProtectedError:
-                messages.success(request, f'Algo salio mal!!!')
+        if 'nip' in request.POST:
+            nip = request.POST['nip']
+            if int(nip) == viaje.nip_checkin:
+                try:
+                    viaje.hora_llegada = datetime.datetime.now().time()
+                    viaje.save()
+                except ProtectedError:
+                    messages.success(request, f'Algo salio mal!!!')
+            else:
+                messages.success(request, f'NIP de viaje incorrecto!!!')
+        else:
+            messages.success(request, f'Algo salio mal!!!')
     
     return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
 
@@ -1000,13 +1007,13 @@ def registrarSalida(request, slug):
     
     viaje = get_object_or_404(Viaje, slug=slug)
     
-    if viaje.cotizacion_id.transportista_id != transportista:
+    if viaje.orden_id.cotizacion_id.transportista_id != transportista:
         raise PermissionDenied()
 
     if viaje:
         if 'nip' in request.POST:
             nip = request.POST['nip']
-            if int(nip) == viaje.nip:
+            if int(nip) == viaje.nip_checkout:
                 try:
                     viaje.hora_inicio = datetime.datetime.now().time()
                     viaje.estado_viaje = 'Iniciado'

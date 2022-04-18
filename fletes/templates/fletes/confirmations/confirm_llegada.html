@@ -1,24 +1,24 @@
-<!--Delete button will redirect to the href of the element with 'id = caller-id' property in this modal-->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" caller-id="" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-body confirm-delete">
-          ¿Estas seguro que deseas registrar tu llegada?
+<!--Registrar hora de llegada-->
+<div class="modal fade" id="confirmLlegadaModal" tabindex="-1" caller-id="" role="dialog" aria-labelledby="confirmLlegadaModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Registrar llegada</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-secondary"  id="confirmDeleteButtonModal">Aceptar</button>
-        </div>
-      </div>
+        <form action="{% url 'fletes:registrar-llegada-viaje' object.slug %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                <p>Ingresa NIP de seguridad proporcionado por el usuario</p>
+                    <div class="form-group">
+                        <input type="text" name="nip" placeholder="Ingresar NIP de viaje"  class="form-control">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-info">Aceptar</button>
+            </div>
+        </form>
     </div>
-    <script>
-        $(document).on('click', '.confirm-delete', function () {
-            $("#confirmDeleteModal").attr("caller-id", $(this).attr("id"));
-        });
-
-        $(document).on('click', '#confirmDeleteButtonModal', function () {
-            var caller = $("#confirmDeleteButtonModal").closest(".modal").attr("caller-id");
-            window.location = $("#".concat(caller)).attr("href");
-        });
-    </script>
+</div>
 </div>

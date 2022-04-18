@@ -35,13 +35,13 @@
                                     <tbody>
                                         {% for viaje in viajes%}
                                             {# Get all viajes of curent user #}
-                                            {% if viaje.cotizacion_id.transportista_id == user.transportista %}
+                                            {% if viaje.orden_id.cotizacion_id.transportista_id == user.transportista %}
                                             <tr>
                                                 <td><a href="{% url 'fletes:detalle-viaje' viaje.slug %}">{{viaje.folio}}</a></td>
-                                                <td>{{viaje.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
-                                                <td>{{viaje.cotizacion_id.solicitud_id.hora}}</td>
-                                                <td>{{viaje.estado_viaje}}</td>
-                                                <td>{{viaje.cotizacion_id.solicitud_id.cliente_id}}</td>
+                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
+                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
+                                                <td>{{viaje.orden_id.estado_viaje}}</td>
+                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.cliente_id}}</td>
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -78,7 +78,6 @@
                                     <thead>
                                         <tr>
                                             <th>Folio</th>
-                                            <th>NIP</th>
                                             <th>Estado</th>
                                             <th>Usuario</th>
                                         </tr>
@@ -88,8 +87,7 @@
                                             {# Get all viajes of curent user #}
                                             {% if viaje.getClienteId == user.cliente %}
                                             <tr>
-                                                <td>{{viaje.folio}}</td>
-                                                <td>{{viaje.nip}}</td>
+                                                <td> <a href="{% url 'fletes:data-seguridad-viaje' slug=viaje.slug %}" class="confirm-delete" title="Detalle de viaje">{{viaje.folio}}</a></td>
                                                 <td>{{viaje.estado_viaje}}</td>
                                                 <td>{{viaje.getClienteId}} {{user.cliente}}</td>
                                             </tr>
@@ -111,7 +109,8 @@
 </section>
 <div class="modal fade" id="ConfirmCancel" role="dialog">
 </div>
-
+<div class="modal fade" id="llegadaModal" role="dialog">
+</div>
 {% endblock content %}
 {% block extrajs %}
     <script type="text/javascript">
@@ -122,4 +121,13 @@
             });
         }
     </script>
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_registrar_llegada(url){
+            $('#llegadaModal').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
 {% endblock extrajs %}
+
