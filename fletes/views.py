@@ -1037,7 +1037,7 @@ def finalizarViaje(request, slug):
     
     viaje = get_object_or_404(Viaje, slug=slug)
     
-    if viaje.cotizacion_id.transportista_id != transportista:
+    if viaje.orden_id.cotizacion_id.transportista_id != transportista:
         raise PermissionDenied()
 
     if viaje:
