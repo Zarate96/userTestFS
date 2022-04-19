@@ -950,7 +950,7 @@ class DestinoAregarEvidencia(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         destino = self.get_object()
-        viaje = destino.solicitud_id.cotizacionFinal().orden_id
+        viaje = destino.solicitud_id.cotizacionFinal().orden
         self.object .save()
         messages.success(self.request, f'Evidencias agregadas correctamente')   
         return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
