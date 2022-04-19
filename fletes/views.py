@@ -953,7 +953,7 @@ class DestinoAregarEvidencia(UpdateView):
         viaje = destino.solicitud_id.cotizacionFinal().orden
         self.object .save()
         messages.success(self.request, f'Evidencias agregadas correctamente')   
-        return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
+        return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.cotizacion_id.slug}))
 
 @login_required
 def dataViajeSeguridad(request, slug):
