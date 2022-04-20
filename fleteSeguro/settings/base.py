@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     #Third_apps
     'crispy_forms',
     'storages',
+    'django_filters',
+    'bootstrapform',
 ]
 
 MIDDLEWARE = [

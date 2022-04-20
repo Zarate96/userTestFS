@@ -30,6 +30,7 @@ from .forms import (
     AgregarEvidenciaForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades
+from .filters import SolicitudesFilter
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
 conekta.locale = 'es'
@@ -50,12 +51,16 @@ class SolicitudClienteListView(ListView):
 
 class SolicitudListView(ListView):
     model = Solicitud
-    template_name = 'fletes/solicitudes.html'
+    template_name = 'fletes/solicitudesFilterList.html'
     context_object_name = 'solicitudes'
 
     def get_queryset(self):
-        user = self.request.user
         return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(estado_solicitud="Asignada").exclude(estado_solicitud="Cancelada").exclude(activo=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter'] = SolicitudesFilter(self.request.GET, queryset=self.get_queryset())
+        return context
 
 class SolicitudesAgregar(UserPassesTestMixin, CreateView):
     model = Solicitud
@@ -923,6 +928,19 @@ class ViajesDetalle(DetailView):
         context['allEvidencias'] = allEvidencias
         return context
 
+class ViajesEvidencias(DetailView):
+    model = Viaje
+    template_name = 'fletes/evidenciasCliente.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        viaje = self.get_object()
+        destinos = Destino.objects.filter(solicitud_id=viaje.orden_id.cotizacion_id.solicitud_id)
+
+        #print(allEvidencias)
+        context['destinos'] = destinos
+        return context
+
 class DestinoAregarEvidencia(UpdateView):
     model = Destino
     form_class = AgregarEvidenciaForm
@@ -988,6 +1006,7 @@ def registrarLlegada(request, slug):
                 try:
                     viaje.hora_llegada = datetime.datetime.now().time()
                     viaje.save()
+                    messages.success(request, f'Registro de llegada correcto a las {viaje.hora_llegada}')
                 except ProtectedError:
                     messages.success(request, f'Algo salio mal!!!')
             else:
@@ -1018,6 +1037,7 @@ def registrarSalida(request, slug):
                     viaje.hora_inicio = datetime.datetime.now().time()
                     viaje.estado_viaje = 'Iniciado'
                     viaje.save()
+                    messages.success(request, f'NIP Correcto, se inicia el viaje')
                 except ProtectedError:
                     messages.success(request, f'Algo salio mal!!!')
             else:

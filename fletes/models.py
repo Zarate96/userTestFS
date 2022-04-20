@@ -104,14 +104,15 @@ class Solicitud(models.Model):
     hora = models.TimeField(verbose_name="Hora de servicio")
     tiempo_carga = models.IntegerField(verbose_name="Tiempo máximo para la carga(min)")
     domicilio_id = models.ForeignKey(Domicilios, on_delete=models.PROTECT, verbose_name="Origen")
-    estado_solicitud = models.CharField(verbose_name="Estado", choices=ESTADO_SOLICITUD, max_length=40, default="Guardada")
+    estado_solicitud = models.CharField(verbose_name="Estado de la solicitud", choices=ESTADO_SOLICITUD, max_length=40, default="Guardada")
     tiempo_total = models.FloatField(verbose_name="Tiempo total del viaje", null=True, blank=True)
     km_total = models.FloatField(verbose_name="Km totales del viaje", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
     material_peligroso = models.BooleanField(
         verbose_name="Es material peligroso",
         default=False,)
-    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación")
+    estado_origen = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40,  null=True, blank=True)
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación",  null=True, blank=True)
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
@@ -121,6 +122,8 @@ class Solicitud(models.Model):
         if not self.id:
             self.creado = timezone.now()
         self.modificado = timezone.now()
+        if not self.estado_origen:
+            self.estado_origen = self.domicilio_id.estado
         return super(Solicitud, self).save(*args, **kwargs)
     
     def has_destinos(self):

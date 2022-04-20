@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <section style="background-color: #eee;">
+        <div class="container py-5 mt-4r">
+            <div class="row justify-content-center">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item active" aria-current="page">Evidencias de tu viaje</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 justify-content-center">
+                    <div class="col-lg-8 offset-lg-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Folio de viaje: {{viaje.folio}}</h5>
+                                <p class="card-text">Fecha del servicio: {{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</p>
+                                <p class="card-text">Hora del servicio: {{viaje.orden_id.cotizacion_id.solicitud_id.hora}} hrs</p>
+                                
+                                
+                                {% if destinos %}
+                                <div class="container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Dirección</th>
+                                                <th scope="col">Foto 1</th>
+                                                <th scope="col">Foto 2</th>
+                                                <th scope="col">Foto 3</th>
+                                                <th scope="col">Foto 4</th>
+                                                <th scope="col">Foto 5</th>
+                                            </tr>
+                                        </thead>
+                                        {% for destino in destinos %}
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">{{ forloop.counter }}</th>
+                                                <td>{{ destino.domicilio_id }}</td>
+                                                {% if destino.foto1 %}
+                                                <td><a href="{{ destino.foto1.url }}"><i class="fas fa-image"></i></td></a>
+                                                {% endif %}
+                                            </tr>
+                                        </tbody>
+                                    {% endfor %}
+                                    </table>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <div class="container">
+                                        <div class="row justify-content-center">
+                                            <div class="col-6">
+                                                <a href="{% url 'fletes:viajes' %}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
+                                            </div>
+                                            <div class="col-6">
+                                                {% if allEvidencias %}
+                                                    <a href="{% url 'fletes:finzalizar-viaje' viaje.slug %}"><button type="button" class="btn btn-secondary mt-4"> Finalizar </button></a>
+                                                {% endif %}
+                                            </div>
+                                        </div>    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+{% block content %}
+
+{% include 'usuarios/confirm_delete_modal.html' %}
+<section style="background-color: #eee;">
+    <div class="container py-5 mt-4r">
+        {% if user.is_transportista %}
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Solicitudes vigentes</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <form action="" method="GET" class="mb-3">
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Filtros</legend>
+                    </fieldset>
+                    <div class="row justify-content-center align-items-center">
+                        <div class="form-group col-md-4 mb-1">
+                            {{ filter.form.estado_origen|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-4 mb-1">
+                            {{ filter.form.fecha_servicio|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-4">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                    
+                    
+                </form>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            {% if solicitudes %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Tipo de viaje</th>
+                                        <th>Descripción</th>
+                                        <th>Características de carga</th>
+                                        <th>Fecha de servicio</th>
+                                        <th>Hora del servicio</th>
+                                        <th class="text-center">Material peligroso</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for solicitud in filter.qs %}
+                                    <tr>
+                                        <td>{{solicitud.folio}}</td>
+                                        <td>{{solicitud.has_destinos}}</td>
+                                        <td>{{solicitud.descripcion_servicio}}</td>
+                                        <td>{{solicitud.caracteristicas_carga}}</td>
+                                        <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
+                                        <td>{{solicitud.hora}}</td>
+                                        {% if solicitud.material_peligroso %}
+                                            <td class="text-center"><i class="fas fa-check"></i></td>
+                                        {% else %}
+                                            <td class="text-center">No</td>
+                                        {% endif%}
+                                        <td><a href="{% url 'fletes:agregar-cotizacion' solicitud.slug %}"><button class="btn btn-primary">Cotizar</button></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <h2>No existen solicitudes para cotizar</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row justify-content-center">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Mis solicitudes</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 justify-content-center">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+                                <a href="{% url 'fletes:agregar-solicitud' %}"><button class="btn btn-primary" type="button">Agregar solicitud</button></a>
+                            </div>
+                            {% if solicitudes %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio</th>
+                                            <th>Fecha Solicitud</th>
+                                            <th>Tipo de viaje</th>
+                                            <th>Descripción</th>
+                                            <th>Características de carga</th>
+                                            <th>Fecha de servicio</th>
+                                            <th>Material peligroso</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for solicitud in solicitudes%}
+                                        <tr>
+                                            <td>{{solicitud.folio}}</td>
+                                            <td>{{solicitud.creado|date:"d-m-Y"}}</td>
+                                            <td>{{solicitud.has_destinos}}</td>
+                                            <td>{{solicitud.descripcion_servicio}}</td>
+                                            <td>{{solicitud.caracteristicas_carga}}</td>
+                                            <td>{{solicitud.fecha_servicio|date:"d-m-Y"}}</td>
+                                            {% if solicitud.material_peligroso %}
+                                                <td class="text-center"><i class="fas fa-check"></i></td>
+                                            {% else %}
+                                                <td class="text-center">No</td>
+                                            {% endif%}
+                                            <td>{{solicitud.estado_solicitud}}</td>
+                                            {% if solicitud.estado_solicitud == 'Guardada' or solicitud.estado_solicitud == 'Publicada' %}
+                                                {% if solicitud.estado_solicitud == 'Guardada' %}
+                                                    <td class="text-center"><a href="{% url 'fletes:agregar-destino' solicitud.id %}" title="Agregar destino"><i class="fas fa-plus"></i></a></td>
+                                                {% endif %}
+                                            <td class="text-center"><a href="{% url 'fletes:detalle-solicitud' solicitud.slug %}"><i class="far fa-eye"></i></a></td>
+                                            <td class="text-center">
+                                                <a href="{% url 'fletes:delete-solicitud' solicitud.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" 
+                                                data-bs-target="#confirmDeleteModal" id="deleteButton{{solicitud.id}}" title="Eliminar solicitud"><i class="far fa-trash-alt"></i></a>
+                                            </td> 
+                                            {% endif %}
+                                            {% if solicitud.estado_solicitud == 'Cotizada' %}
+                                            <td><a href="{% url 'fletes:cotizaciones-cliente' solicitud.slug %}" ><button class="btn btn-primary btn-sm">Cotizaciones</button></a></td>
+                                            <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
+                                            {% endif %}
+                                            {% if solicitud.estado_solicitud == 'Asignada' and solicitud.cotizacionFinal %}
+                                                {% if solicitud.cotizacionFinal.estado_cotizacion == 'Pendiente de pago' %}
+                                                <td class="text-center"><a href="{{solicitud.cotizacionFinal.orden.link_url}}">Pendiente de pago</a></td>
+                                                {% else %}
+                                                <td class="text-center"><a href="{% url 'fletes:seleccionar-seguro' solicitud.cotizacionFinal.slug %}" title="Pagar solicitud"><i class="fas fa-credit-card"></i></a></td>
+                                                <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-solicitud' solicitud.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
+                                                {% endif %}
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <h2>No tienes solicitudes registradas</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+<div class="modal fade" id="ConfirmCancel" role="dialog">
+</div>
+
+{% endblock content %}
+{% block extrajs %}
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_confirm_cancel(url){
+            $('#ConfirmCancel').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+{% endblock extrajs %}

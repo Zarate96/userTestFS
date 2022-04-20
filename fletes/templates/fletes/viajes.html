@@ -29,7 +29,6 @@
                                             <th>Fecha</th>
                                             <th>Hora</th>
                                             <th>Estado</th>
-                                            <th>Cliente</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -40,8 +39,7 @@
                                                 <td><a href="{% url 'fletes:detalle-viaje' viaje.slug %}">{{viaje.folio}}</a></td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
-                                                <td>{{viaje.orden_id.estado_viaje}}</td>
-                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.cliente_id}}</td>
+                                                <td>{{viaje.estado_viaje}}</td>
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -56,6 +54,7 @@
                 </div>
             </div>
         </div>
+
         {% else %}
         <div class="row justify-content-center">
             <div class="col">
@@ -70,7 +69,7 @@
             <div class="col-12 justify-content-center">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row text-center">
                             
                             {% if viajes %}
                             <div class="table-responsive">
@@ -78,8 +77,10 @@
                                     <thead>
                                         <tr>
                                             <th>Folio</th>
+                                            <th>Fecha</th>
+                                            <th>Hora</th>
                                             <th>Estado</th>
-                                            <th>Usuario</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -88,8 +89,16 @@
                                             {% if viaje.getClienteId == user.cliente %}
                                             <tr>
                                                 <td> <a href="{% url 'fletes:data-seguridad-viaje' slug=viaje.slug %}" class="confirm-delete" title="Detalle de viaje">{{viaje.folio}}</a></td>
+                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
+                                                <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
                                                 <td>{{viaje.estado_viaje}}</td>
-                                                <td>{{viaje.getClienteId}} {{user.cliente}}</td>
+                                                <td>
+                                                    {% if viaje.estado_viaje == 'Cerrado' %}
+                                                        <a href="{% url 'fletes:evidencias-viaje' viaje.slug %}"><button class="btn btn-warning btn-sm" type="button">Ver mis evidencias</button></a>
+                                                    {% else %}
+                                                        <button class="btn btn-warning btn-sm" type="button" disabled>Ver mis evidencias</button>
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -102,6 +111,15 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-2">
+            <div class="col">
+                <nav >
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Nota: Una vez que el viaje este finalizado, pódras descargar tus evidencias de entrega.</li>
+                    </ol>
+                </nav>
             </div>
         </div>
         {% endif %}

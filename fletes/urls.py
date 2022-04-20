@@ -41,5 +41,6 @@ urlpatterns = [
     path('viaje/registrarsalida/<slug:slug>', registrarSalida, name='registrar-salida-viaje'),
     path('viaje/registrarllegada/<slug:slug>', registrarLlegada, name='registrar-llegada-viaje'),
     path('viaje/finalizar/<slug:slug>', finalizarViaje, name='finzalizar-viaje'),
+    path('viaje/evidencias/<slug:slug>', ViajesEvidencias.as_view(), name='evidencias-viaje'),
     path('destino/agregarevidencia/<int:pk>', DestinoAregarEvidencia.as_view(), name='agregar-evidencia-destino'),
 ]
