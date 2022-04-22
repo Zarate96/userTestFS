@@ -34,13 +34,21 @@ from .filters import SolicitudesFilter
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
 conekta.locale = 'es'
-conekta.api_key = "key_PtyP3WfyszqxXyKyKCcuzA"
+conekta.api_key = "key_BQzUZ8k2yyaXunkYaxZr23A"
 conekta.api_version = "2.0.0"
 
-class SolicitudClienteListView(ListView):
+class SolicitudClienteListView(UserPassesTestMixin, ListView):
     model = Solicitud
     template_name = 'fletes/solicitudes.html'
     context_object_name = 'solicitudes'
+
+    def test_func(self):
+        print(self.request.user.cliente)
+        try:
+            cliente = self.request.user.cliente
+            return True
+        except ObjectDoesNotExist:
+            return False
 
     def get_queryset(self):
         return Solicitud.objects.filter(
@@ -49,10 +57,17 @@ class SolicitudClienteListView(ListView):
             activo=False
         )
 
-class SolicitudListView(ListView):
+class SolicitudListView(UserPassesTestMixin, ListView):
     model = Solicitud
     template_name = 'fletes/solicitudesFilterList.html'
     context_object_name = 'solicitudes'
+
+    def test_func(self):
+        try:
+            cliente = self.request.user.transportista
+            return True
+        except ObjectDoesNotExist:
+            return False
 
     def get_queryset(self):
         return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(estado_solicitud="Asignada").exclude(estado_solicitud="Cancelada").exclude(activo=False)

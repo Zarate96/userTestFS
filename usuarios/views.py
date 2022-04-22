@@ -38,7 +38,7 @@ from .forms import (
     EncierroForm,)
 
 conekta.locale = 'es'
-conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_key = "key_BQzUZ8k2yyaXunkYaxZr23A"
 conekta.api_version = "2.0.0"
 
 class EmailThread(threading.Thread):
