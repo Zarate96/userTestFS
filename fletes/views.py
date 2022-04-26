@@ -864,7 +864,7 @@ def PagarCotizacion(request, slug):
                 "monthly_installments_enabled": False,
                 "order_template": {
                     "line_items": [{
-                        "name": cotizacion.folio,
+                        "name": cotizacionStr,
                         "unit_price": int(total),
                         "quantity": 1
                     }],
