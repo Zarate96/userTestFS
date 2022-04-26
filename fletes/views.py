@@ -851,7 +851,7 @@ def PagarCotizacion(request, slug):
             today = datetime.datetime.now()
             fecha_limite = today + datetime.timedelta(days=3)
             fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
-            cotizacionStr = cotizacion.folio
+            cotizacionStr = (f'{cotizacion.folio}{fecha_limite_timestamp}')
             print(f"DATA: {cotizacionStr} FECHA: {fecha_limite_timestamp}")
             print(cotizacionStr)
             order = {
