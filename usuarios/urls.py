@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .views import *
 
 handler404 = 'helpers.views.handle_not_found'
+handler500 = 'my_app_name.views.custom_error_view'
 
 urlpatterns = [
     path('', home, name='home'),

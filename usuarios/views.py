@@ -489,3 +489,6 @@ def EncierroDelete(request, pk):
 #Manage errors
 def handle_not_found(request, exception, template_name="404.html"):
     return render(template_name)
+
+def custom_error_view(request, exception=None):
+    return render(request, "errors/500.html", {})
