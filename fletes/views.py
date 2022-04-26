@@ -894,7 +894,7 @@ def PagarCotizacion(request, slug):
             return HttpResponseRedirect(url_link)
         except conekta.ConektaError as e:
             print(e.message)
-            messages.success(request, f'No se pudo generar la orden!!')
+            messages.success(request, f'No se pudo generar la orden!!{e.message}')
             return HttpResponseRedirect(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug}))
 
 def PagoConfirmado(request):
