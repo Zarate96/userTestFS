@@ -855,7 +855,6 @@ def PagarCotizacion(request, slug):
             print(f"DATA: {cotizacionStr} FECHA: {fecha_limite_timestamp}")
             print(cotizacionStr)
             order = {
-                "name": cotizacionStr,
                 "type": "PaymentLink",
                 "recurrent": False,
                 "expires_at": round(fecha_limite_timestamp),
