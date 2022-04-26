@@ -851,7 +851,7 @@ def PagarCotizacion(request, slug):
             today = datetime.datetime.now()
             fecha_limite = today + datetime.timedelta(days=3)
             fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
-            cotizacionStr = (f'{cotizacion.folio}{fecha_limite_timestamp}')
+            cotizacionStr = (f'{cotizacion.folio}')
             print(f"DATA: {cotizacionStr} FECHA: {fecha_limite_timestamp}")
             print(cotizacionStr)
             order = {
@@ -886,6 +886,7 @@ def PagarCotizacion(request, slug):
         
         try:
             checkout = conekta.Checkout.create(order)
+            print(checkout)
             id_link = checkout.id
             url_link = checkout.url
             orden = Orden.objects.create(cotizacion_id=cotizacion, link_id=id_link, link_url=url_link)
