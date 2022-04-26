@@ -853,6 +853,7 @@ def PagarCotizacion(request, slug):
             fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
             cotizacionStr = cotizacion.folio
             print(f"DATA: {cotizacionStr} FECHA: {fecha_limite_timestamp}")
+            print(cotizacionStr)
             order = {
                 "name": cotizacionStr,
                 "type": "PaymentLink",
@@ -892,7 +893,7 @@ def PagarCotizacion(request, slug):
             cotizacion.save()
             return HttpResponseRedirect(url_link)
         except conekta.ConektaError as e:
-            print(e)
+            print(e.message)
             messages.success(request, f'No se pudo generar la orden!!')
             return HttpResponseRedirect(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug}))
 
