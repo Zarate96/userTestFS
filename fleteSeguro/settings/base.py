@@ -143,6 +143,9 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
+#SITE ID
+SITE_ID = 1
+
 # Third party apps configuration
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 DECIMAL_SEPARATOR = '.'
