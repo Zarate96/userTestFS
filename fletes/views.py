@@ -889,7 +889,8 @@ def PagarCotizacion(request, slug):
             print(checkout)
             id_link = checkout.id
             url_link = checkout.url
-            orden = Orden.objects.create(cotizacion_id=cotizacion, link_id=id_link, link_url=url_link)
+            status_link = checkout.status
+            orden = Orden.objects.create(cotizacion_id=cotizacion, link_id=id_link, link_url=url_link, link_status=status_link)
             cotizacion.estado_cotizacion = 'Pendiente de pago'
             cotizacion.save()
             return HttpResponseRedirect(url_link)
