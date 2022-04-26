@@ -289,8 +289,8 @@ ESTADO_ORDEN = (
 
 class Orden(models.Model):
     cotizacion_id = models.OneToOneField(Cotizacion, on_delete=models.CASCADE)
-    link_id = models.CharField(max_length = 200, null=True, blank=True)
-    link_url = models.URLField(max_length = 200, null=True, blank=True)
+    link_id = models.CharField(max_length = 500, null=True, blank=True)
+    link_url = models.URLField(max_length = 500, null=True, blank=True)
     link_status = models.CharField(max_length = 200, null=True, blank=True)
     orden_id = models.CharField(max_length = 200, null=True, blank=True)
     orden_status = models.CharField(max_length = 200, null=True, blank=True, choices=ESTADO_ORDEN,)
