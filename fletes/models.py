@@ -236,7 +236,7 @@ class Cotizacion(models.Model):
     modificado = models.DateTimeField()
     monto = models.FloatField(
         verbose_name="Monto")
-    folio = models.CharField(verbose_name="Folio", max_length=20, editable=False, unique = True)
+    folio = models.CharField(verbose_name="Folio", max_length=20, editable=True, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
     motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", null=True, blank=True)
     total = models.FloatField(
