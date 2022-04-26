@@ -851,8 +851,10 @@ def PagarCotizacion(request, slug):
             today = datetime.datetime.now()
             fecha_limite = today + datetime.timedelta(days=3)
             fecha_limite_timestamp = datetime.datetime.timestamp(fecha_limite)
+            cotizacionStr = cotizacion.folio
+            print(f"DATA: {cotizacionStr} FECHA: {fecha_limite_timestamp}")
             order = {
-                "name": cotizacion.folio,
+                "name": cotizacionStr,
                 "type": "PaymentLink",
                 "recurrent": False,
                 "expires_at": round(fecha_limite_timestamp),
@@ -892,7 +894,7 @@ def PagarCotizacion(request, slug):
         except conekta.ConektaError as e:
             print(e.message)
             messages.success(request, f'No se pudo generar la orden!!')
-            return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
+            return HttpResponseRedirect(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
 
 def PagoConfirmado(request):
     print(request)
