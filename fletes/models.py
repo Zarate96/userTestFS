@@ -283,7 +283,7 @@ class Cotizacion(models.Model):
         return cliente_id
 
 ESTADO_ORDEN = (
-    ('Pagada','Pagada'),
+    ('paid','paid'),
     ('Pendiente','Pendiente'),
 )
 
@@ -293,9 +293,13 @@ class Orden(models.Model):
     link_url = models.URLField(max_length = 500, null=True, blank=True)
     link_status = models.CharField(max_length = 200, null=True, blank=True)
     orden_id = models.CharField(max_length = 200, null=True, blank=True)
-    orden_status = models.CharField(max_length = 200, null=True, blank=True, choices=ESTADO_ORDEN,)
+    orden_status = models.CharField(max_length = 200, null=True, blank=True)
+
     def __str__(self):
         return f'Orden de cotización {self.cotizacion_id}'
+
+    def has_orden(self):
+        return True if self.orden_id else False 
 
 ESTADO_VIAJE = (
     ('Creado','Creado'),

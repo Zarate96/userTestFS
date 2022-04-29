@@ -326,6 +326,31 @@ class ContactoUpdate(UserPassesTestMixin, UpdateView):
         return reverse_lazy('home')
 
 @login_required
+def PerfilAutocompletar(request):
+    user = request.user
+    perfilFiscal = user.datosfiscales
+    if user.es_cliente:
+        perfil = user.cliente
+    else:
+        perfil = user.trasnportista
+    perfil.nombre = perfilFiscal.nombre
+    perfil.ape_pat = perfilFiscal.ape_pat
+    perfil.ape_mat = perfilFiscal.ape_mat
+    perfil.calle = perfilFiscal.calle
+    perfil.num_ext = perfilFiscal.num_ext
+    perfil.num_int = perfilFiscal.num_int
+    perfil.colonia = perfilFiscal.colonia
+    perfil.municipio = perfilFiscal.municipio
+    perfil.cp = perfilFiscal.cp
+    perfil.estado = perfilFiscal.estado
+    perfil.telefono = perfilFiscal.telefono
+    perfil.save()
+    print(perfilFiscal)
+    print(perfil)
+    messages.success(request, f'Perfil actulizado correctamente')
+    return redirect(reverse('profile-user'))
+
+@login_required
 def ContactoDelete(request, pk):
     contacto = get_object_or_404(Contacto, id=pk)
     user = request.user

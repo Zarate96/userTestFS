@@ -4,7 +4,8 @@ import requests
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
-
+from http.client import HTTPSConnection
+from base64 import b64encode
 
 conekta.locale = 'es'
 conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
@@ -83,20 +84,20 @@ class MyUser(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
-    
+
     @property
     def is_cliente(self):
         return self.es_cliente == True
-    
+
     @property
     def is_empresa(self):
         return self.es_empresa == True
-    
+
     @property
     def is_transportista(self):
         return self.es_transportista == True
-    
-    @property 
+
+    @property
     def has_datosfiscales(self):
         try:
             if self.datosfiscales.has_rfc:
@@ -129,21 +130,40 @@ class Cliente(models.Model):
 
     def __str__(self):
         return str(self.user.username)
-    
+
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.user.username)
-        
+
         if self.conektaId is None or self.conektaId == "":
             try:
-                customer = conekta.Customer.create({
-                    'name': self.user.username,
-                    'email': self.user.email,
-                })
-                print(f'Cliente creado: {customer.id}');
-                self.conektaId = customer.id
+                c = HTTPSConnection("www.google.com")
+                userAndPass = b64encode(b"key_bypUmRxRUxsqM5LbuFYzmQ").decode("ascii")
+                headers = { 'Authorization' : 'Basic %s' %  userAndPass }
+                c.request('GET', '/', headers=headers)
+                res = c.getresponse()
+                data = res.read()
+                url = "https://api.conekta.io/customers"
+                user = {"name": self.nombre + self.ape_pat, "email":self.user.email}
+                headers = {
+                    "Accept": "application/vnd.conekta-v2.0.0+json",
+                    "Content-Type": "application/json",
+                    'Accept-Charset': 'UTF-8',
+                    'Authorization' : 'Basic %s' %  userAndPass,
+                }
+                response = requests.request("POST", url, json=user, headers=headers)
+                print(response)
             except conekta.ConektaError as e:
                 print(e.message)
+            # try:
+            #     customer = conekta.Customer.create({
+            #         "name": "FS Cliente Testing",
+            #         "email": self.user.email,
+            #     })
+            #     print(f'Cliente creado: {customer.id}');
+            #     self.conektaId = customer.id
+            # except conekta.ConektaError as e:
+            #     print(e.message)
 
         super(Cliente, self).save(*args, **kwargs)
 
@@ -151,7 +171,7 @@ class Cliente(models.Model):
     def is_empresa(self):
         return self.user.es_empresa == True
 
-    @property 
+    @property
     def has_info(self):
         if self.telefono == "" and self.municipio == "":
             return False
@@ -183,7 +203,7 @@ class Transportista(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
-    
+
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.user.username)
@@ -192,15 +212,15 @@ class Transportista(models.Model):
     @property
     def is_empresa(self):
         return self.user.es_empresa == True
-    
-    @property 
+
+    @property
     def has_info(self):
         if self.telefono == "" and self.municipio == "":
             return False
         else:
             return True
-    
-    @property 
+
+    @property
     def has_unidades(self):
         try:
             unidades = Unidades.objects.filter(user=self.user.id)
@@ -273,7 +293,7 @@ class Encierro(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.nombre}' 
+        return f'{self.nombre}'
 
 YEAR_CHOICES = [(r,r) for r in range(1950, datetime.date.today().year+1)]
 class Unidades(models.Model):
@@ -291,5 +311,4 @@ class Unidades(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.placa}' 
-
+        return f'{self.placa}'
