@@ -106,7 +106,7 @@ class ProfileTransportistaUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Transportista
-        fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','telefonia_movil','image']
+        fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
 class ProfileClienteUpdateForm(forms.ModelForm):
     
