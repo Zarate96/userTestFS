@@ -21,13 +21,13 @@
                             <h5 class="card-title">Folio de solicitud: {{solicitud.folio}}</h5>
                             <p class="card-text">Fecha del servicio: {{solicitud.fecha_servicio|date:"d-m-Y"}}</p>
                             <h5 class="card-text mt-4">Salida:</h5>
-                            <p class="card-text">De C.P.: {{solicitud.domicilio_id.cp}}</p>
+                            <p class="card-text">De: {{solicitud.domicilio_id}}</p>
                             <h5 class="card-text mt-4">Ruta:</h5>
                         </div>
                         <ul class="list-group list-group-flush">
                             {% if destinos %}
                                 {% for destino in destinos %}
-                                    <li class="list-group-item">Destino {{ forloop.counter }}: C.P.{{ destino.domicilio_id.cp }} con entrega de {{ destino.unidades_entregar}} unidades </li>
+                                    <li class="list-group-item">Destino {{ forloop.counter }}: {{ destino.domicilio_id }} con entrega de {{ destino.unidades_entregar}} unidades </li>
                                 {% endfor %}
                             {% else %}
                                 <li class="list-group-item">No hay destinos</li>
