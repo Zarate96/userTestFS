@@ -263,7 +263,7 @@ class ProfileClienteUpdateView(UserPassesTestMixin,UpdateView):
 class ProfileTransportistaUpdate(UserPassesTestMixin, UpdateView):
     model = Transportista
     template_name = 'usuarios/updatePerfil.html'
-    fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','telefonia_movil','image']
+    fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
     def get_object(self):
         """

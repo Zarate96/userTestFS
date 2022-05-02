@@ -153,17 +153,9 @@ class Cliente(models.Model):
                 }
                 response = requests.request("POST", url, json=user, headers=headers)
                 print(response)
+                self.conektaId = customer.id
             except conekta.ConektaError as e:
                 print(e.message)
-            # try:
-            #     customer = conekta.Customer.create({
-            #         "name": "FS Cliente Testing",
-            #         "email": self.user.email,
-            #     })
-            #     print(f'Cliente creado: {customer.id}');
-            #     self.conektaId = customer.id
-            # except conekta.ConektaError as e:
-            #     print(e.message)
 
         super(Cliente, self).save(*args, **kwargs)
 
