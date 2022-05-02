@@ -950,7 +950,7 @@ class ViajesDetalle(DetailView):
 
         #print(allEvidencias)
         context['destinos'] = destinos
-        context['contactos'] = contactos
+        #context['contactos'] = contactos
         context['allEvidencias'] = allEvidencias
         return context
 
