@@ -47,7 +47,7 @@
                                         </div>
                                     </div>
                                     <h5 class="card-text mt-4">Recolección:</h5>
-                                    <p class="card-text">Razón fiscal</p>
+                                    <p class="card-text">{{cliente.nombre}} {{cliente.ape_pat}} {{cliente.ape_mat}}</p>
                                     <p class="card-text">
                                         ORIGEN: {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.calle }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_ext }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_int }}, C.P {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.cp }},  colonia {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.colonia }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.municipio }}, {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.estado}}
                                     </p>

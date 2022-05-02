@@ -951,6 +951,7 @@ class ViajesDetalle(DetailView):
         #print(allEvidencias)
         context['destinos'] = destinos
         #context['contactos'] = contactos
+        context['cliente'] = cliente
         context['allEvidencias'] = allEvidencias
         return context
 
