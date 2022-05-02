@@ -29,7 +29,7 @@ from .forms import (
     AgregarSeguroForm,
     AgregarEvidenciaForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
-from usuarios.models import MyUser, Unidades
+from usuarios.models import MyUser, Unidades, Contacto
 from .filters import SolicitudesFilter
 
 gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
