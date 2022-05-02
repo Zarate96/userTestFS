@@ -938,7 +938,7 @@ class ViajesDetalle(DetailView):
         viaje = self.get_object()
         destinos = Destino.objects.filter(solicitud_id=viaje.orden_id.cotizacion_id.solicitud_id)
         cliente = viaje.orden_id.cotizacion_id.solicitud_id.cliente_id
-        #contactos = Contacto.objects.filter(user=cliente)
+        contactos = Contacto.objects.filter(user=cliente.user)
         allEvidencias = True
         for destino in destinos:
             if destino.hasEvidencias() is True:
@@ -950,7 +950,7 @@ class ViajesDetalle(DetailView):
 
         #print(allEvidencias)
         context['destinos'] = destinos
-        #context['contactos'] = contactos
+        context['contactos'] = contactos
         context['cliente'] = cliente
         context['allEvidencias'] = allEvidencias
         return context
