@@ -57,7 +57,7 @@
                                             <thead>
                                                 <tr>
                                                     <th scope="col">#</th>
-                                                    <th scope="col">Nombre</th>
+                                                    <th scope="col">Contacto</th>
                                                     <th scope="col">Teléfono</th>
                                                 </tr>
                                             </thead>
@@ -65,7 +65,7 @@
                                             <tbody>
                                                 <tr>
                                                     <th scope="row">{{ forloop.counter }}</th>
-                                                    <td>{{contacto.nombre}}</td>
+                                                    <td>{{contacto.nombre}} {{contacto.ape_pat}} {{contacto.ape_mat}}</td>
                                                     <td>{{contacto.telefono}}</td>
                                                 </tr>
                                             </tbody>
