@@ -85,7 +85,6 @@ def activate_user(request, uidb64, token):
         messages.add_message(request, messages.SUCCESS, 'Email verificado, ya puede iniciar sesion')
         return redirect(reverse('login'))
 
-    messages.add_message(request, messages.SUCCESS, 'Lo sentimos algo salio mal!!!')
     return redirect(reverse('login'))
 
 class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
