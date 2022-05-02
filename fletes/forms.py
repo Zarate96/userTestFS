@@ -46,7 +46,7 @@ class SolicitudMotivoCancelacioForm(forms.ModelForm):
 
 class DestinoForm(forms.ModelForm):
     tiempo_descarga = forms.IntegerField(
-        label="Tiempo de espera",
+        label="Tiempo de espera (minutos)",
         help_text='Tiempo máximo de espera para la descarga',
     )
     unidades_entregar = forms.IntegerField(
