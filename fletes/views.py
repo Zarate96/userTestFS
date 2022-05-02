@@ -790,7 +790,7 @@ class SeleccionarSeguro(UserPassesTestMixin, UpdateView):
                 messages.success(self.request, f'Porfavor seleccione un nivel de seguro')
                 return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
             if self.object.aceptar_tyc == False or self.object.aceptar_tyc == None:
-                messages.success(self.request, f'Porfavor acepte los términos y condiciones')
+                messages.success(self.request, f'Por favor acepte los términos y condiciones')
                 return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
         else:
             self.object.nivel_seguro = None
