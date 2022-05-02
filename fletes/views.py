@@ -365,7 +365,7 @@ class DomicilioAgregar(UserPassesTestMixin, CreateView):
         else:
             self.object.cliente_id = user
             self.object.save()
-            messages.success(self.request, f'Domicilio agregado correctamente, porfavor verifique su validación.')
+            messages.success(self.request, f'Verifique que el domicilio sea válido, en caso contrario por favor actualize los datos correctamente.')
         
         return redirect(reverse('fletes:domicilios'))
             
