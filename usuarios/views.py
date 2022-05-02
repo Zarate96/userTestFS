@@ -331,7 +331,7 @@ def PerfilAutocompletar(request):
     if user.is_cliente:
         perfil = user.cliente
     else:
-        perfil = user.trasnportista
+        perfil = user.transportista
     perfil.nombre = perfilFiscal.nombre
     perfil.ape_pat = perfilFiscal.ape_pat
     perfil.ape_mat = perfilFiscal.ape_mat
