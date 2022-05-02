@@ -328,7 +328,7 @@ class ContactoUpdate(UserPassesTestMixin, UpdateView):
 def PerfilAutocompletar(request):
     user = request.user
     perfilFiscal = user.datosfiscales
-    if user.es_cliente:
+    if user.is_cliente:
         perfil = user.cliente
     else:
         perfil = user.trasnportista
