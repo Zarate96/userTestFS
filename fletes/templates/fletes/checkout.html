@@ -75,7 +75,7 @@
                         <ul class="list-group list-group-flush">
                             {% if destinos %}
                                 {% for destino in destinos %}
-                                    <li class="list-group-item">Destino {{ forloop.counter }}: {{ destino.domicilio_id.}} con entrega de {{ destino.unidades_entregar}} unidades </li>
+                                    <li class="list-group-item">Destino {{ forloop.counter }}: {{ destino.domicilio_id}} con entrega de {{ destino.unidades_entregar}} unidades </li>
                                 {% endfor %}
                             {% else %}
                                 <li class="list-group-item">No hay destinos</li>
