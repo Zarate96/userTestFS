@@ -8,7 +8,7 @@ class SolicitudForm(forms.ModelForm):
     descripcion_servicio = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}))
     caracteristicas_carga = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}), label="Tipo de carga",)
     tiempo_carga = forms.IntegerField(
-        label="Tiempo de espera",
+        label="Tiempo de espera (minutos)",
         help_text='Tiempo máximo de espera para la carga',
     )
     material_peligroso = forms.ChoiceField(choices=((True, 'Si'), (False, 'No')),
