@@ -45,6 +45,18 @@
                                                 {% if destino.foto1 %}
                                                 <td><a href="{{ destino.foto1.url }}"><i class="fas fa-image"></i></td></a>
                                                 {% endif %}
+                                                {% if destino.foto2 %}
+                                                <td><a href="{{ destino.foto2.url }}"><i class="fas fa-image"></i></td></a>
+                                                {% endif %}
+                                                {% if destino.foto3 %}
+                                                <td><a href="{{ destino.foto3.url }}"><i class="fas fa-image"></i></td></a>
+                                                {% endif %}
+                                                {% if destino.foto4 %}
+                                                <td><a href="{{ destino.foto4.url }}"><i class="fas fa-image"></i></td></a>
+                                                {% endif %}
+                                                {% if destino.foto5 %}
+                                                <td><a href="{{ destino.foto5.url }}"><i class="fas fa-image"></i></td></a>
+                                                {% endif %}
                                             </tr>
                                         </tbody>
                                     {% endfor %}
