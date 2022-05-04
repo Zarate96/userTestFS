@@ -3,6 +3,8 @@ import conekta
 import requests
 from django.db import models
 from django.utils.text import slugify
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from http.client import HTTPSConnection
 from base64 import b64encode
@@ -134,28 +136,6 @@ class Cliente(models.Model):
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.user.username)
-
-        if self.conektaId is None or self.conektaId == "":
-            try:
-                c = HTTPSConnection("www.google.com")
-                userAndPass = b64encode(b"key_bypUmRxRUxsqM5LbuFYzmQ").decode("ascii")
-                headers = { 'Authorization' : 'Basic %s' %  userAndPass }
-                c.request('GET', '/', headers=headers)
-                res = c.getresponse()
-                data = res.read()
-                url = "https://api.conekta.io/customers"
-                user = {"name": self.nombre + self.ape_pat, "email":self.user.email}
-                headers = {
-                    "Accept": "application/vnd.conekta-v2.0.0+json",
-                    "Content-Type": "application/json",
-                    'Accept-Charset': 'UTF-8',
-                    'Authorization' : 'Basic %s' %  userAndPass,
-                }
-                response = requests.request("POST", url, json=user, headers=headers)
-                print(response)
-                self.conektaId = customer.id
-            except conekta.ConektaError as e:
-                print(e.message)
 
         super(Cliente, self).save(*args, **kwargs)
 
@@ -304,3 +284,36 @@ class Unidades(models.Model):
 
     def __str__(self):
         return f'{self.placa}'
+
+
+@receiver(post_save, sender=Cliente)
+def createFolioCotizacion(sender,instance,**kwargs):
+    cliente = instance
+
+    if (cliente.conektaId is None or cliente.conektaId == "") and cliente.nombre != "":
+        try:
+            c = HTTPSConnection("www.google.com")
+            userAndPass = b64encode(b"key_bypUmRxRUxsqM5LbuFYzmQ").decode("ascii")
+            headers = { 'Authorization' : 'Basic %s' %  userAndPass }
+            c.request('GET', '/', headers=headers)
+            res = c.getresponse()
+            data = res.read()
+            url = "https://api.conekta.io/customers"
+            user = {"name": f'{cliente.nombre} {cliente.ape_pat}', "email":cliente.user.email}
+            headers = {
+                "Accept": "application/vnd.conekta-v2.0.0+json",
+                "Content-Type": "application/json",
+                'Accept-Charset': 'UTF-8',
+                'Authorization' : 'Basic %s' %  userAndPass,
+            }
+            response = requests.request("POST", url, json=user, headers=headers)
+            if response.status_code == 200:
+                response = response.json()
+                idConekta = response["id"]
+                Cliente.objects.filter(user=instance.user).update(
+                    conektaId = idConekta
+                )       
+            else:
+                cliente.conektaId = 'Data incorrecta'
+        except conekta.ConektaError as e:
+            print(e.message)

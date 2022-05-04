@@ -29,7 +29,12 @@
                                 <div class="d-flex gap-2 w-100 justify-content-between">
                                     <div>
                                     <h6 class="mb-0">Dirección completa para generar viaje</h6>
-                                    <p class="mb-0 opacity-75">{{ domicilio.google_format }}</p>
+                                    {% if domicilio.is_valid %}
+                                        <p class="mb-0 opacity-75">{{ domicilio.google_format }}</p>
+                                    {% else %}
+                                        <p class="mb-0 opacity-75">Algunos datos de la dirección proporcionada no son correctos, favor de verificar la información.</p>
+                                    {% endif%}
+                                    
                                     </div>
                                 </div>
                             </div>

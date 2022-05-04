@@ -11,6 +11,9 @@
   <link href="https://getbootstrap.com/docs/5.0/examples/features/features.css" rel="stylesheet" crossorigin="anonymous">
   <script src="https://hzaratecode.com/jquery-3.6.0.min.js"></script>
   
+  {% block extracss %}
+  {% endblock extracss %}
+
   {% if title %}
   <title>FleteSeguro - {{title}}</title>
   {% else %}

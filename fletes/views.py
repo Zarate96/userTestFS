@@ -394,7 +394,7 @@ class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
         if domicilio.is_valid:
             messages.success(self.request, f'Domicilio editado correctamente')
         else:
-            messages.success(self.request, f'Domicilio incorrecto porfavor verifique la información propocionada')
+            messages.error(self.request, f'Domicilio incorrecto porfavor verifique la información propocionada')
         return reverse('fletes:domicilios')
 
 @login_required
@@ -787,10 +787,10 @@ class SeleccionarSeguro(UserPassesTestMixin, UpdateView):
         self.object = form.save(commit=False)
         if self.object.es_asegurada:
             if self.object.nivel_seguro == '' or self.object.nivel_seguro == None:
-                messages.success(self.request, f'Porfavor seleccione un nivel de seguro')
+                messages.error(self.request, f'Porfavor seleccione un nivel de seguro')
                 return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
             if self.object.aceptar_tyc == False or self.object.aceptar_tyc == None:
-                messages.success(self.request, f'Por favor acepte los términos y condiciones')
+                messages.error(self.request, f'Por favor acepte los términos y condiciones')
                 return redirect(reverse('fletes:seleccionar-seguro', kwargs={'slug': self.object.slug}))
         else:
             self.object.nivel_seguro = None

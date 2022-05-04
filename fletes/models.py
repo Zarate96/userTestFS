@@ -390,7 +390,7 @@ def addLonLat(sender, instance, **kwargs):
         print("\n Favor de ingresar una direccion correcta")
         Domicilios.objects.filter(id=instance.id).update(
             is_valid = False,
-            google_format = "Dirección no válida favor de verificar la información"
+            google_format = "Invalid"
         )
     else:
         Domicilios.objects.filter(id=instance.id).update(
