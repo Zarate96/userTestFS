@@ -3,31 +3,44 @@
 {% block content %}
 
     <script src="https://www.google.com/recaptcha/api.js"></script>
-   
-    <div class="content-section col-8 mt-3">
-        <form method="POST">
-                {% csrf_token %}
-                <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Iniciar Sesión</legend>
-                {{ form|crispy }}
-                </fieldset>
-                <div class="g-recaptcha mb-3 mt-3" data-sitekey="6LdwJvMcAAAAAF3HoWVqaX3vzAtwL6XhZM1xEgHF"></div>
-                <div class="form-group">
-                <button class="btn btn-outline-info mb-2" type="submit">Ingresar</button>
-                </div>
-        </form>
-        <div class="border-top pt-3">
-            <small class="text-muted">
-                ¿No tienes cuenta? Registrate ahora como 
-                <a class="ml-2" href="{% url 'registro-cliente' %}">Cliente</a> o <a class="ml-2" href="{% url 'registro-transportista' %}">Transportista</a>
-            </small>
-        </div>
-        <div class="border-top pt-3">
-            <small class="text-muted">
-                ¿Olvidaste tu contraseña?
-                <a class="ml-2" href="{% url 'reset_password' %}">Clic aquí</a>
-            </small>
-        </div>
-    </div>
+    <section class="ftco-section">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-6 text-center mb-5">
+					<h2 class="heading-section">Bienvenido a Flete Seguro</h2>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-6 col-lg-4">
+					<div class="login-wrap p-0">
+		      	<h3 class="mb-4 text-center">Have an account?</h3>
+		      	<form method="POST" class="signin-form">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Iniciar Sesión</legend>
+                    {{ form|crispy }}
+                    </fieldset>
+                    <div class="g-recaptcha mb-3 mt-3" data-sitekey="6LdwJvMcAAAAAF3HoWVqaX3vzAtwL6XhZM1xEgHF"></div>
+                    <div class="form-group">
+                    <button class="form-control btn btn-primary submit px-3" type="submit">Ingresar</button>
+                    </div>
+                </form>
+	            <div class="form-group d-md-flex">
+                    <div class="w-50 text-md-right">
+                        <a href="#" style="color: #fff">Forgot Password</a>
+                    </div>
+	            </div>
+	          </form>
+	          <p class="w-100 text-center">&mdash; Or Sign In With &mdash;</p>
+	          <div class="social d-flex text-center">
+	          	<a href="#" class="px-2 py-2 mr-md-1 rounded"><span class="ion-logo-facebook mr-2"></span> Facebook</a>
+	          	<a href="#" class="px-2 py-2 ml-md-1 rounded"><span class="ion-logo-twitter mr-2"></span> Twitter</a>
+	          </div>
+		      </div>
+				</div>
+			</div>
+		</div>
+	</section>
+    
    
 {% endblock content %}

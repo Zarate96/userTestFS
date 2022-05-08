@@ -8,8 +8,7 @@ handler404 = 'helpers.views.handle_not_found'
 handler500 = 'helpers.views.custom_error_view'
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('login/', LoginUserView.as_view(template_name='usuarios/login.html'), name='login'),
+    path('', LoginUserView.as_view(template_name='usuarios/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='usuarios/logout.html'), name='logout'),
     # path('reset_password/',
     #     auth_views.ResetPasswordView.as_view(),
