@@ -38,7 +38,8 @@
                                     <li class="list-group-item">Placa: {{unidad.placa}}</li>
                                     <li class="list-group-item">Tipo de caja: {{unidad.tipo_caja}}</li>
                                     <li class="list-group-item">Capacidad de carga: {{unidad.capacidad_carga}} toneladas</li>
-                                    <li class="list-group-item">Dueño: {{unidad.user}}</li>
+                                    <li class="list-group-item">Propietario: <a href="{% url 'profile-transportista' unidad.user.transportista_id.slug %}">{{unidad.user}}</a> </li> 
+                                    
                                 </ul>
                             </div>
                         </div>
