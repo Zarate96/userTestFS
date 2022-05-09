@@ -8,6 +8,7 @@ handler404 = 'helpers.views.handle_not_found'
 handler500 = 'helpers.views.custom_error_view'
 
 urlpatterns = [
+    path('inicio', home, name='home'),
     path('', LoginUserView.as_view(template_name='usuarios/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='usuarios/logout.html'), name='logout'),
     # path('reset_password/',
@@ -23,7 +24,7 @@ urlpatterns = [
     path('reset_password_complete/', 
         auth_views.PasswordResetCompleteView.as_view(template_name="usuarios/password_reset_done.html"), 
         name="password_reset_complete"),
-
+    path('home/', LoginUserView.as_view(template_name='usuarios/login.html'), name='login'),
     path('registro/cliente', ClienteSignUpView.as_view(), name='registro-cliente'),
     path('registro/transportista', TransportistaSignUpView.as_view(), name='registro-transportista'),
     path('activate-user/<uidb64>/<token>', activate_user, name='activate'),
