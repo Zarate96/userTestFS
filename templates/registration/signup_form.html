@@ -6,13 +6,13 @@
   <div class="row">
     <div class="col-md-8 col-sm-10 col-12 mt-3">
       <h2>Registrarse como {{ user_type }}</h2>
-      <form method="post" novalidate>
+      <form method="post" novalidate class="signin-form">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
         {{ form|crispy }}
         <script src="https://www.google.com/recaptcha/api.js"></script>
         <div class="g-recaptcha mb-3 mt-3" data-sitekey="{{recaptcha_site_key}}"></div>
-        <button type="submit" class="btn btn-success">Resgistrarme</button>
+        <button type="submit" class="form-control btn btn-primary submit px-3">Resgistrarme</button>
       </form>
     </div>
   </div>
