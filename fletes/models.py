@@ -307,6 +307,7 @@ ESTADO_VIAJE = (
     ('Creado','Creado'),
     ('Iniciado','Iniciado'),
     ('Cerrado','Cerrado'),
+    ('Pendiente pago','Pendiente pago'),
     ('Terminado','Terminado'),
     ('Disputa','Disputa'),
     ('Accidente','Accidente'),
