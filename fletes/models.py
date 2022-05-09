@@ -83,7 +83,9 @@ ESTADO_SOLICITUD = (
     ('Publicada','Publicada'),
     ('Cotizada','Cotizada'),
     ('Asignada','Asignada'),
+    ('Pagada','Pagada'),
     ('Cancelada','Cancelada'),
+    
 )
 
 def validate_date(date):

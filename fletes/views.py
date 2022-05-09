@@ -1036,11 +1036,11 @@ def registrarLlegada(request, slug):
                     viaje.save()
                     messages.success(request, f'Registro de llegada correcto a las {viaje.hora_llegada}')
                 except ProtectedError:
-                    messages.success(request, f'Algo salio mal!!!')
+                    messages.success(request, f'Registro no realizado correctamente, porfavor espere 5 minutos e intente nuevamente')
             else:
-                messages.success(request, f'NIP de viaje incorrecto!!!')
+                messages.success(request, f'NIP de viaje incorrecto, favor de verificar información')
         else:
-            messages.success(request, f'Algo salio mal!!!')
+            messages.success(request, f'NIP de viaje incorrecto, favor de verificar información')
     
     return HttpResponseRedirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.slug}))
 
