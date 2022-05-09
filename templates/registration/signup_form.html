@@ -2,7 +2,11 @@
 
 {% load crispy_forms_tags %}
 
-{% block content %}
+
+{% block extracss %}
+<link rel="stylesheet" href="https://hzaratecode.com/styleHomeFS.css">
+{% endblock extracss %}
+  
   <div class="row">
     <div class="col-md-8 col-sm-10 col-12 mt-3">
       <h2>Registrarse como {{ user_type }}</h2>
