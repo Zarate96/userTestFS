@@ -76,6 +76,12 @@ def checkLinkStatus():
                 orden.orden_status = response['payment_status']
                 orden.save()
                 if orden.orden_status == 'paid':
+                    cotizacion = orden.cotizacion_id
+                    cotizacion.estado_cotizacion = 'Pagada'
+                    cotizacion.save()
+                    solicitud = cotizacion.solicitud_id
+                    solicitud.estado_solicitud = 'Pagada'
+                    solicitud.save()
                     print(" ## Orden pagada se crea viaje #")
                     viaje = Viaje.objects.create(orden_id=orden)
 

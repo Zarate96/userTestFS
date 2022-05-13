@@ -145,6 +145,7 @@ MESSAGE_TAGS = {
 
 #SITE ID
 SITE_ID = 1
+USE_TZ = True
 
 # Third party apps configuration
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

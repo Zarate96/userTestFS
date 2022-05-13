@@ -117,3 +117,13 @@ class AgregarEvidenciaForm(forms.ModelForm):
             'foto4':'Foto 4',
             'foto5':'Foto 5'
         }
+
+class AgregarFacturasForm(forms.ModelForm):
+    class Meta:
+        model = Viaje
+        fields = ['factura_pdf','factura_xml',]
+        labels = {
+            'factura_pdf':'Factura PDF',
+            'factura_xml':'Factura XML',
+        }
+

@@ -39,7 +39,7 @@
                                                 {% if viaje.hasInicio or viaje.hasLlegada is False %}
                                                     <button type="button" class="btn btn-warning btn disabled">Registrar salida</button>
                                                 {% else %}
-                                                    <a href="{% url 'fletes:registrar-salida-viaje' slug=viaje.slug %}" class="confirm-delete" title="Registrar salida" data-bs-toggle="modal" data-bs-target="#confirmSalidaModal" id="salidaModal">
+                                                    <a href="" class="confirm-delete" title="Registrar salida" data-bs-toggle="modal" data-bs-target="#confirmSalidaModal" id="salidaModal">
                                                         <button type="button" class="btn btn-warning btn mt-1 mb-1">Registrar salida</button>
                                                     </a>
                                                 {% endif %}

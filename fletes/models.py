@@ -1,6 +1,8 @@
 import googlemaps
 import json
 import random
+from datetime import date as todaysDate
+from django.utils.timezone import make_aware
 from django.db import models
 from usuarios.models import MyUser, Cliente, Transportista, Unidades
 from django.urls import reverse
@@ -89,7 +91,7 @@ ESTADO_SOLICITUD = (
 )
 
 def validate_date(date):
-    if date.date() <= timezone.now().date():
+    if date.date() <= todaysDate.today():
         raise ValidationError("La fecha tiene que ser mayor a hoy")
 
 class Solicitud(models.Model):
@@ -324,6 +326,8 @@ class Viaje(models.Model):
     nip_checkin = models.IntegerField(verbose_name="NIP de seguridad checkin", null=True, blank=True)
     nip_checkout = models.IntegerField(verbose_name="NIP de seguridad checkout", null=True, blank=True)
     comentarios = models.TextField(null=True, blank=True)
+    factura_pdf = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura pdf", null=True, blank=True)
+    factura_xml = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura xml", null=True, blank=True)
     es_validado = models.BooleanField(verbose_name="¿Esta válido por cliente?", default=False)
 
     def save(self, *args, **kwargs):

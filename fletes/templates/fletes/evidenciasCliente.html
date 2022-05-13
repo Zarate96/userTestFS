@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-
+{% include 'fletes/confirmations/verFoto.html' %}
     <section style="background-color: #eee;">
         <div class="container py-5 mt-4r">
             <div class="row justify-content-center">
@@ -24,43 +24,42 @@
                                 
                                 
                                 {% if destinos %}
-                                <div class="container">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col">Destino</th>
-                                                <th scope="col">Evidencia 1</th>
-                                                <th scope="col">Evidencia 2</th>
-                                                <th scope="col">Evidencia 3</th>
-                                                <th scope="col">Evidencia 4</th>
-                                                <th scope="col">Evidencia 5</th>
-                                            </tr>
-                                        </thead>
-                                        {% for destino in destinos %}
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row">{{ forloop.counter }}</th>
-                                                <td>{{ destino.domicilio_id }}</td>
-                                                {% if destino.foto1 %}
-                                                <td><a href="{{ destino.foto1.url }}"><i class="fas fa-image"></i></td></a>
-                                                {% endif %}
-                                                {% if destino.foto2 %}
-                                                <td><a href="{{ destino.foto2.url }}"><i class="fas fa-image"></i></td></a>
-                                                {% endif %}
-                                                {% if destino.foto3 %}
-                                                <td><a href="{{ destino.foto3.url }}"><i class="fas fa-image"></i></td></a>
-                                                {% endif %}
-                                                {% if destino.foto4 %}
-                                                <td><a href="{{ destino.foto4.url }}"><i class="fas fa-image"></i></td></a>
-                                                {% endif %}
-                                                {% if destino.foto5 %}
-                                                <td><a href="{{ destino.foto5.url }}"><i class="fas fa-image"></i></td></a>
-                                                {% endif %}
-                                            </tr>
-                                        </tbody>
+                                <div class="accordion accordion-flush" id="accordionDestino">
+                                    {% for destino in destinos%}
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="flush-headingDestino">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseDestino" aria-expanded="false" aria-controls="flush-collapseDestino">
+                                            Destino {{forloop.counter}}
+                                            </button>
+                                        </h2>
+                                        <div id="flush-collapseDestino" class="accordion-collapse collapse" aria-labelledby="flush-headingDestino" data-bs-parent="#accordionDestino">
+                                            <div class="accordion-body">
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+                                                        {% if destino.foto1 %}
+                                                        <div class="card" style="width: 18rem; ">
+                                                            <img src="{{ destino.foto1.url }}" class="card-img-top" style="height: 13.5rem;" alt="...">
+                                                            <div class="card-body">
+                                                            <p class="card-text"><a href="{{ destino.foto1.url }} download"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>
+                                                            </div>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        {% if destino.foto2 %}
+                                                        <div class="card" style="width: 18rem;">
+                                                            <img src="{{ destino.foto2.url }}" class="card-img-top" alt="...">
+                                                            <div class="card-body">
+                                                            <p class="card-text"><a href="{{ destino.foto1.url }} download"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>
+                                                            </div>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {% endfor %}
-                                    </table>
                                 </div>
                                 {% endif %}
                                 <div class="card-body">
@@ -84,4 +83,15 @@
             </div>
         </div>
     </section>
+    
 {% endblock content %}
+{% block extrajs %}
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_ver_foto(url){
+            $('#verFoto').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+{% endblock extrajs %}

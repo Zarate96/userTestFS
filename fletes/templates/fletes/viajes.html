@@ -40,6 +40,11 @@
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
                                                 <td>{{viaje.estado_viaje}}</td>
+                                                {% if viaje.estado_viaje == 'Cerrado'%}
+                                                <td>
+                                                    <button onclick="abrir_modal_agregar_factura('{% url 'fletes:agregar-facturas-viaje' viaje.slug %}')" class="btn btn-info btn-sm">Facturas</button>
+                                                </td>
+                                                {% endif %}
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -54,7 +59,15 @@
                 </div>
             </div>
         </div>
-
+        <div class="row justify-content-center mt-2">
+            <div class="col">
+                <nav >
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active" aria-current="page">Nota: Una vez que el viaje este cerrado, podras subir tu factura.</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
         {% else %}
         <div class="row justify-content-center">
             <div class="col">
@@ -125,27 +138,17 @@
         {% endif %}
     </div>
 </section>
-<div class="modal fade" id="ConfirmCancel" role="dialog">
-</div>
-<div class="modal fade" id="llegadaModal" role="dialog">
+<div class="modal fade" id="agregarFacturas" role="dialog">
 </div>
 {% endblock content %}
 {% block extrajs %}
-    <script type="text/javascript">
-        var $ = jQuery.noConflict();
-        function abrir_modal_confirm_cancel(url){
-            $('#ConfirmCancel').load(url,function(){
-                $(this).modal('show');
-            });
-        }
-    </script>
-    <script type="text/javascript">
-        var $ = jQuery.noConflict();
-        function abrir_modal_registrar_llegada(url){
-            $('#llegadaModal').load(url,function(){
-                $(this).modal('show');
-            });
-        }
-    </script>
+<script type="text/javascript">
+    var $ = jQuery.noConflict();
+    function abrir_modal_agregar_factura(url){
+        $('#agregarFacturas').load(url,function(){
+            $(this).modal('show');
+        });
+    }
+</script>
 {% endblock extrajs %}
 

@@ -27,7 +27,8 @@ from .forms import (
     CotizacionForm,
     CotizacionMotivoCancelacioForm,
     AgregarSeguroForm,
-    AgregarEvidenciaForm,)
+    AgregarEvidenciaForm,
+    AgregarFacturasForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades, Contacto
 from .filters import SolicitudesFilter
@@ -996,9 +997,39 @@ class DestinoAregarEvidencia(UpdateView):
         self.object = form.save(commit=False)
         destino = self.get_object()
         viaje = destino.solicitud_id.cotizacionFinal().orden
-        self.object .save()
+        self.object.save()
         messages.success(self.request, f'Evidencias agregadas correctamente')   
         return redirect(reverse('fletes:detalle-viaje', kwargs={'slug': viaje.viaje.slug}))
+
+class ViajeAregarFacturas(UpdateView):
+    model = Viaje
+    form_class = AgregarFacturasForm
+    template_name = 'fletes/confirmations/agregar_facturas.html'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    # def test_func(self):
+    #     cotizacion = self.get_object()
+    #     try:
+    #         transportista = self.request.user.transportista
+    #     except ObjectDoesNotExist:
+    #         return False
+
+    #     if cotizacion.estado_cotizacion == "Cancelada" or cotizacion.estado_cotizacion == "Solicitud cancelada":
+    #         return False
+
+    #     if cotizacion.transportista_id == transportista:
+    #         return True
+    #     else:
+    #         return False
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        messages.success(self.request, f'Facturas agregadas correctamente a viaje {self.object}')   
+        return redirect(reverse('viajes'))
 
 @login_required
 def dataViajeSeguridad(request, slug):

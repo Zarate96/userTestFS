@@ -1,0 +1,37 @@
+<div class="modal fade" id="verFoto" tabindex="-1" caller-id="" role="dialog" aria-labelledby="verFotoLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body confirm-delete">
+          {{destino}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger"  id="confirmDeleteButtonModal">Descargar</button>
+        </div>
+      </div>
+    </div>
+    <script>
+        $(document).on('click', '.confirm-delete', function () {
+            $("#verFoto").attr("caller-id", $(this).attr("id"));
+        });
+
+        $(document).on('click', '#confirmDeleteButtonModal', function () {
+            var caller = $("#confirmDeleteButtonModal").closest(".modal").attr("caller-id");
+            window.location = $("#".concat(caller)).attr("href");
+        });
+    </script>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
