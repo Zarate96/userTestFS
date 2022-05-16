@@ -9,12 +9,12 @@
             {% csrf_token %}
             <div class="modal-body">
                 <p>Si cancelas esta solicitud, sumara puntos negativos a tu historial!</p>
-                <p>Si desea continuar, ingrese el motivo de su cancelación y de click en "Cancelar"</p>
+                <p>Si desea continuar, ingrese el motivo de su cancelación y de click en "Continuar"</p>
                 {{form.as_p}}
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
-              <button type="submit" class="btn btn-danger">Cancelar</button>
+              <button type="submit" class="btn btn-danger">Continuar</button>
             </div>
         </form>
     </div>
