@@ -102,7 +102,7 @@
                                                 {% for destino in destinos %}
                                                 <tr>
                                                     <td class="text-center">{{ forloop.counter }}</td>
-                                                    <td class="text-center">Destino a {{ destino.domicilio_id }} </td>
+                                                    <td class="text-center">{{ destino.domicilio_id }} </td>
                                                     <td class="text-center">{{ destino.unidades_entregar }}</td>
                                                     <td><button onclick="abrir_modal_edit_destino('{% url 'fletes:editar-destino' destino.id %}')" class="btn btn-info btn-sm">Editar</button></td>
                                                     <td class="text-center"><a href="{% url 'fletes:delete-destino' id=destino.id %}" class="confirm-delete" title="Delete" data-toggle="modal" data-target="#confirmDeleteModal" id="deleteButton{{contacto.id}}"><i class="fas fa-trash-alt"></i></a></td>
