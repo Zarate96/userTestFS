@@ -27,6 +27,7 @@
                                         </div>
                                         <div class="col-6">
                                             {% if viaje.hora_llegada %}<h5 class="card-title">Hora de registro: <span>{{ viaje.hora_llegada}}</span></h5>{% endif %}
+                                            {% if viaje.hora_inicio %}<h5 class="card-title">Hora de incio: <span>{{ viaje.hora_inicio}}</span></h5>{% endif %}
                                         </div>
                                     </div>
                                     <p class="card-text">Fecha del servicio: {{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</p>
