@@ -21,7 +21,7 @@
                             
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Folio de viaje: {{viaje.folio}}  <span>{{ viaje.hora_inicio}} </span> </h5>
+                                    <h5 class="card-title">Folio de viaje: {{viaje.folio}} {% if viaje.hora_llegada %} <span> {{ viaje.hora_llegada}} </span>  {% endif %}</h5>
                                     <p class="card-text">Fecha del servicio: {{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</p>
                                     <p class="card-text">Hora del servicio: {{viaje.orden_id.cotizacion_id.solicitud_id.hora}} hrs</p>
                                     <div class="container mt-3 mb-4">
