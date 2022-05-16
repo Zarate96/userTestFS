@@ -54,10 +54,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <h5 class="card-text mt-4">Recolección:</h5>
-                                    <p class="card-text">{{cliente.nombre}} {{cliente.ape_pat}} {{cliente.ape_mat}}</p>
+                                    <h5 class="card-text mt-4">Contacto:</h5>
+                                    <p class="card-text">{{cliente.nombre}} {{cliente.ape_pat}} {{cliente.ape_mat}} / {{cliente.telefono}}</p>
+                                    <h5 class="card-text mt-4">Origen:</h5>
                                     <p class="card-text">
-                                        ORIGEN: {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.calle }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_ext }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_int }}, C.P {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.cp }},  colonia {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.colonia }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.municipio }}, {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.estado}}
+                                        {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.calle }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_ext }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.num_int }}, C.P {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.cp }},  colonia {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.colonia }} {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.municipio }}, {{ viaje.orden_id.cotizacion_id.solicitud_id.domicilio_id.estado}}
                                     </p>
                                     {% if contactos %}
                                     <div class="container">
