@@ -1,0 +1,2 @@
+#agregar url para prubea de descarga de imagen
+<!-- <p class="card-text"><a href="{% url 'fletes:descargar-evidencia' destino=destino.id %}?foto=1"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p> -->

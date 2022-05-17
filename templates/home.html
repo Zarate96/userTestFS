@@ -48,36 +48,24 @@
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
-              <i class="fas fa-plus-square"></i>
+              <a href="{% url 'fletes:solicitudes'%}" class="icon-link" style="text-decoration: none; color: white;"><i class="fas fa-eye"></i></a>
             </div>
             <h2>Solicitudes vigentes</h2>
             <p>Revisa las solicitudes de viaje vigentes.</p>
-            <a href="{% url 'fletes:solicitudes' %}" class="icon-link">
-              Ir
-              <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
-            </a>
           </div>
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
-              <i class="fas fa-eye"></i>
+              <a href="{% url 'fletes:cotizaciones'%}" class="icon-link" style="text-decoration: none; color: white;"><i class="fas fa-eye"></i></a>
             </div>
             <h2>Mis cotizaciones</h2>
             <p>Gestiona tus cotizaciones realizadas.</p>
-            <a href="{% url 'fletes:cotizaciones'%}" class="icon-link">
-              Ir
-              <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
-            </a>
           </div>
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">
-              <i class="fas fa-eye"></i>
+              <a href="{% url 'fletes:viajes'%}" class="icon-link" style="text-decoration: none; color: white;"><i class="fas fa-eye"></i></a>
             </div>
             <h2>Mis viajes</h2>
             <p>Gestiona y revisa el estado de tus viajes.</p>
-            <a href="{% url 'fletes:viajes'%}" class="icon-link">
-              Ir
-              <svg class="bi" width="1em" height="1em"><use xlink:href="#chevron-right"></use></svg>
-            </a>
           </div>
         </div>
       </div>

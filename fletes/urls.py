@@ -43,5 +43,6 @@ urlpatterns = [
     path('viaje/finalizar/<slug:slug>', finalizarViaje, name='finzalizar-viaje'),
     path('viaje/evidencias/<slug:slug>', ViajesEvidencias.as_view(), name='evidencias-viaje'),
     path('destino/agregarevidencia/<int:pk>', DestinoAregarEvidencia.as_view(), name='agregar-evidencia-destino'),
+    #path('destino/descargarevidencia/<int:destino>', download_image, name='descargar-evidencia'),
     path('viaje/agregarfacturas/<slug:slug>', ViajeAregarFacturas.as_view(), name='agregar-facturas-viaje'),
 ]

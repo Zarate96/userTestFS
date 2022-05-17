@@ -3,6 +3,8 @@ import conekta
 import requests
 import datetime
 import json
+import mimetypes
+from wsgiref.util import FileWrapper
 from http.client import HTTPSConnection
 from base64 import b64encode
 from django.shortcuts import render
@@ -1125,3 +1127,22 @@ def finalizarViaje(request, slug):
         messages.success(request, f'Viaje finalizado correctamente')
     
     return HttpResponseRedirect(reverse('fletes:viajes'))
+
+# def download_image(request, destino):
+#     destino = Destino.objects.get(id=destino)
+#     print(destino)
+#     foto = request.GET.get('foto')
+#     print(foto)
+#     if foto == '1':
+#         img = destino.foto1
+#     elif foto == '2':
+#         img = destino.foto2
+#     else:
+#         img = "Invalid"
+#     wrapper      = FileWrapper(open(img.file))  # img.file returns full path to the image
+#     content_type = mimetypes.guess_type(filename)[0]  # Use mimetypes to get file type
+#     response     = HttpResponse(wrapper,content_type=content_type)  
+#     response['Content-Length']      = os.path.getsize(img.file)    
+#     response['Content-Disposition'] = "attachment; filename=%s" %  img.name
+#     return response
+    #return HttpResponseRedirect(reverse('fletes:viajes'))
