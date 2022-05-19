@@ -5,7 +5,9 @@ class TimeInput(forms.TimeInput):
     input_type = "time"
 
 class SolicitudForm(forms.ModelForm):
-    descripcion_servicio = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}))
+    descripcion_servicio = forms.CharField(
+        widget=forms.Textarea(attrs={"rows":2, "cols":20}),
+        help_text='Explicar con detalle la descripción del servio, datos importantes para evitar confusión entre cliente y transportist',)
     caracteristicas_carga = forms.CharField(widget=forms.Textarea(attrs={"rows":2, "cols":20}), label="Tipo de carga",)
     tiempo_carga = forms.IntegerField(
         label="Tiempo de espera (minutos)",

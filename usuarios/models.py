@@ -171,6 +171,7 @@ class Transportista(models.Model):
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
     telefonia_movil = models.ForeignKey(Telefonias, verbose_name="Telefonía Movil", null=True, on_delete=models.CASCADE)
+    licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
     slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):

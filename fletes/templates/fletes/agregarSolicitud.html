@@ -123,12 +123,12 @@
                                                 {% endfor %}
                                             {% endif %}
                                             <div class="row justify-content-between mt-4">
-                                                <div class="col-auto"><a href="{% url 'profile-user' %}"><button class="btn btn-danger">Cancelar</button></a></div>
                                                 <div class="col-auto">
                                                 <button type="submit" class="btn btn-primary">Siguiente</button>
                                                 </div>
                                             </div>
                                         </form>
+                                        <div class="col-auto mt-2"><a href="{{request.META.HTTP_REFERER}}"><button class="btn btn-danger">Cancelar</button></a></div>
                                     </div>
                                 </div>
                             </div>

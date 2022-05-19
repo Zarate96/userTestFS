@@ -75,19 +75,5 @@
     </main>
   </div>
   {% else %}
-  <h2>Bienvenido a Flete Seguro<span class="icon-emo-happy"></span></h2>
-  <p class="lead">
-    Si ya tienes cuenta, continua e inicia sesión como <a href="{% url 'login' %}">Cliente</a> o <a href="{% url 'login' %}">Transportista</a>. 
-  </p>
-  <p class="lead">
-    Si no tienes cuenta registrate ahora como 
-    <a class="ml-2" href="{% url 'registro-cliente' %}">Cliente</a> o <a class="ml-2" href="{% url 'registro-transportista' %}">Transportista</a>.
-  </p>
-  <hr>
-  <h3>Nosotros</h3>
-  <p>
-    SOLUCIONES DIGITALES PARA LA ENTREGA DE ULTIMA MILLA.
-  </p>
-  <p class="mb-0">Endicom<br><a href="#">@endicom</a></p>
   {% endif %}
 {% endblock %}

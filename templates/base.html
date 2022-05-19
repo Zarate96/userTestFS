@@ -23,12 +23,23 @@
   {% else %}
   <title>FleteSeguro</title>
   {% endif %}
+  <style>
+  #background {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://hzaratecode.com/fotocedis2.jpg');
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  </style>
   <!-- Favicon   -->
   <link href="https://hzaratecode.com/iconoFS.png" rel="icon">
 </head>
 
   {% if not user.is_authenticated %}
-  <body class="img js-fullheight" style="background-image: url(https://hzaratecode.com/fotocedis2.jpg);"></body>
+  <body class="img js-fullheight" id="background"></body>
+  {% else %}
+  <body></body>
   {% endif %}
     
     <!-- DigiCert Seal HTML -->

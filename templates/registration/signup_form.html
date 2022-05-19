@@ -4,20 +4,36 @@
 
 {% block extracss %}
 <link rel="stylesheet" href="https://hzaratecode.com/styleHomeFS.css">
+<style>
+  .text-muted{
+    color: white !important;
+  }
+</style>
 {% endblock extracss %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-8 col-sm-10 col-12 mt-3">
-      <h2>Registrarse como {{ user_type }}</h2>
-      <form method="post" novalidate>
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {{ form|crispy }}
-        <script src="https://www.google.com/recaptcha/api.js"></script>
-        <div class="g-recaptcha mb-3 mt-3" data-sitekey="{{recaptcha_site_key}}"></div>
-        <button type="submit" class="btn btn-success">Resgistrarme</button>
-      </form>
+<section class="ftco-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="login-wrap p-0">
+          <form method="POST" class="signin-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Registrarse como {{ user_type }}</legend>
+            {{ form|crispy }}
+            </fieldset>
+            <script src="https://www.google.com/recaptcha/api.js"></script>
+            <div class="g-recaptcha mb-3 mt-3" data-sitekey="{{recaptcha_site_key}}"></div>
+            <div class="form-group">
+              <button type="submit" class="form-control btn btn-primary submit px-3">Resgistrarme</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
+</section>
+
 {% endblock %}

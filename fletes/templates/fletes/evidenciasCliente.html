@@ -36,26 +36,106 @@
                                         <div id="flush-collapseDestino" class="accordion-collapse collapse" aria-labelledby="flush-headingDestino" data-bs-parent="#accordionDestino">
                                             <div class="accordion-body">
                                                 <div class="row">
-                                                    <div class="col-sm-6">
-                                                        {% if destino.foto1 %}
+                                                    {% if destino.foto1 %}
+                                                    <div class="col-md-6 mt-2">
                                                         <div class="card" style="width: 18rem; ">
                                                             <img src="{{ destino.foto1.url }}" class="card-img-top" style="height: 13.5rem;" alt="...">
                                                             <div class="card-body">
-                                                            <p class="card-text"><a href="{{destino.foto1.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>
+                                                                <div class="row justify-content-between">
+                                                                    <div class="col-6">
+                                                                        <p class="card-text"><a href="{{destino.foto2.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>                                                                            
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                            <i class="far fa-question-circle"></i>
+                                                                        </button>   
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        {% endif %}
                                                     </div>
-                                                    <div class="col-sm-6">
-                                                        {% if destino.foto2 %}
+                                                    {% endif %}
+
+                                                    {% if destino.foto2 %}
+                                                    <div class="col-md-6 mt-2">
                                                         <div class="card" style="width: 18rem;">
                                                             <img src="{{ destino.foto2.url }}" class="card-img-top" alt="...">
                                                             <div class="card-body">
-                                                                <p class="card-text"><a href="{{destino.foto2.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>
+                                                                <div class="row justify-content-between">
+                                                                    <div class="col-6">
+                                                                        <p class="card-text"><a href="{{destino.foto2.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>                                                                            
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                            <i class="far fa-question-circle"></i>
+                                                                        </button>   
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        {% endif %}
                                                     </div>
+                                                    {% endif %}
+
+                                                    {% if destino.foto3 %}
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="card" style="width: 18rem;">
+                                                            <img src="{{ destino.foto3.url }}" class="card-img-top" alt="...">
+                                                            <div class="card-body">
+                                                                <div class="row justify-content-between">
+                                                                    <div class="col-6">
+                                                                        <p class="card-text"><a href="{{destino.foto3.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>                                                                            
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                            <i class="far fa-question-circle"></i>
+                                                                        </button>   
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    {% if destino.foto4 %}
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="card" style="width: 18rem;">
+                                                            <img src="{{ destino.foto4.url }}" class="card-img-top" alt="...">
+                                                            <div class="card-body">
+                                                                <div class="row justify-content-between">
+                                                                    <div class="col-6">
+                                                                        <p class="card-text"><a href="{{destino.foto4.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>                                                                            
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                            <i class="far fa-question-circle"></i>
+                                                                        </button>   
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    {% if destino.foto5 %}
+                                                    <div class="col-md-6 mt-2">
+                                                        <div class="card" style="width: 18rem;">
+                                                            <img src="{{ destino.foto5.url }}" class="card-img-top" alt="...">
+                                                            <div class="card-body">
+                                                                <div class="row justify-content-between">
+                                                                    <div class="col-6">
+                                                                        <p class="card-text"><a href="{{destino.foto5.url}}"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p>                                                                            
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                            <i class="far fa-question-circle"></i>
+                                                                        </button>   
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+
                                                 </div>
                                             </div>
                                         </div>
@@ -84,7 +164,23 @@
             </div>
         </div>
     </section>
-    
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Información de ayuda</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            Para descargar la imagen de click en 'Descargar' para abrir la evidencia en una nueva pestaña y proceder a descargar desde el navegador.
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+        </div>
+    </div>
 {% endblock content %}
 {% block extrajs %}
     <script type="text/javascript">

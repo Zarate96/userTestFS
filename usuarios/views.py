@@ -3,7 +3,7 @@ import threading
 import conekta
 import requests
 import urllib.request
-
+import googlemaps
 from http.client import HTTPSConnection
 from base64 import b64encode
 from django.conf import settings
@@ -103,6 +103,7 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
 
     success_url = reverse_lazy('home')
 
+@login_required
 def home(request):
     return render(request, 'home.html')
 
@@ -256,6 +257,19 @@ class ProfileClienteUpdateView(UserPassesTestMixin,UpdateView):
         context['form'] = ProfileClienteUpdateForm(instance=user.cliente, profile=user)
         return context
     
+    def form_valid(self, form):
+        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        form.instance.user = self.request.user
+        direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
+        geocode_result = gmaps.geocode(direction)
+        direccion_google = geocode_result[0]["formatted_address"]
+        print(direccion_google)
+        if len(geocode_result) == 0 or len(direccion_google) < 50:
+            messages.success(self.request, f'Dirección incorrecta favor de validar su información')
+            return redirect(reverse('datosfiscales-update'))
+        else:
+            return super().form_valid(form)
+
     def get_success_url(self):
         messages.success(self.request, f'Perfil de cliente actualizado correctamente')
         return reverse('profile-user')
@@ -286,8 +300,17 @@ class ProfileTransportistaUpdate(UserPassesTestMixin, UpdateView):
         return context
     
     def form_valid(self, form):
+        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
+        geocode_result = gmaps.geocode(direction)
+        direccion_google = geocode_result[0]["formatted_address"]
+        print(direccion_google)
+        if len(geocode_result) == 0 or len(direccion_google) < 50:
+            messages.success(self.request, f'Dirección incorrecta favor de validar su información')
+            return redirect(reverse('datosfiscales-update'))
+        else:
+            return super().form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, f'Perfil actualizado correctamente')
@@ -363,7 +386,7 @@ class DatosFiscalesUpdate(UpdateView):
     model = DatosFiscales
     template_name = 'usuarios/updatePerfil.html'
     fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','rfc']
-
+    
     def get_object(self):
         """
         Returns the request's user.
@@ -380,8 +403,16 @@ class DatosFiscalesUpdate(UpdateView):
         return context
     
     def form_valid(self, form):
+        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
+        geocode_result = gmaps.geocode(direction)
+        direccion_google = geocode_result[0]["formatted_address"]
+        if len(geocode_result) == 0 or len(direccion_google) < 50:
+            messages.success(self.request, f'Dirección incorrecta favor de validar su información')
+            return redirect(reverse('datosfiscales-update'))
+        else:
+            return super().form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, f'Información fiscal actualizada correctamente')
@@ -480,9 +511,18 @@ class EncierroAgregar(UserPassesTestMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         self.object = form.save(commit=False)
-        self.object.user = user
-        self.object.save()
-        messages.success(self.request, f'Encierro agregado correctamente')
+        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        form.instance.user = self.request.user
+        direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
+        geocode_result = gmaps.geocode(direction)
+        direccion_google = geocode_result[0]["formatted_address"]
+        print(direccion_google)
+        if len(geocode_result) == 0 or len(direccion_google) < 50:
+            messages.success(self.request, f'Dirección incorrecta favor de validar su información')
+        else:
+            self.object.user = user
+            self.object.save()
+            messages.success(self.request, f'Encierro agregado correctamente')
         return redirect(reverse('agregar-unidad'))
 
 class EncierroUpdate(UserPassesTestMixin, UpdateView):

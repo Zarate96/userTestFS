@@ -133,6 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #Manage users
 AUTH_USER_MODEL = 'usuarios.MyUser'
 LOGIN_URL = "/usuarios/login"
+LOGOUT_REDIRECT_URL = '/'
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 MESSAGE_TAGS = {

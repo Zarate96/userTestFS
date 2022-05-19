@@ -902,26 +902,6 @@ def PagarCotizacion(request, slug):
             messages.success(request, f'No se pudo generar la orden!!{e.message} {cotizacionStr} {type(cotizacionStr)}')
             return HttpResponseRedirect(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug}))
 
-def PagoConfirmado(request):
-    print(request)
-    data = request.path
-    print(request.path)
-    context = {
-        'data' : data
-    }
-
-    return render(request, 'fletes/pagoConfirmado.html', context)
-
-def PagoDenegado(request):
-    print(request)
-    data = request.path
-    print(request.path)
-    context = {
-        'data' : data
-    }
-
-    return render(request, 'fletes/pagoDenegado.html', context)
-
 class ViajesListView(ListView):
     model = Viaje
     template_name = 'fletes/viajes.html'
