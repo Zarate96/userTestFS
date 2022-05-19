@@ -3,6 +3,8 @@
 {% block content %}
 
 {% include 'usuarios/confirm_delete_modal.html' %}
+{% include 'fletes/confirmations/confirm_confirmar_modal.html' %}
+
     <section style="background-color: #eee;">
         <div class="container py-5 mt-4r">
             <div class="row justify-content-center">
@@ -42,7 +44,7 @@
                                             <td>{{cotizacion.estado_cotizacion}}</td>
                                             <td><a href="{% url 'fletes:detalle-cotizacion' cotizacion.slug %}"><i class="far fa-eye"></i></a></td>
                                             {% if cotizacion.estado_cotizacion == 'Aceptada' %}
-                                                <td><a href="{% url 'fletes:confirmar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Confirmar</button></a></td>
+                                                <td><a href="{% url 'fletes:confirmar-cotizacion' cotizacion.slug %}" class="confirm-confirmar" title="Confirmar" data-bs-toggle="modal" data-bs-target="#confirmConfirmarModal" id="aceptarButton{{cotizacion.slug}}"><button class="btn btn-primary btn-sm">Confirmar</button></a></td>
                                                 <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-cotizacion' cotizacion.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             {% else %}
                                                 {% if cotizacion.estado_cotizacion == 'Confirmada' %}

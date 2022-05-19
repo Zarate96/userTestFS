@@ -1,0 +1,25 @@
+<!--Aceptar cotización por medio de 'slug = caller-id' property in this modal-->
+<div class="modal fade" id="confirmAceptarModal" tabindex="-1" caller-id="" role="dialog" aria-labelledby="confirmAceptarModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body confirm-aceptar">
+        <p>¿Esta seguro de acptar esta cotización?</p>
+        <p>Si aceptas esta cotización no pódras cancelarla, a menos que cancele su solicitud con la penalizacón correspondiente.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary"  id="confirmAceptarButtonModal">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  <script>
+      $(document).on('click', '.confirm-aceptar', function () {
+          $("#confirmAceptarModal").attr("caller-id", $(this).attr("id"));
+      });
+
+      $(document).on('click', '#confirmAceptarButtonModal', function () {
+          var caller = $("#confirmAceptarButtonModal").closest(".modal").attr("caller-id");
+          window.location = $("#".concat(caller)).attr("href");
+      });
+  </script>
+</div>

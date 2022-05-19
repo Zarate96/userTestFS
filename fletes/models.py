@@ -196,18 +196,6 @@ class Destino(models.Model):
     def hasEvidencias(self):
         return True if self.foto1 else False
 
-#Cambiar Rechazada a No exitosa
-ESTADO_COTIZACION = (
-    ('Pendiente','Pendiente'),
-    ('Aceptada','Aceptada'),
-    ('Rechazada','Rechazada'),
-    ('Confirmada','Confirmada'),
-    ('Cancelada','Cancelada'),
-    ('Solicitud cancelada','Solicitud cancelada'),
-    ('Pagada','Pagada'),
-    ('Pendiente de pago','Pendiente de pago')
-)
-
 NIVEL_SEGURO = (
     ('Sin seguro', 'Sin seguro'),
     ('Nivel 1','Nivel 1'),
@@ -222,6 +210,18 @@ class Seguro(models.Model):
 
     def __str__(self):
         return f'{self.nombre}'
+
+#Cambiar Rechazada a No exitosa
+ESTADO_COTIZACION = (
+    ('Pendiente','Pendiente'),
+    ('Aceptada','Aceptada'),
+    ('Rechazada','Rechazada'),
+    ('Confirmada','Confirmada'),
+    ('Cancelada','Cancelada'),
+    ('Solicitud cancelada','Solicitud cancelada'),
+    ('Pagada','Pagada'),
+    ('Pendiente de pago','Pendiente de pago')
+)
 
 class Cotizacion(models.Model):
     transportista_id = models.ForeignKey(

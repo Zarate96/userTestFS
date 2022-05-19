@@ -1,0 +1,25 @@
+<!--Confirmar cotización por medio de 'slug = caller-id' property in this modal-->
+<div class="modal fade" id="confirmConfirmarModal" tabindex="-1" caller-id="" role="dialog" aria-labelledby="confirmConfirmarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body confirm-confirmar">
+          <p>¿Esta seguro de confirmar esta cotización?</p>
+          <p>Si confirmas está cotización solo podrá cancelarla con la penalizacón correspondiente.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary"  id="confirmConfirmarButtonModal">Confirmar</button>
+        </div>
+      </div>
+    </div>
+    <script>
+        $(document).on('click', '.confirm-confirmar', function () {
+            $("#confirmConfirmarModal").attr("caller-id", $(this).attr("id"));
+        });
+  
+        $(document).on('click', '#confirmConfirmarButtonModal', function () {
+            var caller = $("#confirmConfirmarButtonModal").closest(".modal").attr("caller-id");
+            window.location = $("#".concat(caller)).attr("href");
+        });
+    </script>
+  </div>

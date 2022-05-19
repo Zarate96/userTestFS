@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% include 'usuarios/confirm_delete_modal.html' %}
+{% include 'fletes/confirmations/confirm_aceptar_modal.html' %}
 
 <section style="background-color: #eee;">
     <div class="container py-5 mt-4r">
@@ -89,9 +89,17 @@
                                         <td>${{cotizacion.monto|floatformat:0 }}mn</td>
                                         <td>{{cotizacion.estado_cotizacion}}</td>
                                         {% if cotizacion.estado_cotizacion == 'Aceptada' or  cotizacion.estado_cotizacion == 'Rechazada' or  cotizacion.estado_cotizacion == 'Confirmada'%}
-                                        <td></td>
+                                            <td></td>
                                         {% else %}
-                                        <td><a href="{% url 'fletes:aceptar-cotizacion' cotizacion.slug %}"><button class="btn btn-primary btn-sm">Aceptar</button></a></td>
+                                            {% if cotizacion.estado_cotizacion == 'Cancelada' %}
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#motivoCancelación">
+                                                    <i class="far fa-question-circle"></i>
+                                                </button>  
+                                            </td>
+                                            {% else %}
+                                            <td><a href="{% url 'fletes:aceptar-cotizacion' cotizacion.slug %}" class="confirm-aceptar" title="Aceptar" data-bs-toggle="modal" data-bs-target="#confirmAceptarModal" id="aceptarButton{{cotizacion.slug}}"><button class="btn btn-primary btn-sm">Aceptar</button></a></td>
+                                            {% endif %}
                                         {% endif %}
                                     </tr>
                                     {% endfor %}
@@ -105,5 +113,21 @@
                 </div>
         </div>
 </section>
-
+<!-- Modal -->
+<div class="modal fade" id="motivoCancelación" tabindex="-1" aria-labelledby="motivoCancelaciónLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="motivoCancelaciónLabel">Cotización cancelada</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <p>El transportista ha decidio 'Cancelar' la cotización</p>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+    </div>
+</div>
 {% endblock content %}

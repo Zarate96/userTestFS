@@ -30,6 +30,11 @@
                                             FECHA DEL SERVICO: {{solicitud.fecha_servicio|date:"d-m-Y"}}<br>
                                             HORA DEL SERVICO: {{solicitud.hora}}
                                         </div>
+                                        {% if solicitud.estado_solicitud  == 'Asignada' %}
+                                        <div class="col-md-12 mt-3 mb-1">
+                                            Solicitud asignada al transportista: {{solicitud.cotizacionFinal}}<br>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <p class="h5 mt-5">Caracteristicas de carga</p>
                                     <div class="col-md-12 mb-1">

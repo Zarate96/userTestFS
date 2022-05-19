@@ -728,7 +728,7 @@ class CotizacionDetalle(DetailView):
 class CotizacionCancel(UserPassesTestMixin, UpdateView):
     model = Cotizacion
     form_class = CotizacionMotivoCancelacioForm
-    template_name = 'fletes/confirmations/cancel_solicitud_modal.html'
+    template_name = 'fletes/confirmations/cancel_cotizacion_modal.html'
 
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
@@ -750,10 +750,22 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
             return False
 
     def form_valid(self, form):
+        cotizacion = self.get_object()
+        print(cotizacion)
+        solicitud = cotizacion.solicitud_id
+        print(solicitud)
         self.object = form.save(commit=False)
         with transaction.atomic():
             self.object.estado_cotizacion = 'Cancelada'
             self.object.activo = False
+            #Activar resto de cotizaciones de la solicitud
+            Cotizacion.objects.exclude(
+                id=cotizacion.id).filter(
+                solicitud_id=solicitud).update(
+                estado_cotizacion='Pendiente')
+            Solicitud.objects.filter(
+                id=solicitud).update(
+                estado_solicitud='Cotizada')
             self.object.save()
             user = self.request.user
             user.penalizaciones = user.penalizaciones + 1

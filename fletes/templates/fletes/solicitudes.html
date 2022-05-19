@@ -3,6 +3,7 @@
 {% block content %}
 
 {% include 'usuarios/confirm_delete_modal.html' %}
+
 <section style="background-color: #eee;">
     <div class="container py-5 mt-4r">
         {% if user.is_transportista %}
@@ -97,7 +98,7 @@
                                     <tbody>
                                         {% for solicitud in solicitudes%}
                                         <tr>
-                                            <td>{{solicitud.folio}}</td>
+                                            <td><a href="{% url 'fletes:detalle-solicitud' solicitud.slug %}">{{solicitud.folio}}</a></td>
                                             <td>{{solicitud.creado|date:"d-m-Y"}}</td>
                                             <td>{{solicitud.has_destinos}}</td>
                                             <td>{{solicitud.descripcion_servicio}}</td>
