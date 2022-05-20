@@ -8,8 +8,7 @@
         <form action="{% url 'fletes:cancelar-solicitud' object.slug %}" method="POST">
             {% csrf_token %}
             <div class="modal-body">
-                <p>Si cancelas esta solicitud, sumara puntos negativos a tu historial!</p>
-                <p>Si desea continuar, ingrese el motivo de su cancelación y de click en "Continuar"</p>
+                <ps>Si desea continuar, ingrese el motivo de su cancelación y de click en "Continuar"</ps>
                 {{form.as_p}}
             </div>
             <div class="modal-footer">

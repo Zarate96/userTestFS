@@ -761,10 +761,10 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
             #Activar resto de cotizaciones de la solicitud
             Cotizacion.objects.exclude(
                 id=cotizacion.id).filter(
-                solicitud_id=solicitud).update(
+                solicitud_id=solicitud.id).update(
                 estado_cotizacion='Pendiente')
             Solicitud.objects.filter(
-                id=solicitud).update(
+                id=solicitud.id).update(
                 estado_solicitud='Cotizada')
             self.object.save()
             user = self.request.user
