@@ -1023,7 +1023,7 @@ class ViajeAregarFacturas(UpdateView):
         self.object = form.save(commit=False)
         self.object.save()
         messages.success(self.request, f'Facturas agregadas correctamente a viaje {self.object}')   
-        return redirect(reverse('viajes'))
+        return redirect(reverse('fletes:viajes'))
 
 @login_required
 def dataViajeSeguridad(request, slug):

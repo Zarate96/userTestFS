@@ -36,7 +36,11 @@
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                       <div class="accordion-body">
-                          <strong>Data del viaje</div>
+                        <p><strong>Folio de viaje: </strong>{{viaje.folio}}</p>
+                        <p><strong>Fecha de servicio: </strong>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:'d-m-Y'}}</p>
+                        <p><strong>Folio de cotizacion: </strong>{{viaje.orden_id.cotizacion_id.folio}}</p>
+                        <p><strong>Estado del viaje: </strong>{{viaje.estado_viaje}}</p>
+                      </div>
                     </div>
                   </div>
                   <div class="accordion-item">
