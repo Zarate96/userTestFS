@@ -94,10 +94,16 @@
                                         <li class="list-group-item">No hay destinos</li>
                                     {% endif %}
                                 </ul> -->
-                                {% if viaje.estado_viaje == 'Creado' %}
+                                {% if viaje.estado_viaje != 'Iniciado' %}
+                                    {% if viaje.estado_viaje == 'Pendiente de pago' %}
+                                    <div class="container">
+                                        <h5>Viaje ya finalizado</h5>
+                                    </div>
+                                    {% else %}
                                     <div class="container">
                                         <h5>Inicia viaje para ver ruta y subir evidencias de entrega</h5>
                                     </div>
+                                    {% endif %}
                                 {% else %}
                                     {% if destinos %}
                                     <div class="container">

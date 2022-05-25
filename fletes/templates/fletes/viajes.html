@@ -26,6 +26,7 @@
                                     <thead>
                                         <tr>
                                             <th>Folio</th>
+                                            <th>Folio Cotización</th>
                                             <th>Fecha</th>
                                             <th>Hora de servcio</th>
                                             <th>Estado</th>
@@ -37,6 +38,7 @@
                                             {% if viaje.orden_id.cotizacion_id.transportista_id == user.transportista %}
                                             <tr>
                                                 <td><a href="{% url 'fletes:detalle-viaje' viaje.slug %}">{{viaje.folio}}</a></td>
+                                                <td><a href="{% url 'fletes:detalle-cotizacion' viaje.orden_id.cotizacion_id.slug %}">{{viaje.orden_id.cotizacion_id}}</a></td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
                                                 <td>{{viaje.estado_viaje}}</td>
@@ -90,6 +92,7 @@
                                     <thead>
                                         <tr>
                                             <th>Folio</th>
+                                            <th>Folio solicitud</th>
                                             <th>Fecha</th>
                                             <th>Hora</th>
                                             <th>Estado</th>
@@ -102,6 +105,7 @@
                                             {% if viaje.getClienteId == user.cliente %}
                                             <tr>
                                                 <td> <a href="{% url 'fletes:data-seguridad-viaje' slug=viaje.slug %}" class="confirm-delete" title="Detalle de viaje">{{viaje.folio}}</a></td>
+                                                <td> <a href="{% url 'fletes:detalle-solicitud' slug=viaje.orden_id.cotizacion_id.solicitud_id.slug %}" title="Detalle de solicitud">{{viaje.orden_id.cotizacion_id.solicitud_id}}</a></td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
                                                 <td>{{viaje.estado_viaje}}</td>

@@ -64,7 +64,7 @@
                                                 </table>
                                         </div>
                                 <div class="card-body justify-content-between">
-                                  <a href="{% url 'fletes:cotizaciones' %}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
+                                  <a href="{{request.META.HTTP_REFERER}}"><button type="button" class="btn btn-primary mt-4"> Regresar </button></a>
                                 </div>
                             </div>
                         </div>

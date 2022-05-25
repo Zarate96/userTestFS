@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=y(gi(7@k2tu!sru!-2q*z258(x^8f0ccjoj_7q^4a#i#h+elp'
+SECRET_KEY = config('SECRET_KEY_PRODUCTION') 
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -168,6 +168,12 @@ GOOGLE_RECAPTCHA_SECRET_KEY = config('RECAPTCHA_SECRET_KEY', default='')
 
 #MAPS GOOGLE CONFIG
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='')
+
+#CONEKTA
+SANDBOX_PUBLICA_CONEKTA = config('SANDBOX_PUBLICA_CONEKTA', default='')
+SANDBOX_PRIVADA_CONEKTA = config('SANDBOX_PRIVADA_CONEKTA', default='')
+PRODUCCION_PUBLICA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
+PRODUCCION_PRIVADA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
 
 #s3 BUCKET CONFIG
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')

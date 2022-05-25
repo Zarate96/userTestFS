@@ -7,6 +7,7 @@ import mimetypes
 from wsgiref.util import FileWrapper
 from http.client import HTTPSConnection
 from base64 import b64encode
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
@@ -14,7 +15,7 @@ from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError, transaction
-from django.db.models import ProtectedError, Sum
+from django.db.models import ProtectedError, Sum, Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -35,9 +36,9 @@ from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades, Contacto
 from .filters import SolicitudesFilter
 
-gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 conekta.locale = 'es'
-conekta.api_key = "key_BQzUZ8k2yyaXunkYaxZr23A"
+conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
 conekta.api_version = "2.0.0"
 
 class SolicitudClienteListView(UserPassesTestMixin, ListView):
@@ -73,7 +74,7 @@ class SolicitudListView(UserPassesTestMixin, ListView):
             return False
 
     def get_queryset(self):
-        return Solicitud.objects.all().order_by('-creado').exclude(estado_solicitud="Guardada").exclude(estado_solicitud="Asignada").exclude(estado_solicitud="Cancelada").exclude(activo=False)
+        return Solicitud.objects.all().order_by('-creado').filter(Q(estado_solicitud="Publicada") | Q(estado_solicitud="Cotizada"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -913,6 +914,8 @@ def PagarCotizacion(request, slug):
             print(e.message)
             messages.success(request, f'No se pudo generar la orden!!{e.message} {cotizacionStr} {type(cotizacionStr)}')
             return HttpResponseRedirect(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug}))
+    
+    return HttpResponseRedirect(reverse('fletes:solicitudes-cliente'))
 
 class ViajesListView(ListView):
     model = Viaje
@@ -1057,7 +1060,6 @@ def registrarLlegada(request, slug):
             if int(nip) == viaje.nip_checkin:
                 try:
                     viaje.hora_llegada = datetime.datetime.now().time()
-                    viaje.estado_viaje = 'Iniciado'
                     viaje.save()
                     messages.success(request, f'Registro de llegada correcto a las {viaje.hora_llegada}')
                 except ProtectedError:

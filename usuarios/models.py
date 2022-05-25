@@ -1,6 +1,7 @@
 import datetime
 import conekta
 import requests
+from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
 from django.dispatch import receiver
@@ -10,7 +11,7 @@ from http.client import HTTPSConnection
 from base64 import b64encode
 
 conekta.locale = 'es'
-conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_key = settings.SANDBOX_PRIVADA_CONEKTA
 conekta.api_version = "2.0.0"
 
 TELEFONIAS = (
@@ -288,13 +289,14 @@ class Unidades(models.Model):
 
 
 @receiver(post_save, sender=Cliente)
-def createFolioCotizacion(sender,instance,**kwargs):
+def createConketaId(sender,instance,**kwargs):
     cliente = instance
 
     if (cliente.conektaId is None or cliente.conektaId == "") and cliente.nombre != "":
         try:
             c = HTTPSConnection("www.google.com")
-            userAndPass = b64encode(b"key_bypUmRxRUxsqM5LbuFYzmQ").decode("ascii")
+            api_key = bytes(settings.SANDBOX_PRIVADA_CONEKTA, encoding='utf-8')
+            userAndPass = b64encode(api_key).decode("ascii")
             headers = { 'Authorization' : 'Basic %s' %  userAndPass }
             c.request('GET', '/', headers=headers)
             res = c.getresponse()

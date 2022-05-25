@@ -2,10 +2,14 @@
 import conekta
 import requests
 import json
+from datetime import datetime
+from datetime import date as todaysDate
+from django.utils import timezone
+from django.conf import settings
 from http.client import HTTPSConnection
 from base64 import b64encode
 conekta.locale = 'es'
-conekta.api_key = "key_bypUmRxRUxsqM5LbuFYzmQ"
+conekta.api_key = settings.SANDBOX_PRIVADA_CONEKTA 
 conekta.api_version = "2.0.0"
 
 from fletes.models import *
@@ -17,7 +21,8 @@ def checkLinkStatus():
     #we need to base 64 encode it
     #and then decode it to acsii as python 3 stores it as a byte string
     #userAndPass = b64encode(b"username:password").decode("ascii")
-    userAndPass = b64encode(b"key_bypUmRxRUxsqM5LbuFYzmQ").decode("ascii")
+    api_key = bytes(settings.SANDBOX_PRIVADA_CONEKTA, encoding='utf-8')
+    userAndPass = b64encode(api_key).decode("ascii")
     headers = { 'Authorization' : 'Basic %s' %  userAndPass }
     #then connect
     c.request('GET', '/', headers=headers)
@@ -43,13 +48,13 @@ def checkLinkStatus():
     # link = linkId
 
     for orden in ordenes:
-        print("\n  *** ORDEN TASK ***")
-        print(f"   Current: {orden}")
+        # print("\n  *** ORDEN TASK ***")
+        # print(f"   Current: {orden}")
         if orden.link_status == 'Finalized':
-            print("   == Link de pago utilizado ==")
+            #print("   == Link de pago utilizado ==")
             if orden.orden_status != 'paid':
-                print("   == Orden no pagada ==")
-                print("\n   *** BUSCAR ORDEN PARA ACTULIZAR ESTADO ***")
+                #print("   == Orden no pagada ==")
+                #print("\n   *** BUSCAR ORDEN PARA ACTULIZAR ESTADO ***")
                 for key in ordenesConekta:
                     try:
                         if key['channel']['checkout_request_id'] == orden.link_id:
@@ -57,7 +62,7 @@ def checkLinkStatus():
                     except:
                         pass
                 if orden_id:
-                    print(f"   {orden_id}")
+                    #print(f"   {orden_id}")
                     orden.orden_id = orden_id
                 else:
                     print("Data no encontrada")
@@ -72,7 +77,7 @@ def checkLinkStatus():
                 }
                 response = requests.request("GET", url, headers=headers, data=data)
                 response = response.json()
-                print(f"   Estado a guardar: {response['payment_status']}")
+                #print(f"   Estado a guardar: {response['payment_status']}")
                 orden.orden_status = response['payment_status']
                 orden.save()
                 if orden.orden_status == 'paid':
@@ -82,13 +87,13 @@ def checkLinkStatus():
                     solicitud = cotizacion.solicitud_id
                     solicitud.estado_solicitud = 'Pagada'
                     solicitud.save()
-                    print(" ## Orden pagada se crea viaje #")
+                    #print(" ## Orden pagada se crea viaje #")
                     viaje = Viaje.objects.create(orden_id=orden)
 
         else:    
             linkId =  orden.link_id
-            print("   == Link de pago no utilizado ==")
-            print("\n   *** BUSCAR ORDEN PARA ACTULIZAR ESTADO ***")
+            #print("   == Link de pago no utilizado ==")
+            #print("\n   *** BUSCAR ORDEN PARA ACTULIZAR ESTADO ***")
             url = "https://api.conekta.io/checkouts/" + linkId
 
             headers = {
@@ -103,5 +108,16 @@ def checkLinkStatus():
 
             response_status = response['status']
             orden.link_status = response_status
-            print(f"    Estado a guardar: {orden.link_status}")
+            #print(f"    Estado a guardar: {orden.link_status}")
             orden.save()
+
+def verificarSolicitudesVencidad():
+    solicitudes = Solicitud.objects.all()
+    today = datetime.now().timestamp()
+    if solicitudes:
+        for solicitud in solicitudes:
+            fechaServicio = datetime.timestamp(solicitud.fecha_servicio)
+            if solicitud.estado_solicitud != 'Vencida': 
+                if today > fechaServicio:
+                    solicitud.estado_solicitud = 'Vencida'
+                    solicitud.save()

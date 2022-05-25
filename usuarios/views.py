@@ -38,7 +38,7 @@ from .forms import (
     EncierroForm,)
 
 conekta.locale = 'es'
-conekta.api_key = "key_BQzUZ8k2yyaXunkYaxZr23A"
+conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
 conekta.api_version = "2.0.0"
 
 class EmailThread(threading.Thread):
@@ -258,7 +258,7 @@ class ProfileClienteUpdateView(UserPassesTestMixin,UpdateView):
         return context
     
     def form_valid(self, form):
-        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)
@@ -300,7 +300,7 @@ class ProfileTransportistaUpdate(UserPassesTestMixin, UpdateView):
         return context
     
     def form_valid(self, form):
-        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)
@@ -403,7 +403,7 @@ class DatosFiscalesUpdate(UpdateView):
         return context
     
     def form_valid(self, form):
-        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)
@@ -511,7 +511,7 @@ class EncierroAgregar(UserPassesTestMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         self.object = form.save(commit=False)
-        gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+        gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)

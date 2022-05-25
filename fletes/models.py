@@ -1,6 +1,7 @@
 import googlemaps
 import json
 import random
+from django.conf import settings
 from datetime import date as todaysDate
 from django.utils.timezone import make_aware
 from django.db import models
@@ -87,7 +88,7 @@ ESTADO_SOLICITUD = (
     ('Asignada','Asignada'),
     ('Pagada','Pagada'),
     ('Cancelada','Cancelada'),
-    
+    ('Vencida','Vencida'),
 )
 
 def validate_date(date):
@@ -309,7 +310,7 @@ ESTADO_VIAJE = (
     ('Creado','Creado'),
     ('Iniciado','Iniciado'),
     ('Cerrado','Cerrado'),
-    ('Pendiente pago','Pendiente pago'),
+    ('Pendiente de pago','Pendiente de pago'),
     ('Terminado','Terminado'),
     ('Disputa','Disputa'),
     ('Accidente','Accidente'),
@@ -342,6 +343,8 @@ class Viaje(models.Model):
             self.folio = f'FS{self.orden_id.cotizacion_id.getClienteId()}00{self.orden_id.cotizacion_id.id}'
         if self.slug is None or self.slug == "":
             self.slug = f'FS{self.orden_id.cotizacion_id.getClienteId()}00{self.orden_id.cotizacion_id.id}'
+        if self.factura_pdf and self.factura_xml:
+            self.estado_viaje = 'Pendiente de pago'
         return super(Viaje, self).save(*args, **kwargs)
     
     def __str__(self):
@@ -389,7 +392,7 @@ def validarEsatdoCotizacion(sender,instance,**kwargs):
 
 @receiver(post_save, sender=Domicilios)
 def addLonLat(sender, instance, **kwargs):
-    gmaps = googlemaps.Client(key='AIzaSyDHQMz-SW5HQm3IA2hSv2Bct9L76_E60Ec')
+    gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
     direction = f'{instance.calle} {instance.num_ext} {instance.colonia} {instance.estado}'
     geocode_result = gmaps.geocode(direction)
     direccion_google = geocode_result[0]["formatted_address"]
