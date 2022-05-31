@@ -69,6 +69,9 @@ class Domicilios(models.Model):
     google_place_id = models.CharField(verbose_name="Google place ID", max_length=100, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Domicilios"
+
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
         if not self.id:
@@ -121,6 +124,9 @@ class Solicitud(models.Model):
     activo = models.BooleanField(
         verbose_name="Activo",
         default=True,)
+
+    class Meta:
+        verbose_name_plural = "Solicitudes"
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
@@ -191,8 +197,11 @@ class Destino(models.Model):
     #registro de llegada
     #registo de hora de llegada
 
+    class Meta:
+        verbose_name_plural = "Destinos"
+
     def __str__(self):
-        return f'Destino {self.id} de {self.solicitud_id}' 
+        return f'Destino {self.domicilio_id} de {self.solicitud_id}' 
     
     def hasEvidencias(self):
         return True if self.foto1 else False
@@ -208,6 +217,9 @@ class Seguro(models.Model):
     nombre = models.CharField(verbose_name="Seguro", max_length=40, default="")
     costo = models.FloatField(verbose_name="Costo del seguro")
     cobertura = models.FloatField(verbose_name="Cobertura del seguro")
+
+    class Meta:
+        verbose_name_plural = "Seguros"
 
     def __str__(self):
         return f'{self.nombre}'
@@ -244,6 +256,7 @@ class Cotizacion(models.Model):
     folio = models.CharField(verbose_name="Folio", max_length=20, editable=True, unique = True)
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
     motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", null=True, blank=True)
+    fecha_servicio = models.DateTimeField(verbose_name="Fecha de servicio de solictud",null=True, blank=True, default=None)
     total = models.FloatField(
         verbose_name="Total", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
@@ -263,6 +276,9 @@ class Cotizacion(models.Model):
         verbose_name="Activo",
         default=True,)
 
+    class Meta:
+        verbose_name_plural = "Cotizaciones"
+
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
         iva = 0.16
@@ -276,6 +292,9 @@ class Cotizacion(models.Model):
             subtotal = self.monto
         self.total = int(subtotal + subtotal * iva)
         
+        if self.fecha_servicio == None or self.fecha_servicio == "":
+            self.fecha_servicio = self.solicitud_id.fecha_servicio
+
         self.modificado = timezone.now()
         
         return super(Cotizacion, self).save(*args, **kwargs)
@@ -300,6 +319,9 @@ class Orden(models.Model):
     orden_id = models.CharField(max_length = 200, null=True, blank=True)
     orden_status = models.CharField(max_length = 200, null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Ordenes"
+
     def __str__(self):
         return f'Orden de cotización {self.cotizacion_id}'
 
@@ -323,13 +345,16 @@ class Viaje(models.Model):
     estado_viaje = models.CharField(verbose_name="Estado", choices=ESTADO_VIAJE, max_length=40, default="Creado")
     hora_inicio = models.TimeField(verbose_name="Hora de inicio", null=True, blank=True)
     hora_llegada = models.TimeField(verbose_name="Hora de llegada", null=True, blank=True)
-    localizacion_transportista = models.CharField(verbose_name="Localización de transportista", max_length=40)
     nip_checkin = models.IntegerField(verbose_name="NIP de seguridad checkin", null=True, blank=True)
     nip_checkout = models.IntegerField(verbose_name="NIP de seguridad checkout", null=True, blank=True)
     comentarios = models.TextField(null=True, blank=True)
+    fecha_servicio = models.DateTimeField(verbose_name="Fecha de servicio de solictud",null=True, blank=True, default=None)
     factura_pdf = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura pdf", null=True, blank=True)
     factura_xml = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura xml", null=True, blank=True)
     es_validado = models.BooleanField(verbose_name="¿Esta válido por cliente?", default=False)
+
+    class Meta:
+        verbose_name_plural = "Viajes"
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''
@@ -345,6 +370,8 @@ class Viaje(models.Model):
             self.slug = f'FS{self.orden_id.cotizacion_id.getClienteId()}00{self.orden_id.cotizacion_id.id}'
         if self.factura_pdf and self.factura_xml:
             self.estado_viaje = 'Pendiente de pago'
+        if self.fecha_servicio == None or self.fecha_servicio == "":
+            self.fecha_servicio = self.orden_id.cotizacion_id.solicitud_id.fecha_servicio
         return super(Viaje, self).save(*args, **kwargs)
     
     def __str__(self):

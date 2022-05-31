@@ -11,6 +11,7 @@ ALLOWED_HOSTS = ['fleteseguro.mx']
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+SITE_URL = 'https://fleteseguro.mx'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

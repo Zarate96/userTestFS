@@ -4,13 +4,16 @@ import requests
 import datetime
 import json
 import mimetypes
-from wsgiref.util import FileWrapper
+import threading
 from http.client import HTTPSConnection
+from django.http import HttpResponseRedirect, HttpResponse
+from wsgiref.util import FileWrapper
+from django.core.mail import EmailMessage
 from base64 import b64encode
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib import messages
-from django.http import HttpResponseRedirect, HttpResponse
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
@@ -18,9 +21,10 @@ from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError, Sum, Q
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views, login
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import CreateView, DetailView, UpdateView, DeleteView, ListView
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 from .forms import (
     SolicitudForm,
@@ -40,6 +44,15 @@ gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 conekta.locale = 'es'
 conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
 conekta.api_version = "2.0.0"
+
+class EmailThread(threading.Thread):
+
+    def __init__(self, email):
+        self.email = email
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self.email.send()
 
 class SolicitudClienteListView(UserPassesTestMixin, ListView):
     model = Solicitud
@@ -751,11 +764,28 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
             return False
 
     def form_valid(self, form):
+        current_site = get_current_site(self.request)
         cotizacion = self.get_object()
         print(cotizacion)
         solicitud = cotizacion.solicitud_id
         print(solicitud)
         self.object = form.save(commit=False)
+        if cotizacion.estado_cotizacion == 'Confirmada':
+            cliente = cotizacion.solicitud_id.cliente_id.user
+            email_subject = 'Cotización cancelada'
+            email_body = render_to_string('fletes/mails/cotizacionCancelEmail.html', {
+                'user': cliente,
+                'domain': current_site,
+                'cotizacion': cotizacion,
+                'solicitud': solicitud
+            })
+            email = EmailMessage(subject=email_subject, body=email_body,
+                         from_email=settings.EMAIL_FROM_USER,
+                         to=[cliente.email]
+                         )
+            if not settings.TESTING:
+                EmailThread(email).start()
+
         with transaction.atomic():
             self.object.estado_cotizacion = 'Cancelada'
             self.object.activo = False
@@ -771,6 +801,7 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
             user = self.request.user
             user.penalizaciones = user.penalizaciones + 1
             user.save()
+        
 
         messages.success(self.request, f'Cotización cancelada correctamente')
         
@@ -859,7 +890,8 @@ def PagarCotizacion(request, slug):
         raise PermissionDenied()
 
     if cotizacion.estado_cotizacion != 'Confirmada':
-        raise PermissionDenied()
+        messages.error(request, f'Ya has pagado esta cotización')
+        return HttpResponseRedirect(reverse(reverse('fletes:checkout', kwargs={'slug': cotizacion.slug})))
         
     else:
         try:

@@ -108,9 +108,13 @@
                                                 <td> <a href="{% url 'fletes:detalle-solicitud' slug=viaje.orden_id.cotizacion_id.solicitud_id.slug %}" title="Detalle de solicitud">{{viaje.orden_id.cotizacion_id.solicitud_id}}</a></td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                                 <td>{{viaje.orden_id.cotizacion_id.solicitud_id.hora}}</td>
-                                                <td>{{viaje.estado_viaje}}</td>
+                                                {% if viaje.estado_viaje == 'Pendiente de pago'%}
+                                                    <td>Terminado</td>
+                                                {% else %}
+                                                    <td>{{viaje.estado_viaje}}</td>
+                                                {% endif %}
                                                 <td>
-                                                    {% if viaje.estado_viaje == 'Cerrado' %}
+                                                    {% if viaje.estado_viaje == 'Cerrado' or viaje.estado_viaje == 'Pendiente de pago' %}
                                                         <a href="{% url 'fletes:evidencias-viaje' viaje.slug %}"><button class="btn btn-warning btn-sm" type="button">Ver mis evidencias</button></a>
                                                     {% else %}
                                                         <button class="btn btn-warning btn-sm" type="button" disabled>Ver mis evidencias</button>

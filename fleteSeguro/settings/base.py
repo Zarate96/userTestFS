@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django_filters',
     'bootstrapform',
     'corsheaders',
+    'rangefilter',
+    'import_export',
 ]
 
 MIDDLEWARE = [

@@ -117,7 +117,7 @@ def verificarSolicitudesVencidad():
     if solicitudes:
         for solicitud in solicitudes:
             fechaServicio = datetime.timestamp(solicitud.fecha_servicio)
-            if solicitud.estado_solicitud != 'Vencida': 
+            if solicitud.estado_solicitud != 'Vencida' or solicitud.estado_solicitud != 'Pagada': 
                 if today > fechaServicio:
                     solicitud.estado_solicitud = 'Vencida'
                     solicitud.save()

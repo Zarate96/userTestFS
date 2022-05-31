@@ -1,6 +1,7 @@
 import datetime
 import conekta
 import requests
+from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
@@ -9,6 +10,7 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from http.client import HTTPSConnection
 from base64 import b64encode
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 
 conekta.locale = 'es'
 conekta.api_key = settings.SANDBOX_PRIVADA_CONEKTA
@@ -26,18 +28,6 @@ RADIO_TYPE = (
     ('gsm','gsm'),
     ('lte','lte'),
 )
-
-class Telefonias(models.Model):
-    carrier = models.CharField(verbose_name="Nombre de la compañia", choices=TELEFONIAS, max_length=50)
-    mcc = models.IntegerField(verbose_name="Mobile Country Code")
-    mnc = models.CharField(verbose_name="Home MobileNetwork Code", max_length=5)
-    radioType = models.CharField(verbose_name="Tipo de radio", choices=RADIO_TYPE, max_length=15)
-
-    class Meta:
-        verbose_name = 'Telefonias'
-
-    def __str__(self):
-        return f'{self.carrier}'
 
 ESTADOS = (
     ('Aguascalientes','Aguascalientes'),
@@ -74,6 +64,22 @@ ESTADOS = (
     ('Zacatecas','Zacatecas'),
 )
 
+class AuditEntry(models.Model):
+    action = models.CharField(max_length=64)
+    ip = models.GenericIPAddressField(null=True)
+    username = models.CharField(max_length=256, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha")
+
+    def __unicode__(self):
+        return '{0} - {1} - {2}'.format(self.action, self.username, self.ip)
+
+    def __str__(self):
+        return '{0} - {1} - {2}'.format(self.action, self.username, self.ip)
+
+    class Meta:
+        verbose_name = "Logs in/out"
+        verbose_name_plural = "Logs in/out"
+
 class MyUser(AbstractUser):
     email = models.EmailField(max_length=254, unique=True)
     es_transportista = models.BooleanField(default=False)
@@ -87,6 +93,7 @@ class MyUser(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
+        verbose_name_plural = "Usuarios"
 
     @property
     def is_cliente(self):
@@ -171,7 +178,6 @@ class Transportista(models.Model):
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
-    telefonia_movil = models.ForeignKey(Telefonias, verbose_name="Telefonía Movil", null=True, on_delete=models.CASCADE)
     licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
     slug = models.SlugField(null=True, blank=True)
 
@@ -245,6 +251,9 @@ class DatosFiscales(models.Model):
         help_text="Las empresas son personas morales")
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
 
+    class Meta:
+        verbose_name_plural = "Datos fiscales"
+
     @property
     def has_rfc(self):
         if self.rfc == "":
@@ -284,9 +293,16 @@ class Unidades(models.Model):
     encierro = models.ForeignKey(Encierro, on_delete=models.CASCADE,)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name_plural = "Unidades"
+
     def __str__(self):
         return f'{self.placa}'
 
+
+
+
+#SIGNALS
 
 @receiver(post_save, sender=Cliente)
 def createConketaId(sender,instance,**kwargs):
@@ -320,3 +336,19 @@ def createConketaId(sender,instance,**kwargs):
                 cliente.conektaId = 'Data incorrecta'
         except conekta.ConektaError as e:
             print(e.message)
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):  
+    ip = request.META.get('REMOTE_ADDR')
+    AuditEntry.objects.create(action='user_logged_in', ip=ip, username=user.username)
+
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):  
+    ip = request.META.get('REMOTE_ADDR')
+    AuditEntry.objects.create(action='user_logged_out', ip=ip, username=user.username)
+
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, credentials, **kwargs):
+    AuditEntry.objects.create(action='user_login_failed', username=credentials.get('username', None))
