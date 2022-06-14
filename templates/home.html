@@ -45,6 +45,9 @@
         {% if not user.transportista.has_unidades %}
         <p class="mt-4">No tienes unidades registradas no puedes realizar cotizaciones. Agregalas desde tu perfil!!</p>
         {% endif %}
+        {% if not user.transportista.has_licencia_conducir %}
+        <p class="mt-4">No has agregado información de tu licencia de conducir. Agregala desde tu perfil!!</p>
+        {% endif %}
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div class="feature col">
             <div class="feature-icon bg-primary bg-gradient">

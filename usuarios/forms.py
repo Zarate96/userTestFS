@@ -108,6 +108,15 @@ class ProfileTransportistaUpdateForm(forms.ModelForm):
         model = Transportista
         fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
+class AgregarLincenciaConducirForm(forms.ModelForm):
+    fecha_vencimiento_licencia = forms.DateField(
+        widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
+    )
+
+    class Meta:
+        model = Transportista
+        fields = ['licencia_conducir','fecha_vencimiento_licencia','licencia_conducir_foto']
+
 class ProfileClienteUpdateForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):

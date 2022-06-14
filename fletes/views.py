@@ -529,7 +529,7 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
 
     def test_func(self):
         if self.request.user.is_transportista:
-            if self.request.user.has_datosfiscales and self.request.user.transportista.has_info and self.request.user.transportista.has_unidades:
+            if self.request.user.has_datosfiscales and self.request.user.transportista.has_info and self.request.user.transportista.has_unidades and self.request.user.transportista.has_licencia_conducir:
                 return True
             else:
                 return False

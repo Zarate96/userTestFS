@@ -307,6 +307,66 @@
                                 </div>
                                 </div>
                             </div>
+
+                            <!-- LICENCIAS -->
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card mb-4 mb-md-0">
+                                    <div class="card-body">
+                                        <p class="mb-4"><span class="text-primary font-italic me-1">Mi licencia</span> de conducir</p>
+                                        {% if object.transportista.has_licencia_conducir%}
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">Número de licencia</th>
+                                                </tr> 
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>{{object.transportista.licencia_conducir}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>No has agregado tu licencia de conducir</p>
+                                        {% endif %}
+                                        <a href="{% url 'profile-transportista-licencia' slug=object.transportista.slug %}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
+                                    </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-6">
+                                    <div class="card mb-4 mb-md-0">
+                                        <div class="card mb-4 mb-md-0">
+                                            <div class="card-body">
+                                                <p class="mb-4"><span class="text-primary font-italic me-1">Mi licencia</span> para transportar material peligroso</p>  
+                                                {% if unidades %}
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                        <th scope="col">Nombre</th>
+                                                        <th scope="col"></th>
+                                                        <th scope="col"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for unidad in unidades %}
+                                                        <tr>
+                                                            <td>{{ unidad.marca }} {{ unidad.modelo }} </td>
+                                                            <td><a href="{% url 'update-unidad' unidad.id %}"><i class="far fa-edit"></i></a></td>
+                                                            <td><a href="{% url 'delete-unidad' unidad.id %}" class="confirm-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" id="deleteButton{{unidad.id}}"><i class="fas fa-trash-alt"></i></a></td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                {% else %}  
+                                                <p>No has agregado permiso para transportar material peligroso</p>
+                                                {% endif %}
+                                                <a href="{% url 'agregar-unidad' %}"><button type="button" class="btn btn-primary mt-4"> Agregar </button></a>
+                                            </div>
+                                        </div>
+                                </div>
+                                </div> -->
+                            </div>
                         </div>
                     </div>
                 {% endif %}

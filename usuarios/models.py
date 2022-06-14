@@ -179,9 +179,10 @@ class Transportista(models.Model):
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
     licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
-    licencia_conducir = models.CharField(verbose_name="Licencia de conducir", max_length=50, default="")
+    licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de licencia de conducir material peligroso", upload_to='licencias_transportistas', null=True, blank=True)
+    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="")
     licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas')
-    fecha_vencimiento = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo",null=True, blank=True, default=None)
+    fecha_vencimiento_licencia = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo",null=True, blank=True, default=None)
     slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):
@@ -213,6 +214,20 @@ class Transportista(models.Model):
                 return False
         except:
             return False
+    
+    @property
+    def has_licencia_conducir(self):
+        if self.licencia_conducir == "" and self.licencia_conducir_foto == "":
+            return False
+        else:
+            return True
+
+    @property
+    def has_licencia_mp(self):
+        if self.licencia_mp == "" and self.licencia_conducir_mp_foto == "":
+            return False
+        else:
+            return True
 
 class Contacto(models.Model):
     nombre = models.CharField(
