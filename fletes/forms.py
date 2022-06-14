@@ -72,11 +72,27 @@ class DomicilioForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo','es_asegurada','nivel_seguro','checkoutUrl','total','aceptar_tyc','folio','fecha_servicio')
+        exclude = ('transportista_id','modificado','solicitud_id','slug','estado_cotizacion','motivo_cancelacion','activo','es_asegurada','nivel_seguro','checkoutUrl','total','aceptar_tyc','folio','fecha_servicio','correo_recordatorio')
 
 class CotizacionMotivoCancelacioForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
+        fields = ['motivo_cancelacion',]
+        labels = {
+            'motivo_cancelacion':'Motivo de la cancelación'
+        }
+        widgets = {
+            'motivo_cancelacion': forms.TextInput(
+                attrs = {
+                    'class':'form-control',
+                    'placeholder':'Inregese el motivo de cancelación'
+                } 
+            )
+        }
+
+class CotizacionMotivoCancelacioViajeForm(forms.ModelForm):
+    class Meta:
+        model = Viaje
         fields = ['motivo_cancelacion',]
         labels = {
             'motivo_cancelacion':'Motivo de la cancelación'

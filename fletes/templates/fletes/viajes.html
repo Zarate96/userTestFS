@@ -3,6 +3,7 @@
 {% block content %}
 
 {% include 'usuarios/confirm_delete_modal.html' %}
+
 <section style="background-color: #eee;">
     <div class="container py-5 mt-4r">
         {% if user.is_transportista %}
@@ -47,6 +48,7 @@
                                                     <button onclick="abrir_modal_agregar_factura('{% url 'fletes:agregar-facturas-viaje' viaje.slug %}')" class="btn btn-info btn-sm">Facturas</button>
                                                 </td>
                                                 {% endif %}
+                                                <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-viaje' viaje.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -120,6 +122,7 @@
                                                         <button class="btn btn-warning btn-sm" type="button" disabled>Ver mis evidencias</button>
                                                     {% endif %}
                                                 </td>
+                                                <td><button onclick="abrir_modal_confirm_cancel('{% url 'fletes:cancelar-viaje' viaje.slug %}')" class="btn btn-danger btn-sm">Cancelar</button></td>
                                             </tr>
                                             {% endif %}
                                         {% endfor %}
@@ -148,12 +151,23 @@
 </section>
 <div class="modal fade" id="agregarFacturas" role="dialog">
 </div>
+<div class="modal fade" id="ConfirmCancel" role="dialog">
+</div>
+
 {% endblock content %}
 {% block extrajs %}
 <script type="text/javascript">
     var $ = jQuery.noConflict();
     function abrir_modal_agregar_factura(url){
         $('#agregarFacturas').load(url,function(){
+            $(this).modal('show');
+        });
+    }
+</script>
+<script type="text/javascript">
+    var $ = jQuery.noConflict();
+    function abrir_modal_confirm_cancel(url){
+        $('#ConfirmCancel').load(url,function(){
             $(this).modal('show');
         });
     }

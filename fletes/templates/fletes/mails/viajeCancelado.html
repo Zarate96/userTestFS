@@ -1,0 +1,18 @@
+{% autoescape off %}
+
+
+Estimado {{user.user.username}}
+
+{% if user.user.is_cliente %}
+
+Le informamos que su viaje con folio {{viaje}} asiganada a su solicitud con folio {{solicitud}} ha sido 
+cancelado por el transportista.
+
+{% else %}
+
+Le informamos que su viaje con folio {{viaje}} asiganada a su cotizacion con folio {{cotizacion}} ha sido 
+cancelado por el cliente.
+
+{% endif %}
+
+{% endautoescape %}

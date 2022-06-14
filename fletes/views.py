@@ -35,7 +35,8 @@ from .forms import (
     CotizacionMotivoCancelacioForm,
     AgregarSeguroForm,
     AgregarEvidenciaForm,
-    AgregarFacturasForm,)
+    AgregarFacturasForm,
+    CotizacionMotivoCancelacioViajeForm,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades, Contacto
 from .filters import SolicitudesFilter
@@ -211,10 +212,32 @@ class SolicitudCancel(UserPassesTestMixin, UpdateView):
             return False
 
     def form_valid(self, form):
+        current_site = get_current_site(self.request)
+        solicitud = self.get_object()
+        self.object = form.save(commit=False)
+        if solicitud.estado_solicitud == 'Cotizada' or solicitud.estado_solicitud == 'Asignada':
+            if solicitud.cotizacionFinal():
+                cotizacion = solicitud.cotizacionFinal()
+                cotizacionFolio = cotizacion.folio
+                solicitud = cotizacion.solicitud_id
+                transportista = cotizacion.transportista_id.user
+                email_subject = 'Solictud cancelada'
+                email_body = render_to_string('fletes/mails/SolicitudCancelEmail.html', {
+                    'user': transportista,
+                    'domain': current_site,
+                    'cotizacion': cotizacionFolio,
+                    'solicitud': solicitud
+                })
+                email = EmailMessage(subject=email_subject, body=email_body,
+                            from_email=settings.EMAIL_FROM_USER,
+                            to=[transportista.email]
+                            )
+                if not settings.TESTING:
+                    EmailThread(email).start()
+
         self.object = form.save(commit=False)
         with transaction.atomic():
             self.object.estado_solicitud = 'Cancelada'
-            self.object.activo = False
             self.object.save()
             user = self.request.user
             user.penalizaciones = user.penalizaciones + 1
@@ -547,6 +570,8 @@ class CotizacionAgregar(UserPassesTestMixin, CreateView):
                 messages.success(self.request, f'Ya has cotizado la solicitud {solicitud.folio}')
             else:  
                 try:
+                    if solicitud.cotizacionFinal():
+                        self.object.estado_cotizacion = 'Rechazada'
                     self.object.save()
                     messages.success(self.request, f'Cotización agregada correctamente')
                 except IntegrityError as e:
@@ -580,6 +605,8 @@ class CotizacionListClienteView(ListView):
 
         return Cotizacion.objects.filter(
             solicitud_id=solicitud
+        ).exclude(
+            activo=False
         ).order_by('-creado')
 
 @login_required
@@ -623,7 +650,10 @@ def aceptarCotizacion(request, slug):
                 cotizacion.save()
                 #Rechazar el resto de cotizaciones de la solicitud
                 Cotizacion.objects.exclude(
-                        id=cotizacion.id).filter(
+                        id=cotizacion.id
+                        ).exclude(
+                        estado_cotizacion='Cancelada'
+                        ).filter(
                         solicitud_id=cotizacion.solicitud_id.id).update(
                         estado_cotizacion='Rechazada')
                 messages.success(request, f'Cotización aceptada correctamente')
@@ -655,6 +685,27 @@ def confirmarCotizacion(request, slug):
                 solicitud = get_object_or_404(Solicitud, id=cotizacion.solicitud_id.id)
                 solicitud.estado_solicitud = "Asignada"
                 solicitud.save()
+                #envio de correo a cliente de cotización confirmda
+                current_site = settings.SITE_URL
+                cotizacionFolio = cotizacion.folio
+                solicitud = cotizacion.solicitud_id
+                cliente = cotizacion.solicitud_id.cliente_id.user
+                transportista = cotizacion.transportista_id
+                email_subject = 'Cotizacion confirmada'
+                email_body = render_to_string('fletes/mails/cotizacionConfirmada.html', {
+                    'user': cliente,
+                    'domain': current_site,
+                    'cotizacion': cotizacionFolio,
+                    'solicitud': solicitud,
+                    'transportista': transportista
+                })
+                email = EmailMessage(subject=email_subject, body=email_body,
+                            from_email=settings.EMAIL_FROM_USER,
+                            to=[cliente.email]
+                            )
+                if not settings.TESTING:
+                    EmailThread(email).start()
+
                 messages.success(request, f'Cotización confirmada correctamente')
             except ProtectedError:
                 messages.success(request, f'Algo salio mal!!!')
@@ -766,11 +817,9 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         current_site = get_current_site(self.request)
         cotizacion = self.get_object()
-        print(cotizacion)
         solicitud = cotizacion.solicitud_id
-        print(solicitud)
         self.object = form.save(commit=False)
-        if cotizacion.estado_cotizacion == 'Confirmada':
+        if cotizacion.estado_cotizacion == 'Confirmada' or cotizacion.estado_cotizacion == 'Aceptada':
             cliente = cotizacion.solicitud_id.cliente_id.user
             email_subject = 'Cotización cancelada'
             email_body = render_to_string('fletes/mails/cotizacionCancelEmail.html', {
@@ -785,14 +834,17 @@ class CotizacionCancel(UserPassesTestMixin, UpdateView):
                          )
             if not settings.TESTING:
                 EmailThread(email).start()
-
+        
         with transaction.atomic():
             self.object.estado_cotizacion = 'Cancelada'
-            self.object.activo = False
             #Activar resto de cotizaciones de la solicitud
             Cotizacion.objects.exclude(
-                id=cotizacion.id).filter(
-                solicitud_id=solicitud.id).update(
+                id=cotizacion.id
+                ).exclude(
+                estado_cotizacion='Cancelada'
+                ).filter(
+                solicitud_id=solicitud.id
+                ).update(
                 estado_cotizacion='Pendiente')
             Solicitud.objects.filter(
                 id=solicitud.id).update(
@@ -1060,6 +1112,76 @@ class ViajeAregarFacturas(UpdateView):
         messages.success(self.request, f'Facturas agregadas correctamente a viaje {self.object}')   
         return redirect(reverse('fletes:viajes'))
 
+class ViajeCancel(UserPassesTestMixin, UpdateView):
+    model = Viaje
+    form_class = CotizacionMotivoCancelacioViajeForm
+    template_name = 'fletes/confirmations/cancel_viaje_modal.html'
+
+    def test_func(self):
+        viaje = self.get_object()
+        user = self.request.user
+        cotizacion = viaje.orden_id.cotizacion_id
+        solicitud = cotizacion.solicitud_id       
+        if user.is_transportista:
+            return True if cotizacion.transportista_id == user.transportista else False
+        elif user.is_cliente:
+            return True if solicitud.cliente_id == user.cliente else False
+        else:
+            return False
+
+    def form_valid(self, form):
+        current_site = get_current_site(self.request)
+        viaje = self.get_object()
+        user = self.request.user
+        cotizacion = viaje.orden_id.cotizacion_id
+        solicitud = cotizacion.solicitud_id  
+        self.object = form.save(commit=False)
+        if user.is_transportista:
+            self.object.estado_viaje = 'Cancelado por transportista'
+            cliente = solicitud.cliente_id
+            email_subject = 'Viaje cancelado'
+            email_body = render_to_string('fletes/mails/viajeCancelado.html', {
+                'current_user': user,
+                'user': cliente,
+                'domain': current_site,
+                'cotizacion': cotizacion,
+                'solicitud': solicitud,
+                'viaje': viaje,
+            })
+            email = EmailMessage(subject=email_subject, body=email_body,
+                         from_email=settings.EMAIL_FROM_USER,
+                         to=[cliente.user.email]
+                         )
+            if not settings.TESTING:
+                EmailThread(email).start()
+
+        else: 
+            self.object.estado_viaje = 'Cancelado por cliente'
+            email_subject = 'Viaje cancelado'
+            transportista = cotizacion.transportista_id
+            email_body = render_to_string('fletes/mails/viajeCancelado.html', {
+                'current_user': user,
+                'user': transportista,
+                'domain': current_site,
+                'cotizacion': cotizacion,
+                'solicitud': solicitud,
+                'viaje': viaje,
+            })
+            email = EmailMessage(subject=email_subject, body=email_body,
+                         from_email=settings.EMAIL_FROM_USER,
+                         to=[transportista.user.email]
+                         )
+            if not settings.TESTING:
+                EmailThread(email).start()
+        
+        self.object.save()
+        user.penalizaciones = user.penalizaciones + 1
+        user.save()
+
+        messages.success(self.request, f'Viaje cancelado correctamente')
+        
+        return redirect(reverse('fletes:viajes'))
+
 @login_required
 def dataViajeSeguridad(request, slug):
     try:
@@ -1154,21 +1276,3 @@ def finalizarViaje(request, slug):
     
     return HttpResponseRedirect(reverse('fletes:viajes'))
 
-# def download_image(request, destino):
-#     destino = Destino.objects.get(id=destino)
-#     print(destino)
-#     foto = request.GET.get('foto')
-#     print(foto)
-#     if foto == '1':
-#         img = destino.foto1
-#     elif foto == '2':
-#         img = destino.foto2
-#     else:
-#         img = "Invalid"
-#     wrapper      = FileWrapper(open(img.file))  # img.file returns full path to the image
-#     content_type = mimetypes.guess_type(filename)[0]  # Use mimetypes to get file type
-#     response     = HttpResponse(wrapper,content_type=content_type)  
-#     response['Content-Length']      = os.path.getsize(img.file)    
-#     response['Content-Disposition'] = "attachment; filename=%s" %  img.name
-#     return response
-    #return HttpResponseRedirect(reverse('fletes:viajes'))

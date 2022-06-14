@@ -41,7 +41,15 @@
                                             <td>{{cotizacion.solicitud_id.fecha_servicio|date:"d-m-Y"}}</td>
                                             <td>{{cotizacion.solicitud_id.hora}}</td>
                                             <td>{{cotizacion.monto|floatformat:2 }} mxm</td>
-                                            <td>{{cotizacion.estado_cotizacion}}</td>
+                                            {% if cotizacion.estado_cotizacion == 'Rechazada' %}
+                                                {% if cotizacion.solicitud_id.estado_solicitud == 'Asignada' %}
+                                                    <td>{{cotizacion.estado_cotizacion}}</td>
+                                                {% else %}
+                                                    <td>Pendiente</td>
+                                                {% endif %}
+                                            {% else %}
+                                                <td>{{cotizacion.estado_cotizacion}}</td>
+                                            {% endif %}
                                             <td><a href="{% url 'fletes:detalle-cotizacion' cotizacion.slug %}"><i class="far fa-eye"></i></a></td>
                                             {% if cotizacion.estado_cotizacion == 'Aceptada' %}
                                                 <td><a href="{% url 'fletes:confirmar-cotizacion' cotizacion.slug %}" class="confirm-confirmar" title="Confirmar" data-bs-toggle="modal" data-bs-target="#confirmConfirmarModal" id="aceptarButton{{cotizacion.slug}}"><button class="btn btn-primary btn-sm">Confirmar</button></a></td>

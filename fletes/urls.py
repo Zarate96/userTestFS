@@ -33,6 +33,7 @@ urlpatterns = [
     path('pagar/checkout/<slug:slug>', checkout.as_view(), name='checkout'),
     path('pagar/<slug:slug>', PagarCotizacion, name='pagar-cotizacion'),
     path('viajes/', ViajesListView.as_view(), name='viajes'),
+    path('viajes/cancelar/<slug:slug>', ViajeCancel.as_view(), name='cancelar-viaje'),
     path('viaje/detalle/<slug:slug>', ViajesDetalle.as_view(), name='detalle-viaje'),
     path('viaje/nipsviaje/<slug:slug>', dataViajeSeguridad, name='data-seguridad-viaje'),
     path('viaje/registrarsalida/<slug:slug>', registrarSalida, name='registrar-salida-viaje'),

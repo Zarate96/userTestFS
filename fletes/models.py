@@ -96,7 +96,7 @@ ESTADO_SOLICITUD = (
 
 def validate_date(date):
     if date.date() <= todaysDate.today():
-        raise ValidationError("La fecha tiene que ser mayor a hoy")
+        print("no problem")
 
 class Solicitud(models.Model):
     cliente_id = models.ForeignKey(Cliente, on_delete=models.CASCADE)
@@ -165,7 +165,7 @@ class Solicitud(models.Model):
         return True if cotizaciones else False
 
     def cotizacionFinal(self):
-        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pendiente de pago')
+        cotizacion = Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Confirmada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pagada') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Pendiente de pago') | Cotizacion.objects.filter(solicitud_id=self.id).filter(estado_cotizacion='Aceptada')
         return cotizacion[0] if cotizacion else False
 
 def createFolioSolicitud(sender,instance,**kwargs):
@@ -257,6 +257,7 @@ class Cotizacion(models.Model):
     estado_cotizacion = models.CharField(verbose_name="Estado", choices=ESTADO_COTIZACION, max_length=40, default="Pendiente")
     motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación", null=True, blank=True)
     fecha_servicio = models.DateTimeField(verbose_name="Fecha de servicio de solictud",null=True, blank=True, default=None)
+    correo_recordatorio = models.IntegerField(verbose_name="Corrreos enviados para recordatorio de confirmación", default=0)
     total = models.FloatField(
         verbose_name="Total", null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
@@ -318,6 +319,7 @@ class Orden(models.Model):
     link_status = models.CharField(max_length = 200, null=True, blank=True)
     orden_id = models.CharField(max_length = 200, null=True, blank=True)
     orden_status = models.CharField(max_length = 200, null=True, blank=True)
+    correo_recordatorio = models.IntegerField(verbose_name="Corrreos enviados para recordatorio de pago", default=0)
 
     class Meta:
         verbose_name_plural = "Ordenes"
@@ -336,6 +338,8 @@ ESTADO_VIAJE = (
     ('Terminado','Terminado'),
     ('Disputa','Disputa'),
     ('Accidente','Accidente'),
+    ('Cancelado por cliente','Cancelado por cliente'),
+    ('Cancelado por transportista','Cancelado por transportista'),
 )
 
 class Viaje(models.Model):
@@ -352,6 +356,8 @@ class Viaje(models.Model):
     factura_pdf = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura pdf", null=True, blank=True)
     factura_xml = models.FileField(upload_to='uploads/%Y/%m/%d/', verbose_name="Factura xml", null=True, blank=True)
     es_validado = models.BooleanField(verbose_name="¿Esta válido por cliente?", default=False)
+    motivo_cancelacion = models.TextField(verbose_name="Motivo de cancelación",  null=True, blank=True)
+
 
     class Meta:
         verbose_name_plural = "Viajes"
