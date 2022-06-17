@@ -6,7 +6,7 @@ from fleteSeguro.settings.base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['fleteseguro.mx']
+ALLOWED_HOSTS = ['fleteseguro.mx','test.fleteseguro.mx']
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
