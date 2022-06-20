@@ -179,10 +179,10 @@ class Transportista(models.Model):
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
     licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
-    licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de licencia de conducir material peligroso", upload_to='licencias_transportistas')
-    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="")
-    licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas')
-    fecha_vencimiento_licencia = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo")
+    licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de licencia de conducir material peligroso", upload_to='licencias_transportistas', blank=True, null=True)
+    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="", null=True)
+    licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas', blank=True, null=True)
+    fecha_vencimiento_licencia = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo", blank=True, null=True)
     slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):
