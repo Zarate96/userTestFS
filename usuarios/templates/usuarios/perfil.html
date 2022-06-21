@@ -334,6 +334,30 @@
                                     </div>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="card mb-4 mb-md-0">
+                                    <div class="card-body">
+                                        <p class="mb-4"><span class="text-primary font-italic me-1">Mi licencia</span> para transportar material peligroso</p>
+                                        {% if object.transportista.has_licencia_mp%}
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">Número de licencia</th>
+                                                </tr> 
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><i class="fas fa-address-card"></i> Cuentas con permiso para transportar material peligroso</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        {% else %}  
+                                        <p>No has agregado tu licencia para transportar matarial peligroso</p>
+                                        {% endif %}
+                                        <a href="{% url 'profile-transportista-licenciaMP' slug=object.transportista.slug %}"><button type="button" class="btn btn-primary mt-4"> Editar </button></a>
+                                    </div>
+                                    </div>
+                                </div>
                                 <!-- <div class="col-md-6">
                                     <div class="card mb-4 mb-md-0">
                                         <div class="card mb-4 mb-md-0">

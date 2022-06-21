@@ -36,7 +36,8 @@ from .forms import (
     DatosFiscalesUpdateForm,
     UnidadesForm,
     EncierroForm,
-    AgregarLincenciaConducirForm,)
+    AgregarLincenciaConducirForm,
+    AgregarLincenciaMpForm,)
 
 conekta.locale = 'es'
 conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
@@ -339,6 +340,32 @@ class AgregaLicenciaConducir(UserPassesTestMixin, UpdateView):
         self.object.save()
 
         messages.success(self.request, f'Información de licencia agregada correctamente')
+        
+        return redirect(reverse('profile-user'))
+
+class AgregaLicenciaConducirMP(UserPassesTestMixin, UpdateView):
+    model = Transportista
+    form_class = AgregarLincenciaMpForm
+    #Same template of add 'licencia de conducir'
+    template_name = 'usuarios/agregarLicencia.html' 
+
+    def get_object(self):
+        """
+        Returns the request's user.
+        """
+        return self.request.user.transportista
+
+    def test_func(self):
+        if self.request.user.es_transportista:
+            return True
+        else:
+            return False
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+
+        messages.success(self.request, f'Información de licencia para transportar material peligroso agregada correctamente')
         
         return redirect(reverse('profile-user'))
 

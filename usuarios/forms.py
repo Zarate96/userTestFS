@@ -117,6 +117,11 @@ class AgregarLincenciaConducirForm(forms.ModelForm):
         model = Transportista
         fields = ['licencia_conducir','fecha_vencimiento_licencia','licencia_conducir_foto']
 
+class AgregarLincenciaMpForm(forms.ModelForm):
+    class Meta:
+        model = Transportista
+        fields = ['licencia_conducir_mp_foto',]
+
 class ProfileClienteUpdateForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):

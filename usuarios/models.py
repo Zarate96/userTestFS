@@ -180,7 +180,7 @@ class Transportista(models.Model):
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
     licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
     licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de licencia de conducir material peligroso", upload_to='licencias_transportistas', blank=True, null=True)
-    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="", null=True)
+    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="", null=True, blank=True,)
     licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas', blank=True, null=True)
     fecha_vencimiento_licencia = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo", blank=True, null=True)
     slug = models.SlugField(null=True, blank=True)
@@ -191,6 +191,8 @@ class Transportista(models.Model):
     def save(self, *args, **kwargs):
         if self.slug is None:
             self.slug = slugify(self.user.username)
+        if self.licencia_conducir_mp_foto:
+            self.licencia_mp = True
         super(Transportista, self).save(*args, **kwargs)
 
     @property
@@ -217,17 +219,18 @@ class Transportista(models.Model):
     
     @property
     def has_licencia_conducir(self):
-        if self.licencia_conducir == "" and self.licencia_conducir_foto == "":
+        if (self.licencia_conducir == "" or self.licencia_conducir == None) and self.licencia_conducir_foto == "":
             return False
         else:
             return True
 
     @property
     def has_licencia_mp(self):
-        if self.licencia_mp == "" and self.licencia_conducir_mp_foto == "":
+        if self.licencia_mp == False:
             return False
         else:
             return True
+    
 
 class Contacto(models.Model):
     nombre = models.CharField(

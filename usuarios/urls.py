@@ -28,6 +28,7 @@ urlpatterns = [
     path('perfil/autocompletar', PerfilAutocompletar, name='profile-user-autocompletar'),
     path('perfil/trasnportista/<slug:slug>', login_required(ProfileTransportista.as_view()), name='profile-transportista'),
     path('perfil/trasnportista/licencia/<slug:slug>', login_required(AgregaLicenciaConducir.as_view()), name='profile-transportista-licencia'),
+    path('perfil/trasnportista/licenciaMP/<slug:slug>', login_required(AgregaLicenciaConducirMP.as_view()), name='profile-transportista-licenciaMP'),
     path('perfil/cliente/editar/', login_required(ProfileClienteUpdateView.as_view()), name='perfil-cliente-update'),
     path('perfil/transportista/editar/', login_required(ProfileTransportistaUpdate.as_view()), name='perfil-transportista-update'),
     path('datosfiscales/editar/', login_required(DatosFiscalesUpdate.as_view()), name='datosfiscales-update'),

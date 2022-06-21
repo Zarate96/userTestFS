@@ -30,6 +30,14 @@ class SolicitudForm(forms.ModelForm):
     
     field_order = ['fecha_servicio','hora','tiempo_carga']
 
+class SolicitudUpdateHora(forms.ModelForm):
+    class Meta:
+        model = Solicitud
+        fields = ['hora',]
+        widgets = {
+            'hora': TimeInput(),
+        }
+
 class SolicitudMotivoCancelacioForm(forms.ModelForm):
     class Meta:
         model = Solicitud

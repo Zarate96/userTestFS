@@ -36,7 +36,8 @@ from .forms import (
     AgregarSeguroForm,
     AgregarEvidenciaForm,
     AgregarFacturasForm,
-    CotizacionMotivoCancelacioViajeForm,)
+    CotizacionMotivoCancelacioViajeForm,
+    SolicitudUpdateHora,)
 from .models import Solicitud, Destino, Domicilios,Cotizacion, Viaje, Orden
 from usuarios.models import MyUser, Unidades, Contacto
 from .filters import SolicitudesFilter
@@ -61,7 +62,6 @@ class SolicitudClienteListView(UserPassesTestMixin, ListView):
     context_object_name = 'solicitudes'
 
     def test_func(self):
-        print(self.request.user.cliente)
         try:
             cliente = self.request.user.cliente
             return True
@@ -186,6 +186,62 @@ class SolicitudUpdate(UserPassesTestMixin, UpdateView):
         messages.success(self.request, f'Solicitud actualizada correctamente')
         
         return redirect(reverse('fletes:agregar-destino', kwargs={'id': self.object.id}))
+
+class SolicitudUpdateHora(UpdateView):
+    model = Solicitud
+    form_class = SolicitudUpdateHora
+    template_name = 'fletes/confirmations/update_hora_solicitud_modal.html'
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def test_func(self):
+        solicitud = self.get_object()
+        try:
+            cliente = self.request.user.cliente
+        except ObjectDoesNotExist:
+            return False
+
+        if solicitud.estado_solicitud == "Cancelada":
+            return False
+
+        if solicitud.cliente_id == cliente:
+            return True
+        else:
+            return False
+            
+    def form_valid(self, form):
+        current_site = get_current_site(self.request)
+        solicitud = self.get_object()
+        self.object = form.save(commit=False)
+
+        if solicitud.estado_solicitud == 'Asignada':
+            if solicitud.cotizacionFinal():
+                cotizacion = solicitud.cotizacionFinal()
+                cotizacionFolio = cotizacion.folio
+                solicitud = cotizacion.solicitud_id
+                transportista = cotizacion.transportista_id.user
+                email_subject = 'Solicitud actualizada'
+                email_body = render_to_string('fletes/mails/solicitudUpdatedHora.html', {
+                    'user': transportista,
+                    'domain': current_site,
+                    'cotizacion': cotizacionFolio,
+                    'solicitud': solicitud,
+                    'hora':self.object.hora,
+                })
+                email = EmailMessage(subject=email_subject, body=email_body,
+                            from_email=settings.EMAIL_FROM_USER,
+                            to=[transportista.email]
+                            )
+                if not settings.TESTING:
+                    EmailThread(email).start()
+
+        self.object.save()
+        
+        messages.success(self.request, f'Solicitud actualizada correctamente')
+        
+        return redirect(reverse('fletes:solicitudes-cliente'))
 
 class SolicitudCancel(UserPassesTestMixin, UpdateView):
     model = Solicitud

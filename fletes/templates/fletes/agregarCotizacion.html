@@ -127,7 +127,18 @@
                                         {% csrf_token %}
                                             {{ form|crispy}}
                                             <div class="form-group mt-4">
-                                                <button class="btn btn-outline-info" type="submit" >Cotizar</button>
+                                                {% if solicitud.material_peligroso %}
+                                                    {% if user.transportista.has_licencia_mp %} 
+                                                        <button class="btn btn-outline-info" type="submit" >Cotizar</button>
+                                                    {% else %}
+                                                        <button class="btn btn-outline-info mb-2" type="submit" disabled >Cotizar</button>
+                                                        <p>* No puedes agregar cotización a esta solicitud porque no cuentas con permiso
+                                                        para transportar material peligroso, agregala desde tu perfil!!
+                                                        </p>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <button class="btn btn-outline-info" type="submit" >Cotizar</button>
+                                                {% endif %}
                                             </div> 
                                     </form>
                                     <p class="h6 mt-3">*Precios más IVA</p>

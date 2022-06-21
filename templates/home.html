@@ -39,14 +39,25 @@
       {% else %}
       <div class="container px-4 py-5" id="featured-3">
         <h2 class="pb-2 border-bottom">Menú de transportistas</h2>
+        {% if not user.es_validado %}
+          <div class="alert alert-info" role="alert">
+            Tu perfil no ha sido validado por el admnistrador, en breve será verificado.
+          </div>
+        {% endif %}
         {% if not user.has_datosfiscales or not user.transportista.has_info %}
-          <p class="mt-4">Perfil y/o datos fiscales no completados, por favor visitu su perfil y actualice sus datos para poder crear cotizaciones.</p>
+          <div class="alert alert-info" role="alert">
+            Perfil y/o datos fiscales no completados, por favor visite su perfil y actualice sus datos para poder crear cotizaciones.
+          </div>
         {% endif %}
         {% if not user.transportista.has_unidades %}
-        <p class="mt-4">No tienes unidades registradas no puedes realizar cotizaciones. Agregalas desde tu perfil!!</p>
+          <div class="alert alert-info" role="alert">
+            No tienes unidades registradas no puedes realizar cotizaciones. Agregalas desde tu perfil
+          </div>
         {% endif %}
         {% if not user.transportista.has_licencia_conducir %}
-        <p class="mt-4">No has agregado información de tu licencia de conducir. Agregala desde tu perfil!!</p>
+          <div class="alert alert-info" role="alert">
+            No has agregado información de tu licencia de conducir. Agregala desde tu perfil
+          </div>
         {% endif %}
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
           <div class="feature col">
