@@ -15,7 +15,7 @@ PRIVADA_CONEKTA = config('SANDBOX_PRIVADA_CONEKTA', default='')
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-SITE_URL = 'https://fleteseguro.mx'
+SITE_URL = 'https://test.fleteseguro.mx'
 PROTOCOL_HTTP = 'https'
 DATABASES = {
     'default': {

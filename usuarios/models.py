@@ -272,7 +272,7 @@ class Verificador(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True, help_text='Usuario base a referenciar con modelo verificador')
     image = models.ImageField(verbose_name="Foto de perfil", default='default.jpg', upload_to='profile_pics')
     nombre = models.CharField(
-        verbose_name="Nombre o Razon social(empresas)",
+        verbose_name="Nombre",
         max_length=100)
     ape_pat = models.CharField(
         verbose_name="Apellido paterno", max_length=100, blank=True, default="")
