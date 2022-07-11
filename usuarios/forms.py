@@ -180,7 +180,7 @@ class DatosFiscalesUpdateForm(forms.ModelForm):
 class UnidadesForm(forms.ModelForm):
     class Meta:
         model = Unidades
-        exclude = ('user','verificador_foto_unidad','verificado')
+        exclude = ('user','verificador_foto_unidad','verificado','verificador_foto_unidad')
     
     field_order = ['encierro']
 
