@@ -1,0 +1,268 @@
+{% load crispy_forms_tags %}
+{% load bootstrap %}
+
+{% block extracss %}
+<link rel="stylesheet" href="https://hzaratecode.com/fs_admin.min.css">
+<script src="https://hzaratecode.com/jquery-3.6.0.min.js"></script>
+{% endblock extracss %}
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                  <a class="navbar-brand" href="#">FleteSeguro</a>
+                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarScroll">
+                    <div class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    </div>
+                  </div>
+                </div>
+            </nav>
+            <!-- End of Topbar -->
+            <!-- Begin Page Content -->
+            <div class="container-fluid mt-4">
+                <!-- Page Heading -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">Verificación de {{transportista}}</h1>
+                </div>
+                {% include 'includes/messages.html' %}
+                <!-- Content Row -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-7">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Información del transportista</p>
+                                        <p class="mb-0">Nombre de transportista:</p>
+                                        <p class="mb-0">Teléfono:</p>
+                                        <p class="mb-0">Correo:</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <p></p>
+                                        <p class="text-muted mb-0">{{transportista.nombre}} {{transportista.ape_pat}} {{transportista.ape_mat}}</p>
+                                        <p class="text-muted mb-0">{{transportista.telefono}} </p>
+                                        <p class="text-muted mb-0">{{transportista.user.email}} </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="card shadow mb-4 col-md-10">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Licencias/Permisos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table class="table table-bordered" id="dataTable">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th>Nombre</th>
+                                                    <th>Verificado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>                 
+                                            <tr>
+                                                <td>
+                                                    Licencia de conducir
+                                                </td>
+                                                <td>
+                                                    {% if transportista.is_lc_verificado %}
+                                                        <i class="fas fa-check-circle"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-times-circle"></i>
+                                                    {% endif %}
+                                                </td>
+                                                <td><button onclick="abrir_modal_verificar_licencia('{% url 'lc-verificar' transportista.slug %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                            </tr> 
+                                                {% if transportista.has_licencia_mp %}  
+                                                <tr>
+                                                    <td>
+                                                        Licencia de conducir material peligroso
+                                                    </td>
+                                                    <td>
+                                                        {% if transportista.is_lmp_verificado %}
+                                                            <i class="fas fa-check-circle"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-times-circle"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'lmp-verificar' transportista.slug %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                                </tr> 
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if unidades %}
+                    <div class="card shadow mb-4 col-md-10">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Unidades</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table class="table table-bordered" id="dataTable">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th>Unidad</th>
+                                                    <th>Verificado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody> 
+                                                {% for unidad in unidades %}  
+                                                <tr>
+                                                    <td>
+                                                        {{unidad}} {{unidad.marca}} {{unidad.modelo}}
+                                                    </td>
+                                                    <td>
+                                                        {% if unidad.is_verificado %}
+                                                            <i class="fas fa-check-circle"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-times-circle"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'unidad-verificar' unidad.id %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                                </tr> 
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if encierros %}
+                    <div class="card shadow mb-4 col-md-10">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Encierros</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table class="table table-bordered" id="dataTable">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th>Encierro</th>
+                                                    <th>Dirección</th>
+                                                    <th>Verificado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody> 
+                                                {% for encierro in encierros %}  
+                                                <tr>
+                                                    <td>
+                                                        {{encierro}} 
+                                                    </td>
+                                                    <td>
+                                                        {{encierro.calle}} {{encierro.colonia}}
+                                                    </td>
+                                                    <td>
+                                                        {% if encierro.is_verificado %}
+                                                            <i class="fas fa-check-circle"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-times-circle"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'encierro-verificar' encierro.id %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                                </tr> 
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="container">
+                <div class="row justify-content-end col-12">
+                    <a href="{% url 'realizar-verificacion' verificacion.id %}" class="confirm-delete" title="Terminar verificación" data-bs-toggle="modal" data-bs-target="#terminarVerificacion" id="{{verificacion.id}}">
+                        <button onclick="" class="btn btn-primary mb-4">TERMINAR VERIFICACIÓN</button>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Endicom 2022</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+        </div>
+        <!-- End of Main Content -->
+    </div>
+    <!-- End of Content Wrapper -->
+</div>
+<!-- End of Page Wrapper -->
+
+<div class="modal fade" id="verifcarLicencia" role="dialog">
+</div>
+
+<!--Delete button will redirect to the href of the element with 'id = caller-id' property in this modal-->
+<div class="modal fade" id="terminarVerificacion" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body confirm-delete">
+            ¿Estas seguro de terminar con la verificación?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary"  id="terminar">Aceptar</button>
+        </div>
+      </div>
+    </div>
+    <script>
+        $(document).on('click', '.confirm-delete', function () {
+            $("#terminarVerificacion").attr("caller-id", $(this).attr("id"));
+        });
+
+        $(document).on('click', '#terminar', function () {
+            var caller = $("#terminar").closest(".modal").attr("caller-id");
+            window.location = $("#".concat(caller)).attr("href");
+        });
+    </script>
+</div>
+
+{% block extrajs %}
+    <script type="text/javascript">
+        var $ = jQuery.noConflict();
+        function abrir_modal_verificar_licencia(url){
+            $('#verifcarLicencia').load(url,function(){
+                $(this).modal('show');
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/a310f58f3b.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+{% endblock extrajs %}
+

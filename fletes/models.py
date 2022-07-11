@@ -95,8 +95,8 @@ ESTADO_SOLICITUD = (
 )
 
 def validate_date(date):
-    if date.date() <= todaysDate.today():
-        print("no problem")
+    if date.date() <= timezone.now().date():
+        raise ValidationError("La fecha tiene que ser mayor a hoy")
 
 class Solicitud(models.Model):
     cliente_id = models.ForeignKey(Cliente, on_delete=models.CASCADE)

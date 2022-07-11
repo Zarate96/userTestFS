@@ -1,6 +1,7 @@
 import datetime
 import conekta
 import requests
+from colorfield.fields import ColorField
 from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
@@ -10,10 +11,12 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from http.client import HTTPSConnection
 from base64 import b64encode
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 
 conekta.locale = 'es'
-conekta.api_key = settings.SANDBOX_PRIVADA_CONEKTA
+conekta.api_key = settings.PRIVADA_CONEKTA
 conekta.api_version = "2.0.0"
 
 TELEFONIAS = (
@@ -84,12 +87,12 @@ class MyUser(AbstractUser):
     email = models.EmailField(max_length=254, unique=True)
     es_transportista = models.BooleanField(default=False)
     es_cliente = models.BooleanField(default=False)
+    es_verificador = models.BooleanField(default=False)
     es_empresa = models.BooleanField(
         verbose_name="Persona moral",
         default=False,
         help_text="Las empresas son personas morales")
-    es_validado = models.BooleanField(default=False)
-    penalizaciones = models.IntegerField(verbose_name="Número de penalizacionos", default=0)
+    penalizaciones = models.IntegerField(verbose_name="Número de penalizaciones", default=0)
 
     class Meta:
         db_table = 'auth_user'
@@ -106,6 +109,10 @@ class MyUser(AbstractUser):
     @property
     def is_transportista(self):
         return self.es_transportista == True
+
+    @property
+    def is_verificador(self):
+        return self.es_verificador == True
 
     @property
     def has_datosfiscales(self):
@@ -135,6 +142,7 @@ class Cliente(models.Model):
     municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100,)
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
+    es_validado = models.BooleanField(default=False)
     slug = models.SlugField(null=True, blank=True)
     conektaId = models.CharField(verbose_name="Conekta ID", max_length=30, default="", blank=True)
 
@@ -178,11 +186,17 @@ class Transportista(models.Model):
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     calificacion = models.IntegerField(verbose_name="Calificación", default=5, null=False)
     viajes_realizados = models.IntegerField(verbose_name="Viajes realizados", default=0, null=False)
-    licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
-    licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de licencia de conducir material peligroso", upload_to='licencias_transportistas', blank=True, null=True)
-    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, default="", null=True, blank=True,)
-    licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas', blank=True, null=True)
+    licencia_conducir = models.CharField(verbose_name="Número de licencia de conducir", max_length=50, null=True, blank=True)
     fecha_vencimiento_licencia = models.DateTimeField(verbose_name="Fecha de vencimiento de la licencia de manejo", blank=True, null=True)
+    licencia_conducir_foto = models.ImageField(verbose_name="Foto de licencia de conducir", upload_to='licencias_transportistas', blank=True, null=True)
+    licencia_conducir_verificador_foto = models.ImageField(verbose_name="Foto de licencia de conducir de verificador", upload_to='verificaciones', blank=True, null=True)
+    licencia_mp = models.BooleanField(default=False, verbose_name="Permiso de transportación de matarial peligroso")
+    licencia_conducir_mp_foto = models.ImageField(verbose_name="Foto de permiso para conducir material peligroso", upload_to='licencias_transportistas', blank=True, null=True)
+    licencia_conducir_mp_verificador_foto = models.ImageField(verbose_name="Foto de permiso para conducir material peligroso de verificador", upload_to='verificaciones', blank=True, null=True)
+    notificacion_administrador = models.TextField(verbose_name="Notificiones para el transportista", null=True, blank=True)
+    es_validado = models.BooleanField(default=False)
+    es_verificado = models.BooleanField(default=False)
+    es_activo = models.BooleanField(default=False)
     slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):
@@ -231,6 +245,55 @@ class Transportista(models.Model):
         else:
             return True
     
+    @property
+    def is_lc_verificado(self):
+        if self.licencia_conducir_verificador_foto:
+            return True
+        else:
+            return False
+    
+    @property
+    def is_lmp_verificado(self):
+        if self.licencia_conducir_mp_verificador_foto:
+            return True
+        else:
+            return False
+
+    @property
+    def is_activo(self):
+        return True if self.es_activo else False
+
+    @property
+    def has_verificacion(self):
+        verificacion = Verifaciones.objects.filter(transportista=self)
+        return False if len(verificacion) == 0 else True
+
+class Verificador(models.Model):
+    user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True, help_text='Usuario base a referenciar con modelo verificador')
+    image = models.ImageField(verbose_name="Foto de perfil", default='default.jpg', upload_to='profile_pics')
+    nombre = models.CharField(
+        verbose_name="Nombre o Razon social(empresas)",
+        max_length=100)
+    ape_pat = models.CharField(
+        verbose_name="Apellido paterno", max_length=100, blank=True, default="")
+    ape_mat = models.CharField(
+        verbose_name="Apellido materno", max_length=100, blank=True, default="")
+    telefono = models.CharField(verbose_name="Numero teléfonico a 10 digitos", max_length=100)
+    calle = models.CharField(verbose_name="Calle", max_length=100)
+    num_ext = models.CharField(verbose_name="Numero exterior", max_length=100)
+    num_int = models.CharField(verbose_name="Numero interior", max_length=100, default="", blank=True)
+    colonia = models.CharField(verbose_name="Colonia", max_length=100)
+    municipio = models.CharField(verbose_name="Municipio o alcadía", max_length=100,)
+    cp = models.CharField(verbose_name="Código postal",max_length=100,)
+    estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
+    color_verificador = ColorField(verbose_name="Color de verificador para calendario", blank=True, null=True, help_text='Color en formato hexadecimal 	#FFFF00')
+    slug = models.SlugField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username}'
+    
+    class Meta:
+        verbose_name_plural = "Verificadores"
 
 class Contacto(models.Model):
     nombre = models.CharField(
@@ -295,9 +358,15 @@ class Encierro(models.Model):
     cp = models.CharField(verbose_name="Código postal",max_length=100,)
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-
+    verificador_foto_encierro = models.ImageField(verbose_name="Foto de encierro de verificador", upload_to='verificaciones', blank=True, null=True)
+    verificado = models.BooleanField(default=False)
+    
     def __str__(self):
         return f'{self.nombre}'
+
+    @property
+    def is_verificado(self):
+        return True if self.verificador_foto_encierro else False
 
 YEAR_CHOICES = [(r,r) for r in range(1950, datetime.date.today().year+1)]
 class Unidades(models.Model):
@@ -309,22 +378,46 @@ class Unidades(models.Model):
     placa = models.CharField(verbose_name="Placa", max_length=50, default="")
     tarjeta_circulacion = models.CharField(verbose_name="Tarjeta de circulación", max_length=50, default="")
     tarjeta_circulacion_foto = models.ImageField(verbose_name="Foto de tarjeta de circulación", upload_to='tarjetas_circulacion')
+    tarjeta_circulacion_verificador_foto = models.ImageField(verbose_name="Foto de tarjeta de circulación del verificador", upload_to='verificaciones', blank=True, null=True)
     foto1 = models.ImageField(verbose_name="Foto 1 de unidad", upload_to='unidades_pics')
     foto2 = models.ImageField(verbose_name="Foto 2 de unidad", upload_to='unidades_pics', null=True, blank=True)
     encierro = models.ForeignKey(Encierro, on_delete=models.CASCADE,)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    verificador_foto_unidad = models.ImageField(verbose_name="Foto de unidad del verificador", upload_to='verificaciones', blank=True, null=True)
+    verificado = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Unidades"
 
     def __str__(self):
         return f'{self.placa}'
+    
+    @property
+    def is_verificado(self):
+        return True if self.verificador_foto_unidad else False
 
+def validate_date(date):
+    if date.date() <= timezone.now().date():
+        raise ValidationError("La fecha tiene que ser mayor a hoy")
 
+ESTADO_VERIFICACION =  (
+    ('Asignada','Asignada'),
+    ('Disputa','Disputa'),
+    ('Invalida','Invalida'),
+    ('Realizada','Realizada'),
+)
 
+class Verifaciones(models.Model):
+    transportista = models.OneToOneField(Transportista, on_delete=models.CASCADE)
+    verificador = models.ForeignKey(Verificador, on_delete=models.CASCADE)
+    estado_verificacion = models.CharField(verbose_name="Estado", choices=ESTADO_VERIFICACION, max_length=40)
+    fecha_asignacion = models.DateTimeField(verbose_name="Fecha de asignación", validators=[validate_date])
+    fecha_visita = models.DateTimeField(verbose_name="Fecha de visita a transportista", validators=[validate_date])
+
+    class Meta:
+        verbose_name_plural = "Verificaciones"
 
 #SIGNALS
-
 @receiver(post_save, sender=Cliente)
 def createConketaId(sender,instance,**kwargs):
     cliente = instance
@@ -332,7 +425,7 @@ def createConketaId(sender,instance,**kwargs):
     if (cliente.conektaId is None or cliente.conektaId == "") and cliente.nombre != "":
         try:
             c = HTTPSConnection("www.google.com")
-            api_key = bytes(settings.SANDBOX_PRIVADA_CONEKTA, encoding='utf-8')
+            api_key = bytes(settings.PRIVADA_CONEKTA, encoding='utf-8')
             userAndPass = b64encode(api_key).decode("ascii")
             headers = { 'Authorization' : 'Basic %s' %  userAndPass }
             c.request('GET', '/', headers=headers)

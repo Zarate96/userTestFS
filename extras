@@ -1,2 +1,17 @@
 #agregar url para prubea de descarga de imagen
 <!-- <p class="card-text"><a href="{% url 'fletes:descargar-evidencia' destino=destino.id %}?foto=1"><button type="button" class="btn btn-warning btn-sm">Descargar</button></a></p> -->
+
+
+
+{% if filter %}
+{% for f in filter %}
+<p>{f}</p>
+{% endfor %}
+{% endif %}
+
+
+// end:"{{verificacion.fecha_fin|date:'Y-m-d'}} {{verificacion.fecha_fin|time:'H:i'}}",
+                    // url:"{% url 'cambio:verificacion_detail' verificacion.id %}",
+                    // backgroundColor:"{{verificacion.color_evento}}",
+                    // borderColor:"{{verificacion.color_borde}}",
+                    // textColor:"{{verificacion.color_text}}",

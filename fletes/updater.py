@@ -4,7 +4,7 @@ from .tasks import *
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(validateExpiredSolicitudes, 'cron', day_of_week='0-7', hour='1')
+    #scheduler.add_job(validateExpiredSolicitudes, 'cron', day_of_week='0-7', hour='1')
     # scheduler.add_job(querys.get_data_problema_titulo, 'cron', day_of_week='0-4', hour='10')
     # scheduler.add_job(querys.get_ordenes_movil, 'cron', day_of_week='0-6', hour='20')
     # #scheduler.add_job(querys.get_ordenes_movil, 'interval', minutes=1)

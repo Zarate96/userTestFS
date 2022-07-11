@@ -4,13 +4,13 @@ from decouple import config
 from fleteSeguro.settings.base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['fleteseguro.mx']
+ALLOWED_HOSTS = ['fleteseguro.mx','test.fleteseguro.mx']
 
 #CONEKTA
-PUBLICA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
-PRIVADA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
+PUBLICA_CONEKTA = config('SANDBOX_PUBLICA_CONEKTA', default='')
+PRIVADA_CONEKTA = config('SANDBOX_PRIVADA_CONEKTA', default='')
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -27,4 +27,3 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-

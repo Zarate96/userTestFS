@@ -4,6 +4,7 @@ import conekta
 import requests
 import urllib.request
 import googlemaps
+from django.conf import settings
 from http.client import HTTPSConnection
 from base64 import b64encode
 from django.conf import settings
@@ -14,9 +15,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import views as auth_views, login
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import CreateView, DetailView, UpdateView, DeleteView, TemplateView
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str, force_text, DjangoUnicodeDecodeError
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -25,7 +27,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import PasswordResetView
 
 from .utils import generate_token
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verificador, Verifaciones
 from fletes.models import Domicilios
 from .forms import (
     ClienteSignUpForm, 
@@ -37,10 +39,16 @@ from .forms import (
     UnidadesForm,
     EncierroForm,
     AgregarLincenciaConducirForm,
-    AgregarLincenciaMpForm,)
+    AgregarLincenciaMpForm,
+    AgregarVerificacionForm,
+    verificarLicenciaConducirForm,
+    verificarLicenciaMpForm,
+    verificarUnidadForm,
+    verificarEncierroForm,)
+from .filters import TransportistasFilter, VerificacionesFilter
 
 conekta.locale = 'es'
-conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
+conekta.api_key = settings.PUBLICA_CONEKTA
 conekta.api_version = "2.0.0"
 
 class EmailThread(threading.Thread):
@@ -58,6 +66,7 @@ def send_activation_email(user, request):
     email_body = render_to_string('usuarios/active.html', {
         'user': user,
         'domain': current_site,
+        'protocol': settings.PROTOCOL_HTTP,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': generate_token.make_token(user)
     })
@@ -100,13 +109,277 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        kwargs['protocol'] = 'https'
+        kwargs['protocol'] = settings.PROTOCOL_HTTP
         return super().get_context_data(**kwargs)
 
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('login')
+
+class ProfileAdmin(UserPassesTestMixin, DetailView):
+    model = MyUser
+    template_name = 'usuarios/admin.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get_object(self):
+        return get_object_or_404(MyUser, pk=self.request.user.id)
+    
+    def get_queryset(self):
+        return Transportista.objects.all()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.request.user
+        context['filter'] = TransportistasFilter(self.request.GET, queryset=self.get_queryset())
+        context['transportistas'] = self.get_queryset()
+        context['verificadores'] = Verificador.objects.all()
+        context['verificaciones'] = Verifaciones.objects.all()
+        context['site'] = settings.SITE_URL
+        return context
+    
+class ProfileVerificador(UserPassesTestMixin, DeleteView):
+    model = MyUser
+    template_name = 'usuarios/verificador.html'
+
+    def test_func(self):
+        return self.request.user.is_verificador
+
+    def get_object(self):
+        return get_object_or_404(MyUser, pk=self.request.user.id)
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.get_object()
+        verificaciones = Verifaciones.objects.filter(verificador=current_user.verificador)
+        context['verificaciones'] = Verifaciones.objects.filter(verificador=current_user.verificador)
+        context['site'] = settings.SITE_URL
+        return context  
+
+class Verificaciones(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/verifaciones.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        verificaciones = Verifaciones.objects.all()
+        context['filter'] = VerificacionesFilter(self.request.GET, queryset=verificaciones)
+        context['verificadores'] = Verificador.objects.all()
+        context['verificaciones'] = verificaciones
+        context['site'] = settings.SITE_URL
+        return context
+        
+class AsignarVerificacion(UserPassesTestMixin, CreateView):
+    model = Verifaciones
+    form_class = AgregarVerificacionForm
+    template_name = 'usuarios/asignarVerificacion.html'
+
+    def test_func(self):
+        transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        if self.request.user.is_superuser:
+            return True
+        else:
+            return False
+        if transportista.has_verificacion:
+            messages.success(self.request, f'Este transportista ya esta verificado o esta en proceso de verifiación')
+            return False
+        
+
+    def form_valid(self, form, *args, **kwargs):
+        current_site = get_current_site(self.request)
+        user = self.request.user
+        self.object = form.save(commit=False)
+        self.object.transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        self.object.estado_verificacion = 'Asignada'
+        self.object.fecha_asignacion = timezone.now()
+        self.object.save()
+        user = self.object.verificador.user
+        visita = self.object
+        email_subject = 'Asignación de visita'
+        email_body = render_to_string('usuarios/mails/asignacionVisita.html', {
+            'user': user,
+            'domain': current_site,
+            'visita': visita,
+        })
+        email = EmailMessage(subject=email_subject, body=email_body,
+                    from_email=settings.EMAIL_FROM_USER,
+                    to=[user.email]
+                    )
+        if not settings.TESTING:
+            EmailThread(email).start()
+
+        messages.success(self.request, f'Asignación agregada correctamente')
+        return redirect(reverse('dashboard-admin'))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.request.user
+        verificaciones = Verifaciones.objects.all()
+        context['transportista'] = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['filter'] = VerificacionesFilter(self.request.GET, queryset=verificaciones)
+        context['verificadores'] = Verificador.objects.all()
+        context['verificaciones'] = verificaciones
+        context['site'] = settings.SITE_URL
+        return context
+
+    def get_success_url(self):
+        return redirect(reverse('dashboard-admin'))
+
+class VerificarTransportista(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/verificarTransportista.html'
+    
+    def test_func(self):
+        return self.request.user.is_verificador
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.request.user
+        transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['transportista'] = transportista
+        context['unidades'] = Unidades.objects.filter(user=transportista.user)
+        context['encierros'] = Encierro.objects.filter(user=transportista.user)
+        context['verificacion'] = transportista.verifaciones
+        context['site'] = settings.SITE_URL
+        return context
+
+class ActivarTransportista(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/activarTransportista.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+        
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args,**kwargs)
+        transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['transportista'] = transportista
+        context['unidades'] = Unidades.objects.filter(user=transportista.user)
+        context['encierros'] = Encierro.objects.filter(user=transportista.user)
+        return context
+
+#VIEWS VERIFICADORES
+class verificarLicenciaConducir(UpdateView):
+    model = Transportista
+    form_class = verificarLicenciaConducirForm
+    template_name = 'usuarios/verifications/verificaciones.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['title'] = "Verificar licencia de conducir"
+        context['texto'] = ""
+        context['current_url'] = 'lc-verificar'
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        transportista = self.kwargs['slug']
+        messages.success(self.request, f'Foto de verificación agregada correctamente')
+        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+
+class verificarLicenciaMp(UpdateView):
+    model = Transportista
+    form_class = verificarLicenciaMpForm
+    template_name = 'usuarios/verifications/verificaciones.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['title'] = "Verificar permiso para transportar material peligroso"
+        context['texto'] = ""
+        context['current_url'] = 'lmp-verificar'
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        transportista = self.kwargs['slug']
+        messages.success(self.request, f'Foto de verificación agregada correctamente')
+        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+
+class verificarUnidad(UpdateView):
+    model = Unidades
+    form_class = verificarUnidadForm
+    template_name = 'usuarios/verifications/verifcarId.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['title'] = "Verificar unidad"
+        context['texto'] = ""
+        context['current_url'] = 'unidad-verificar'
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        transportista = self.object.user.transportista
+        messages.success(self.request, f'Foto de verificación agregada correctamente')
+        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+
+class verificarEncierro(UpdateView):
+    model = Encierro
+    form_class = verificarEncierroForm
+    template_name = 'usuarios/verifications/verifcarId.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['title'] = "Verificar encierro"
+        context['texto'] = ""
+        context['current_url'] = 'encierro-verificar'
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        transportista = self.object.user.transportista
+        messages.success(self.request, f'Foto de verificación agregada correctamente')
+        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
 
 @login_required
+def realizarVerifiacion(request, id):
+    verifacion = get_object_or_404(Verifaciones, id=id)
+    if request.user.is_verificador:
+        verifcador = request.user.verificador
+    else:
+        messages.success(request, f'Accion no permitida contacte al administrador para más información')
+        raise PermissionDenied()
+    transportista = verifacion.transportista
+    if verifacion.estado_verificacion != 'Asignada':
+        messages.success(request, f'Esta de verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
+        raise PermissionDenied()
+    
+    #if solicitud.cliente_id == cliente:
+    Transportista.objects.filter(
+            slug=transportista.slug).update(
+            es_verificado='True')
+    Verifaciones.objects.filter(
+            pk=verifacion.pk).update(
+            estado_verificacion='Realizada')
+    messages.success(request, f'Verifación terminada correctamente')
+    return HttpResponseRedirect(reverse('dashboard-verificador'))
+    #else:
+    #    raise PermissionDenied()
+
+@login_required
+def activeTransportista(request,slug):
+    transportista = get_object_or_404(Transportista, slug=slug)
+    if request.user.is_superuser:
+        user = request.user
+    else:
+        messages.success(request, f'Accion no permitida contacte al administrador para más información')
+        raise PermissionDenied()
+    Transportista.objects.filter(
+            slug=transportista.slug).update(
+            es_activo='True')
+    messages.success(request, f'Transportista activado correctamente')
+    return redirect(reverse('transportista-activar', args=(slug,)))
+    
+
+
+#SITE CLIENTES/TRANSPORTISTAS
+@login_required
 def home(request):
+    if request.user.is_verificador or request.user.is_superuser:
+        raise PermissionDenied()
     return render(request, 'home.html')
 
 class LoginUserView(auth_views.LoginView):
@@ -120,7 +393,11 @@ class LoginUserView(auth_views.LoginView):
         if url:
             return url
         elif self.request.user.is_superuser:
-            return reverse("admin")
+            messages.success(self.request, f'Acceso correcto')
+            return reverse("dashboard-admin")
+        elif self.request.user.is_verificador:
+            messages.success(self.request, f'Acceso correcto')
+            return reverse("dashboard-verificador")
         else:
             messages.success(self.request, f'Acceso correcto')
             return reverse("home")
@@ -230,7 +507,6 @@ class ProfileTransportista(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         transportista = self.get_object()
-        print(transportista)
         context['transportista'] = transportista
         return context
 
@@ -246,10 +522,7 @@ class ProfileClienteUpdateView(UserPassesTestMixin,UpdateView):
         return self.request.user.cliente
     
     def test_func(self):
-        if self.request.user.es_cliente:
-            return True
-        else:
-            return False
+        return self.request.user.es_cliente
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -385,7 +658,6 @@ class ContactoAgregar(CreateView):
     def get_success_url(self):
         return redirect(reverse('profile-user'))
 
-
 class ContactoUpdate(UserPassesTestMixin, UpdateView):
     model = Contacto
     template_name = 'usuarios/contacto.html'
@@ -421,8 +693,6 @@ def PerfilAutocompletar(request):
     perfil.estado = perfilFiscal.estado
     perfil.telefono = perfilFiscal.telefono
     perfil.save()
-    print(perfilFiscal)
-    print(perfil)
     messages.success(request, f'Perfil actulizado correctamente')
     return redirect(reverse('profile-user'))
 
@@ -512,7 +782,7 @@ class UnidadesDetalle(DetailView):
 class UnidadesUpdate(UpdateView):
     model = Unidades
     form_class = UnidadesForm
-    template_name = 'usuarios/unidades.html'
+    template_name = 'usuarios/verifcarUnidad.html'
 
     def test_func(self):
         unidad = self.get_object() 

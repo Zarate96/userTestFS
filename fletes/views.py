@@ -44,7 +44,7 @@ from .filters import SolicitudesFilter
 
 gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 conekta.locale = 'es'
-conekta.api_key = settings.SANDBOX_PUBLICA_CONEKTA
+conekta.api_key = settings.PUBLICA_CONEKTA
 conekta.api_version = "2.0.0"
 
 class EmailThread(threading.Thread):
@@ -82,8 +82,8 @@ class SolicitudListView(UserPassesTestMixin, ListView):
 
     def test_func(self):
         try:
-            cliente = self.request.user.transportista
-            return True
+            transportista = self.request.user.transportista
+            return transportista.es_activo
         except ObjectDoesNotExist:
             return False
 

@@ -1,15 +1,30 @@
-{% extends 'base.html' %}
+{% extends 'baseCRM.html' %}
 
 {% block content %}
+{% include 'includes/header.html' %}
 <div class="container mt-3">
     <main>
         <div  class="container mb-2 mt-2">
-            <h2>No tienes permiso para visualizar este contenido</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{{ message.tags }} mt-3 mb-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h2>No tienes permiso para visualizar este contenido</h2>
+            {% endif %}
         </div>
     </main>
     <hr>
     <p class="lead">
+        {% if request.user.is_verificador %}
+        <a href="{% url 'dashboard-verificador' %}">Regresar</a>.
+        {% elif request.user.is_superuser %}
+        <a href="{% url 'dashboard-admin' %}">Regresar</a>.
+        {% else %}
         <a href="{% url 'home' %}">Regresar</a>.
+        {% endif %}
     </p>
 </div>
 {% endblock %}

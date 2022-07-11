@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
 conekta.locale = 'es'
-conekta.api_key = settings.SANDBOX_PRIVADA_CONEKTA 
+conekta.api_key = settings.PRIVADA_CONEKTA 
 conekta.api_version = "2.0.0"
 
 from fletes.models import *
@@ -35,7 +35,7 @@ def checkLinkStatus():
     #we need to base 64 encode it
     #and then decode it to acsii as python 3 stores it as a byte string
     #userAndPass = b64encode(b"username:password").decode("ascii")
-    api_key = bytes(settings.SANDBOX_PRIVADA_CONEKTA, encoding='utf-8')
+    api_key = bytes(settings.PRIVADA_CONEKTA, encoding='utf-8')
     userAndPass = b64encode(api_key).decode("ascii")
     headers = { 'Authorization' : 'Basic %s' %  userAndPass }
     #then connect

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link href="https://getbootstrap.com/docs/5.0/examples/features/features.css" rel="stylesheet" crossorigin="anonymous">
+        <script src="https://hzaratecode.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="https://hzaratecode.com/fs_admin.min.css">
+
+        {% block extracss %}
+        {% endblock extracss %}
+
+        {% if title %}
+        <title>FleteSeguro - {{title}}</title>
+        {% else %}
+        <title>FleteSeguro</title>
+        {% endif %}
+        <!-- Favicon   -->
+        <link href="https://hzaratecode.com/iconoFS.png" rel="icon">
+    </head>
+
+  
+    <body>
+      <!-- DigiCert Seal HTML -->
+      <!-- Place HTML on your site where the seal should appear -->
+      <div id="DigiCertClickID_ZH7OIrOf"></div>
+
+      
+      <main>
+          {% block content %}{% endblock %}
+      </main>
+
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+      
+      <script src="https://kit.fontawesome.com/a310f58f3b.js" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+      <!-- Optional JavaScript -->
+        <!-- DigiCert Seal Code -->
+        <!-- <script type="text/javascript">
+        var __dcid = __dcid || [];
+        __dcid.push({"cid":"DigiCertClickID_ZH7OIrOf","tag":"ZH7OIrOf"});
+        (function(){var cid=document.createElement("script");cid.async=true;cid.src="//seal.digicert.com/seals/cascade/seal.min.js";var s = document.getElementsByTagName("script");var ls = s[(s.length - 1)];ls.parentNode.insertBefore(cid, ls.nextSibling);}());
+      </script> -->
+      <!-- Place with DigiCert Seal HTML or with other scripts -->
+      {% block extrajs %}
+      {% endblock extrajs %}
+    </body>
+</html>

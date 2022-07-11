@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verifaciones
 
 class ClienteSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -108,6 +108,16 @@ class ProfileTransportistaUpdateForm(forms.ModelForm):
         model = Transportista
         fields = ['nombre','ape_pat','ape_mat','telefono','calle','num_ext','num_int','colonia','municipio','cp','estado','image']
 
+class AgregarVerificacionForm(forms.ModelForm):
+    fecha_visita = forms.DateField(
+        #widget=forms.DateTimeInput(format = '%Y-%m-%d %H:%M',attrs={'type': 'datetime-local'}),
+        widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
+    )
+
+    class Meta:
+        model = Verifaciones
+        fields = ['verificador','fecha_visita']
+
 class AgregarLincenciaConducirForm(forms.ModelForm):
     fecha_vencimiento_licencia = forms.DateField(
         widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
@@ -170,11 +180,46 @@ class DatosFiscalesUpdateForm(forms.ModelForm):
 class UnidadesForm(forms.ModelForm):
     class Meta:
         model = Unidades
-        exclude = ('user',)
+        exclude = ('user','verificador_foto_unidad','verificado')
     
     field_order = ['encierro']
 
 class EncierroForm(forms.ModelForm):
     class Meta:
         model = Encierro
-        exclude = ('user',)
+        exclude = ('user','verificador_foto_encierro','verificado')
+
+
+#FORMULARIOS VERIFICADORES
+class verificarLicenciaConducirForm(forms.ModelForm):
+    class Meta:
+        model = Transportista
+        fields = ['licencia_conducir_verificador_foto',]
+        labels = {
+            'licencia_conducir_verificador_foto':'Foto de licencia de conducir de transportista'
+        }
+
+class verificarLicenciaMpForm(forms.ModelForm):
+    class Meta:
+        model = Transportista
+        fields = ['licencia_conducir_mp_verificador_foto',]
+        labels = {
+            'licencia_conducir_mp_verificador_foto':'Foto de permiso para transportar metrial peligroso'
+        }
+
+class verificarUnidadForm(forms.ModelForm):
+    class Meta:
+        model = Unidades
+        fields = ['verificador_foto_unidad','tarjeta_circulacion_verificador_foto',]
+        labels = {
+            'verificador_foto_unidad':'Foto de unidad',
+            'tarjeta_circulacion_verificador_foto':'Foto de tarjeta de circulación'
+        }
+
+class verificarEncierroForm(forms.ModelForm):
+    class Meta:
+        model = Encierro
+        fields = ['verificador_foto_encierro',]
+        labels = {
+            'verificador_foto_encierro':'Foto de encierro'
+        }
