@@ -7,7 +7,7 @@
                 <div class="col">
                     <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item active" aria-current="page">Agregar licencia de conducir</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{title_text}}</li>
                         </ol>
                     </nav>
                 </div>
@@ -20,7 +20,7 @@
                                 <form method="post" enctype="multipart/form-data"> 
                                     {% csrf_token %}
                                     <fieldset class="form-group">
-                                        <legend class="border-bottom mb-4">Información de licencia</legend>
+                                        <legend class="border-bottom mb-4">{{main_text}}</legend>
                                         {{ form|crispy}}
                                         <div class="form-group mt-4">
                                             <button class="btn btn-outline-info" type="submit" value="Update">Actualizar</button>

@@ -10,7 +10,7 @@ ALLOWED_HOSTS = ['fleteseguro.mx']
 
 #CONEKTA
 PUBLICA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
-PRIVADA_CONEKTA = config('PRODUCCION_PUBLICA_CONEKTA', default='')
+PRIVADA_CONEKTA = config('PRODUCCION_PRIVADA_CONEKTA', default='')
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

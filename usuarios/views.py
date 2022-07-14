@@ -602,6 +602,12 @@ class AgregaLicenciaConducir(UserPassesTestMixin, UpdateView):
         """
         return self.request.user.transportista
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['main_text'] = 'Información de licencia de conducir'
+        context['title_text'] = 'Licencia de conducir'
+        return context
+
     def test_func(self):
         if self.request.user.es_transportista:
             return True
@@ -633,6 +639,12 @@ class AgregaLicenciaConducirMP(UserPassesTestMixin, UpdateView):
             return True
         else:
             return False
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['main_text'] = 'Información de permiso para transportar material peligroso'
+        context['title_text'] = 'Permiso para transportar material peligroso'
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -731,6 +743,7 @@ class DatosFiscalesUpdate(UpdateView):
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)
+        print(geocode_result)
         direccion_google = geocode_result[0]["formatted_address"]
         if len(geocode_result) == 0 or len(direccion_google) < 50:
             messages.success(self.request, f'Dirección incorrecta favor de validar su información')
@@ -833,20 +846,34 @@ class EncierroAgregar(UserPassesTestMixin, CreateView):
             return False
 
     def form_valid(self, form):
-        user = self.request.user
-        self.object = form.save(commit=False)
+        # gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
+        # form.instance.user = self.request.user
+        # direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
+        # geocode_result = gmaps.geocode(direction)
+        # print(geocode_result)
+        # direccion_google = geocode_result[0]["formatted_address"]
+        # if len(geocode_result) == 0 or len(direccion_google) < 50:
+        #     messages.success(self.request, f'Dirección incorrecta favor de validar su información')
+        #     return redirect(reverse('datosfiscales-update'))
+        # else:
+        #     return super().form_valid(form)
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
+        self.object = form.save(commit=False)
         form.instance.user = self.request.user
         direction = f'{form.instance.calle} {form.instance.num_ext} {form.instance.colonia} {form.instance.estado}'
         geocode_result = gmaps.geocode(direction)
+        print(geocode_result)
         direccion_google = geocode_result[0]["formatted_address"]
-        print(direccion_google)
-        if len(geocode_result) == 0 or len(direccion_google) < 50:
-            messages.success(self.request, f'Dirección incorrecta favor de validar su información')
-        else:
-            self.object.user = user
-            self.object.save()
-            messages.success(self.request, f'Encierro agregado correctamente')
+        if geocode_result[0]:
+            print(direccion_google)
+            if len(geocode_result) == 0 or len(direccion_google) < 50:
+                messages.error(self.request, f'Dirección incorrecta favor de validar su información')
+            else:
+                self.object.user = user
+                self.object.save()
+                messages.success(self.request, f'Encierro agregado correctamente')
+        else: 
+            messages.error(self.request, f'Dirección incorrecta favor de validar su información')
         return redirect(reverse('agregar-unidad'))
 
 class EncierroUpdate(UserPassesTestMixin, UpdateView):
