@@ -485,7 +485,6 @@ class DomiciliosUpdate(UserPassesTestMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        print(self.get_object())
         domicilio = self.get_object()
         if domicilio.is_valid:
             messages.success(self.request, f'Domicilio editado correctamente')

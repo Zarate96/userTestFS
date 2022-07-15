@@ -65,7 +65,7 @@ class Domicilios(models.Model):
     longitud = models.FloatField(verbose_name="Longitud", null=True, blank=True)
     latitud = models.FloatField(verbose_name="Latitud", null=True, blank=True)
     is_valid = models.BooleanField(verbose_name="Es válido", default=False)
-    google_format = models.CharField(verbose_name="Dirección completa", max_length=100, null=True, blank=True)
+    google_format = models.CharField(verbose_name="Dirección completa", max_length=150, null=True, blank=True)
     google_place_id = models.CharField(verbose_name="Google place ID", max_length=100, null=True, blank=True)
     slug = models.SlugField(null=True, blank=True)
 
@@ -430,7 +430,6 @@ def addLonLat(sender, instance, **kwargs):
     geocode_result = gmaps.geocode(direction)
     direccion_google = geocode_result[0]["formatted_address"]
     if len(geocode_result) == 0 or len(direccion_google) < 50:
-        print("\n Favor de ingresar una direccion correcta")
         Domicilios.objects.filter(id=instance.id).update(
             is_valid = False,
             google_format = "Invalid"
