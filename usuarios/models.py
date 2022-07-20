@@ -333,6 +333,8 @@ class DatosFiscales(models.Model):
         verbose_name="Persona moral",
         default=False,
         help_text="Las empresas son personas morales")
+    verificador_foto = models.ImageField(verbose_name="Foto de encierro de verificador", upload_to='verificaciones', blank=True, null=True)
+    es_verificado = models.BooleanField(default=False)
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
@@ -344,6 +346,10 @@ class DatosFiscales(models.Model):
             return False
         else:
             return True
+
+    @property
+    def is_verificado(self):
+        return self.es_verificado 
 
     def __str__(self):
         return f'{self.rfc} de {self.user.username}'
@@ -359,14 +365,35 @@ class Encierro(models.Model):
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     verificador_foto_encierro = models.ImageField(verbose_name="Foto de encierro de verificador", upload_to='verificaciones', blank=True, null=True)
-    verificado = models.BooleanField(default=False)
-    
+    es_validado = models.BooleanField(default=False)
+    es_verificado = models.BooleanField(default=False)
+    es_activo = models.BooleanField(default=False)
+    slug = models.SlugField(null=True, blank=True)
+
     def __str__(self):
         return f'{self.nombre}'
+
+    def save(self, *args, **kwargs):
+        if self.slug is None:
+            self.slug = slugify(f'{self.user.username}-{self.nombre}')
+        super(Encierro, self).save(*args, **kwargs)
+
+    @property
+    def is_activo(self):
+        return True if self.es_activo else False
+    
+    @property
+    def is_validado(self):
+        return True if self.es_validado else False
 
     @property
     def is_verificado(self):
         return True if self.verificador_foto_encierro else False
+
+    @property
+    def has_verificacion(self):
+        verificacion = Verifaciones_encierros.objects.filter(encierro=self)
+        return False if len(verificacion) == 0 else True
 
 YEAR_CHOICES = [(r,r) for r in range(1950, datetime.date.today().year+1)]
 class Unidades(models.Model):
@@ -407,6 +434,19 @@ ESTADO_VERIFICACION =  (
     ('Realizada','Realizada'),
 )
 
+class Verifaciones_encierros(models.Model):
+    encierro = models.OneToOneField(Encierro, on_delete=models.CASCADE)
+    verificador = models.ForeignKey(Verificador, on_delete=models.CASCADE)
+    estado_verificacion = models.CharField(verbose_name="Estado", choices=ESTADO_VERIFICACION, max_length=40)
+    fecha_asignacion = models.DateTimeField(verbose_name="Fecha de asignación", validators=[validate_date])
+    fecha_visita = models.DateTimeField(verbose_name="Fecha de visita a transportista", validators=[validate_date])
+
+    class Meta:
+        verbose_name_plural = "Verificaciones a encierros"
+
+    def __str__(self):
+        return f'Encierro "{self.encierro}" de {self.encierro.user}'
+
 class Verifaciones(models.Model):
     transportista = models.OneToOneField(Transportista, on_delete=models.CASCADE)
     verificador = models.ForeignKey(Verificador, on_delete=models.CASCADE)
@@ -416,7 +456,7 @@ class Verifaciones(models.Model):
 
     class Meta:
         verbose_name_plural = "Verificaciones"
-
+        
 #SIGNALS
 @receiver(post_save, sender=Cliente)
 def createConketaId(sender,instance,**kwargs):

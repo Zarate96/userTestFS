@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
 from django.forms.utils import ValidationError
 
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verifaciones
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verifaciones, Verifaciones_encierros
 
 class ClienteSignUpForm(UserCreationForm):
     email = forms.EmailField()
@@ -118,6 +118,16 @@ class AgregarVerificacionForm(forms.ModelForm):
         model = Verifaciones
         fields = ['verificador','fecha_visita']
 
+class AgregarVerificacionEncierroForm(forms.ModelForm):
+    fecha_visita = forms.DateField(
+        #widget=forms.DateTimeInput(format = '%Y-%m-%d %H:%M',attrs={'type': 'datetime-local'}),
+        widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
+    )
+
+    class Meta:
+        model = Verifaciones_encierros
+        fields = ['verificador','fecha_visita']
+
 class AgregarLincenciaConducirForm(forms.ModelForm):
     fecha_vencimiento_licencia = forms.DateField(
         widget=forms.DateInput(format = '%Y-%m-%d',attrs={'type': 'date'}),
@@ -187,7 +197,7 @@ class UnidadesForm(forms.ModelForm):
 class EncierroForm(forms.ModelForm):
     class Meta:
         model = Encierro
-        exclude = ('user','verificador_foto_encierro','verificado')
+        exclude = ('user','verificador_foto_encierro','verificado','es_validado','es_verificado','es_activo','slug')
 
 
 #FORMULARIOS VERIFICADORES
@@ -222,4 +232,12 @@ class verificarEncierroForm(forms.ModelForm):
         fields = ['verificador_foto_encierro',]
         labels = {
             'verificador_foto_encierro':'Foto de encierro'
+        }
+
+class verificarDatosFiscalesForm(forms.ModelForm):
+    class Meta:
+        model = DatosFiscales
+        fields = ['verificador_foto',]
+        labels = {
+            'verificador_foto':'Foto de dirección fiscal'
         }

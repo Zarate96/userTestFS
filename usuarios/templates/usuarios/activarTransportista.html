@@ -13,7 +13,7 @@
             <!-- Topbar -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="#">FleteSeguro</a>
+                  <a class="navbar-brand" href="{% url 'dashboard-admin' %}">FleteSeguro</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -130,6 +130,29 @@
                                                 </td>
                                             </tr> 
                                             {% endif %}
+                                            <tr>
+                                                <td>
+                                                    Domicilio fiscal
+                                                </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <div class="card" style="width: 18rem;">
+                                                        <img src="{{ transportista.user.datosfiscales.verificador_foto.url }}" class="card-img-top" alt="...">
+                                                        <div class="card-body">
+                                                            <div class="row justify-content-between">
+                                                                <div class="col-6">
+                                                                    <p class="card-text"><a href="{{transportista.user.datosfiscales.verificador_foto.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
+                                                                </div>
+                                                                <div class="col-6">
+                                                                   
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr> 
                                             </tbody>
                                         </table>
                                     </div>
@@ -137,158 +160,11 @@
                             </div>
                         </div>
                     </div>
-                    {% if unidades %}
-                    <div class="card shadow mb-4 col-md-10">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Unidades</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <table class="table table-bordered" id="dataTable">
-                                            <thead>
-                                                <tr role="row">
-                                                    <th>Unidad</th>
-                                                    <th>Foto transportista</th>
-                                                    <th>Foto verificador</th>
-                                                    <th>Foto tarjeta de circulación</th>
-                                                    <th>Foto verificador</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody> 
-                                                {% for unidad in unidades %}  
-                                                <tr>
-                                                    <td>
-                                                        {{unidad}} {{unidad.marca}} {{unidad.modelo}}
-                                                    </td>
-                                                    <td>
-                                                        <div class="card" style="width: 18rem;">
-                                                            <img src="{{ unidad.foto1.url }}" class="card-img-top" alt="...">
-                                                            <div class="card-body">
-                                                                <div class="row justify-content-between">
-                                                                    <div class="col-6">
-                                                                        <p class="card-text"><a href="{{unidad.foto1.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                    </div>
-                                                                    <div class="col-6">
-                                                                       
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="card" style="width: 18rem;">
-                                                            <img src="{{ unidad.tarjeta_circulacion_foto.url }}" class="card-img-top" alt="...">
-                                                            <div class="card-body">
-                                                                <div class="row justify-content-between">
-                                                                    <div class="col-6">
-                                                                        <p class="card-text"><a href="{{unidad.tarjeta_circulacion_foto.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                    </div>
-                                                                    <div class="col-6">
-                                                                       
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="card" style="width: 18rem;">
-                                                            <img src="{{ unidad.tarjeta_circulacion_verificador_foto.url }}" class="card-img-top" alt="...">
-                                                            <div class="card-body">
-                                                                <div class="row justify-content-between">
-                                                                    <div class="col-6">
-                                                                        <p class="card-text"><a href="{{unidad.tarjeta_circulacion_verificador_foto.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                    </div>
-                                                                    <div class="col-6">
-                                                                       
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="card" style="width: 18rem;">
-                                                            <img src="{{ unidad.verificador_foto_unidad.url }}" class="card-img-top" alt="...">
-                                                            <div class="card-body">
-                                                                <div class="row justify-content-between">
-                                                                    <div class="col-6">
-                                                                        <p class="card-text"><a href="{{unidad.verificador_foto_unidad.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                    </div>
-                                                                    <div class="col-6">
-                                                                       
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr> 
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if encierros %}
-                    <div class="card shadow mb-4 col-md-10">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Encierros</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <table class="table table-bordered" id="dataTable">
-                                            <thead>
-                                                <tr role="row">
-                                                    <th>Encierro</th>
-                                                    <th>Dirección</th>
-                                                    <th>Foto verificador</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody> 
-                                                {% for encierro in encierros %}  
-                                                <tr>
-                                                    <td>
-                                                        {{encierro}} 
-                                                    </td>
-                                                    <td>
-                                                        {{encierro.calle}} {{encierro.colonia}}
-                                                    </td>
-                                                    <td>
-                                                        <div class="card" style="width: 18rem;">
-                                                            <img src="{{ encierro.verificador_foto_encierro.url }}" class="card-img-top" alt="...">
-                                                            <div class="card-body">
-                                                                <div class="row justify-content-between">
-                                                                    <div class="col-6">
-                                                                        <p class="card-text"><a href="{{encierro.verificador_foto_encierro.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                    </div>
-                                                                    <div class="col-6">
-                                                                       
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>    
-                                                </tr> 
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
-                
             </div>
             <div class="container-fluid mt-4">
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <a href="{% url 'dashboard-admin' %}"><button class="btn btn-danger">Regresar</button></a>
+                    <a href="{% url 'info-transportista' slug=transportista.slug  %}"><button class="btn btn-danger">Regresar</button></a>
                     {% if not transportista.is_activo %}
                     <a href="{% url 'transportista-active' slug=transportista.slug %}"><button class="btn btn-primary">Activar</button></a>
                     {% endif %}

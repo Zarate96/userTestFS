@@ -112,63 +112,28 @@
                                                     <tr role="row">
                                                         <th class="sorting sorting_asc">Usuario</th>
                                                         <th class="sorting">Válidado</th>
-                                                        <th></th>
                                                         <th class="sorting">Verificado</th>
-                                                        <th></th>
                                                         <th class="sorting">Activo</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody> 
                                                 {% for transportista in filter.qs %}                     
                                                 <tr class="odd">
-                                                    <td class="sorting_1">{{transportista.user.username}}</td>
+                                                    <td class="sorting_1"><a href="{% url 'info-transportista' slug=transportista.slug %}">{{transportista.user.username}}</a></td>
                                                     {% if transportista.es_validado %}
                                                         <td><i class="fas fa-check-circle"></i></td>
-                                                        <td></td>
                                                     {% else %}
                                                         <td><i class="fas fa-times-circle"></i></td>
-                                                        <td>
-                                                            <a href="{{site}}/admin/usuarios/transportista/?q={{transportista}}" class="btn btn-primary btn-sm" role="button" target="_blank">Validar</a>
-                                                        </td>
                                                     {% endif %}
                                                     {% if transportista.es_verificado%}
                                                         <td><i class="fas fa-check-circle"></i></td>
-                                                        <td></td>
                                                     {% else %}
-                                                        <td>
-                                                            <i class="fas fa-times-circle"></i>
-                                                        </td>
-                                                        {% if transportista.es_validado %}
-                                                            {% if transportista.has_verificacion %}
-                                                                <td>
-                                                                    <p>Verifiación en proceso</p> 
-                                                                </td>
-                                                            {% else %}
-                                                                <td>
-                                                                    <a href="{% url 'asginar-verificador' slug=transportista.slug %}" class="btn btn-primary btn-sm" role="button">Asignar</a>
-                                                                </td>
-                                                            {% endif %} 
-                                                        {% else %}
-                                                        <td>
-                                                            <button type="button" class="btn btn-primary btn-sm" disabled>Asignar</button>
-                                                        </td>
-                                                        {% endif %}
+                                                        <td><i class="fas fa-times-circle"></i></td>
                                                     {% endif %}
                                                     {% if transportista.is_activo %}
                                                         <td><i class="fas fa-check-circle"></i></td>
-                                                        <td></td>
                                                     {% else %}
-                                                        {% if transportista.es_verificado %}
-                                                            <td><i class="fas fa-times-circle"></i></td>
-                                                            <td>
-                                                                <a href="{% url 'transportista-activar' slug=transportista.slug %}" class="btn btn-primary btn-sm" role="button">Activar</a>
-                                                            </td>
-                                                        {% else %}
-                                                            <td><i class="fas fa-times-circle"></i></td>
-                                                            <td>
-                                                                <button href="" class="btn btn-primary btn-sm" role="button" disabled>Activar</button>
-                                                            </td>
-                                                        {% endif %}
+                                                        <td><i class="fas fa-times-circle"></i></td>
                                                     {% endif %}
                                                 </tr>
                                                 {% endfor %}

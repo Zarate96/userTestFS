@@ -1,6 +1,6 @@
 import django_filters
 from django_filters import DateRangeFilter,DateFilter
-from .models import Transportista, Verifaciones
+from .models import Transportista, Verifaciones, Verifaciones_encierros
 
 class TransportistasFilter(django_filters.FilterSet):
 
@@ -12,4 +12,10 @@ class VerificacionesFilter(django_filters.FilterSet):
 
     class Meta:
         model = Verifaciones
+        fields = ('estado_verificacion',)
+
+class VerificacionesEncierrosFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Verifaciones_encierros
         fields = ('estado_verificacion',)

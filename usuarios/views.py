@@ -27,7 +27,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import PasswordResetView
 
 from .utils import generate_token
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verificador, Verifaciones
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, Verificador, Verifaciones, Verifaciones_encierros
 from fletes.models import Domicilios
 from .forms import (
     ClienteSignUpForm, 
@@ -44,8 +44,10 @@ from .forms import (
     verificarLicenciaConducirForm,
     verificarLicenciaMpForm,
     verificarUnidadForm,
-    verificarEncierroForm,)
-from .filters import TransportistasFilter, VerificacionesFilter
+    verificarEncierroForm,
+    AgregarVerificacionEncierroForm,
+    verificarDatosFiscalesForm,)
+from .filters import TransportistasFilter, VerificacionesFilter, VerificacionesEncierrosFilter
 
 conekta.locale = 'es'
 conekta.api_key = settings.PUBLICA_CONEKTA
@@ -152,6 +154,7 @@ class ProfileVerificador(UserPassesTestMixin, DeleteView):
         current_user = self.get_object()
         verificaciones = Verifaciones.objects.filter(verificador=current_user.verificador)
         context['verificaciones'] = Verifaciones.objects.filter(verificador=current_user.verificador)
+        context['verificaciones_encierros'] = Verifaciones_encierros.objects.filter(verificador=current_user.verificador)
         context['site'] = settings.SITE_URL
         return context  
 
@@ -164,9 +167,12 @@ class Verificaciones(UserPassesTestMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         verificaciones = Verifaciones.objects.all()
+        verificaciones_encierros = Verifaciones_encierros.objects.all()
         context['filter'] = VerificacionesFilter(self.request.GET, queryset=verificaciones)
+        context['filter_encierros'] = VerificacionesEncierrosFilter(self.request.GET, queryset=verificaciones_encierros)
         context['verificadores'] = Verificador.objects.all()
         context['verificaciones'] = verificaciones
+        context['verificaciones_encierros'] = verificaciones_encierros
         context['site'] = settings.SITE_URL
         return context
         
@@ -216,7 +222,63 @@ class AsignarVerificacion(UserPassesTestMixin, CreateView):
         context = super().get_context_data(*args, **kwargs)
         current_user = self.request.user
         verificaciones = Verifaciones.objects.all()
-        context['transportista'] = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['object'] = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['filter'] = VerificacionesFilter(self.request.GET, queryset=verificaciones)
+        context['verificadores'] = Verificador.objects.all()
+        context['verificaciones'] = verificaciones
+        context['site'] = settings.SITE_URL
+        return context
+
+    def get_success_url(self):
+        return redirect(reverse('dashboard-admin'))
+
+class AsignarVerificacionEncierro(UserPassesTestMixin, CreateView):
+    model = Verifaciones_encierros
+    form_class = AgregarVerificacionEncierroForm
+    template_name = 'usuarios/asignarVerificacion.html'
+
+    def test_func(self):
+        encierro = Encierro.objects.get(slug=self.kwargs['slug'])
+        if self.request.user.is_superuser:
+            return True
+        else:
+            return False
+        if encierro.has_verificacion:
+            messages.success(self.request, f'Este encierro ya esta verificado o esta en proceso de verifiación')
+            return False
+        
+
+    def form_valid(self, form, *args, **kwargs):
+        current_site = get_current_site(self.request)
+        user = self.request.user
+        self.object = form.save(commit=False)
+        self.object.encierro = Encierro.objects.get(slug=self.kwargs['slug'])
+        self.object.estado_verificacion = 'Asignada'
+        self.object.fecha_asignacion = timezone.now()
+        self.object.save()
+        user = self.object.verificador.user
+        visita = self.object
+        email_subject = 'Asignación de visita'
+        email_body = render_to_string('usuarios/mails/asignacionVisita.html', {
+            'user': user,
+            'domain': current_site,
+            'visita': visita,
+        })
+        email = EmailMessage(subject=email_subject, body=email_body,
+                    from_email=settings.EMAIL_FROM_USER,
+                    to=[user.email]
+                    )
+        if not settings.TESTING:
+            EmailThread(email).start()
+
+        messages.success(self.request, f'Asignación agregada correctamente')
+        return redirect(reverse('dashboard-admin'))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.request.user
+        verificaciones = Verifaciones.objects.all()
+        context['object'] = Encierro.objects.get(slug=self.kwargs['slug'])
         context['filter'] = VerificacionesFilter(self.request.GET, queryset=verificaciones)
         context['verificadores'] = Verificador.objects.all()
         context['verificaciones'] = verificaciones
@@ -243,8 +305,54 @@ class VerificarTransportista(UserPassesTestMixin, TemplateView):
         context['site'] = settings.SITE_URL
         return context
 
+class VerificarEncierro(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/verificarEncierro.html'
+    
+    def test_func(self):
+        return self.request.user.is_verificador
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        current_user = self.request.user
+        encierro = Encierro.objects.get(slug=self.kwargs['slug'])
+        transportista = encierro.user.transportista
+        context['transportista'] = transportista
+        context['unidades'] = Unidades.objects.filter(user=transportista.user, encierro=encierro)
+        context['encierro'] = encierro
+        context['verificacion'] = encierro.verifaciones_encierros
+        context['site'] = settings.SITE_URL
+        return context
+
 class ActivarTransportista(UserPassesTestMixin, TemplateView):
     template_name = 'usuarios/activarTransportista.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+        
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args,**kwargs)
+        transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        context['unidades'] = Unidades.objects.filter(user=transportista.user)
+        context['encierros'] = Encierro.objects.filter(user=transportista.user)
+        context['transportista'] = transportista
+        return context
+
+class ActivarEncierro(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/activarEncierro.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
+        
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args,**kwargs)
+        encierro = Encierro.objects.get(slug=self.kwargs['slug'])
+        transportista = Transportista.objects.get(user=encierro.user)
+        context['encierro'] = encierro
+        context['unidades'] = Unidades.objects.filter(user=transportista.user, encierro=encierro)
+        return context
+
+class TransportistaInfoAdmin(UserPassesTestMixin, TemplateView):
+    template_name = 'usuarios/transportista_info.html'
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -257,6 +365,7 @@ class ActivarTransportista(UserPassesTestMixin, TemplateView):
         context['encierros'] = Encierro.objects.filter(user=transportista.user)
         return context
 
+    
 #VIEWS VERIFICADORES
 class verificarLicenciaConducir(UpdateView):
     model = Transportista
@@ -315,7 +424,7 @@ class verificarUnidad(UpdateView):
         messages.success(self.request, f'Foto de verificación agregada correctamente')
         return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
 
-class verificarEncierro(UpdateView):
+class verificarEncierroDireccion(UpdateView):
     model = Encierro
     form_class = verificarEncierroForm
     template_name = 'usuarios/verifications/verifcarId.html'
@@ -324,11 +433,31 @@ class verificarEncierro(UpdateView):
         context = super().get_context_data(*args, **kwargs)
         context['title'] = "Verificar encierro"
         context['texto'] = ""
-        context['current_url'] = 'encierro-verificar'
+        context['current_url'] = 'encierro-direccion-verificar'
         return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.save()
+        transportista = self.object.user.transportista
+        messages.success(self.request, f'Foto de verificación agregada correctamente')
+        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+
+class verificarDatosFiscales(UpdateView):
+    model = DatosFiscales
+    form_class = verificarDatosFiscalesForm
+    template_name = 'usuarios/verifications/verifcarPk.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['title'] = "Verificar dirección fiscal"
+        context['texto'] = ""
+        context['current_url'] = 'datos-fiscales-verificar'
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.es_verificado = True
         self.object.save()
         transportista = self.object.user.transportista
         messages.success(self.request, f'Foto de verificación agregada correctamente')
@@ -360,6 +489,31 @@ def realizarVerifiacion(request, id):
     #    raise PermissionDenied()
 
 @login_required
+def realizarVerifiacionEncierro(request, id):
+    verifacion = get_object_or_404(Verifaciones_encierros, id=id)
+    if request.user.is_verificador:
+        verifcador = request.user.verificador
+    else:
+        messages.success(request, f'Accion no permitida contacte al administrador para más información')
+        raise PermissionDenied()
+    encierro = verifacion.encierro
+    if verifacion.estado_verificacion != 'Asignada':
+        messages.success(request, f'Esta de verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
+        raise PermissionDenied()
+    
+    #if solicitud.cliente_id == cliente:
+    Encierro.objects.filter(
+            slug=encierro.slug).update(
+            es_verificado='True')
+    Verifaciones_encierros.objects.filter(
+            pk=verifacion.pk).update(
+            estado_verificacion='Realizada')
+    messages.success(request, f'Verifación terminada correctamente')
+    return HttpResponseRedirect(reverse('dashboard-verificador'))
+    #else:
+    #    raise PermissionDenied()
+
+@login_required
 def activeTransportista(request,slug):
     transportista = get_object_or_404(Transportista, slug=slug)
     if request.user.is_superuser:
@@ -372,8 +526,20 @@ def activeTransportista(request,slug):
             es_activo='True')
     messages.success(request, f'Transportista activado correctamente')
     return redirect(reverse('transportista-activar', args=(slug,)))
-    
 
+@login_required
+def activeEncierro(request,slug):
+    encierro = get_object_or_404(Encierro, slug=slug)
+    if request.user.is_superuser:
+        user = request.user
+    else:
+        messages.success(request, f'Accion no permitida contacte al administrador para más información')
+        raise PermissionDenied()
+    Encierro.objects.filter(
+            slug=encierro.slug).update(
+            es_activo='True')
+    messages.success(request, f'Encierro activado correctamente')
+    return redirect(reverse('encierro-activar', args=(slug,)))
 
 #SITE CLIENTES/TRANSPORTISTAS
 @login_required
@@ -795,7 +961,7 @@ class UnidadesDetalle(DetailView):
 class UnidadesUpdate(UpdateView):
     model = Unidades
     form_class = UnidadesForm
-    template_name = 'usuarios/verifcarUnidad.html'
+    template_name = 'usuarios/unidades.html'
 
     def test_func(self):
         unidad = self.get_object() 
@@ -865,11 +1031,9 @@ class EncierroAgregar(UserPassesTestMixin, CreateView):
         print(geocode_result)
         direccion_google = geocode_result[0]["formatted_address"]
         if geocode_result[0]:
-            print(direccion_google)
             if len(geocode_result) == 0 or len(direccion_google) < 50:
                 messages.error(self.request, f'Dirección incorrecta favor de validar su información')
             else:
-                self.object.user = user
                 self.object.save()
                 messages.success(self.request, f'Encierro agregado correctamente')
         else: 

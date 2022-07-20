@@ -40,7 +40,7 @@
                 </div>
                 <!-- Content Row -->
                 <div class="row justify-content-around">
-                    <div class="col-md-4 card shadow mb-4">
+                    <div class="col-md-3 card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Verificadores</h6>
                         </div>
@@ -54,8 +54,6 @@
                                                 <thead>
                                                     <tr role="row">
                                                         <th>Usuario</th>
-                                                        <th>Email</th>
-                                                        <th>Teléfono</th>
                                                         <th>Color</th>
                                                     </tr>
                                                 </thead>
@@ -63,8 +61,6 @@
                                                 {% for verificador in verificadores %}                     
                                                 <tr>
                                                     <td>{{verificador.user.username}}</td>
-                                                    <td>{{verificador.user.email}}</td>
-                                                    <td>{{verificador.telefono}}</td>
                                                     <td><i  style="color: {{verificador.color_verificador}};"class="fas fa-circle"></i></td>
                                                 </tr>
                                                 {% endfor %}
@@ -81,9 +77,9 @@
                         </div>
                         <!-- /.container-fluid -->
                     </div>
-                    <div class="col-md-7 card shadow mb-4">
+                    <div class="col-md-4 card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Verficaciones</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Verficaciones transportistas</h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -109,16 +105,68 @@
                                             <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
                                                 <thead>
                                                     <tr role="row">
-                                                        <th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 263px;">Transportista</th>
+                                                        <th>Transportista</th>
                                                         <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 393px;">Verificador</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 193px;">Estado</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 193px;">Fecha de visita</th>
+                                                        <th>Estado</th>
+                                                        <th>Fecha de visita</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody> 
-                                                {% for verficacion in verificaciones %}                     
+                                                {% for verficacion in filter.qs %}                     
                                                 <tr class="odd">
                                                     <td class="sorting_1">{{verficacion.transportista}}</td>
+                                                    <td class="sorting_1">{{verficacion.verificador}}</td>
+                                                    <td class="sorting_1">{{verficacion.estado_verificacion}}</td>
+                                                    <td class="sorting_1">{{verficacion.fecha_visita|date:"d-m-Y"}}</td>
+                                                </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Verficaciones encierros</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                    <div class="row">
+                                        <form action="" method="GET" class="col-10 mb-3">
+                                            <fieldset class="form-group">
+                                                <legend class="border-bottom mb-4">Filtrar</legend>
+                                            </fieldset>
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="form-group col-md-4 mb-1">
+                                                    {{ filter_encierros.form.estado_verificacion|as_crispy_field }}
+                                                </div>
+                                                <div class="form-group col-md-4">
+                                                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            {% if verificaciones_encierros %}
+                                            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Encierro</th>
+                                                        <th>Verificador</th>
+                                                        <th>Estado</th>
+                                                        <th>Fecha de visita</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody> 
+                                                {% for verficacion in filter_encierros.qs %}                     
+                                                <tr class="odd">
+                                                    <td class="sorting_1">{{verficacion.encierro}}</td>
                                                     <td class="sorting_1">{{verficacion.verificador}}</td>
                                                     <td class="sorting_1">{{verficacion.estado_verificacion}}</td>
                                                     <td class="sorting_1">{{verficacion.fecha_visita|date:"d-m-Y"}}</td>
@@ -177,12 +225,18 @@
             events:[
                 {% for verificacion in verificaciones %}
                 {
-                    title:"{{verificacion.transportista}}",
+                    title:"T {{verificacion.transportista}}",
                     start:"{{verificacion.fecha_visita|date:'Y-m-d'}}",
                     backgroundColor:"{{verificacion.verificador.color_verificador}}",
                 },
                 {% endfor %}
-
+                {% for verificacion in verificaciones_encierros %}
+                {
+                    title:"E {{verificacion.encierro}}",
+                    start:"{{verificacion.fecha_visita|date:'Y-m-d'}}",
+                    backgroundColor:"{{verificacion.verificador.color_verificador}}",
+                },
+                {% endfor %}
             ]
 
         });

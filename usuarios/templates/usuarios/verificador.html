@@ -80,9 +80,9 @@
                                             <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
                                                 <thead>
                                                     <tr role="row">
-                                                        <th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" >Transportista</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Fecha de visita</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" >Estado de la verificación</th>
+                                                        <th>Transportista</th>
+                                                        <th>Fecha de visita</th>
+                                                        <th>Estado de la verificación</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -112,7 +112,51 @@
                         </div>
                         <!-- /.container-fluid -->
                     </div>
-                    <!-- End of Main Content -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Encierros asignados para verificar</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                {% if verificaciones_encierros %}
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th>Encierro</th>
+                                                        <th>Fecha de visita</th>
+                                                        <th>Estado de la verificación</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for verificacion in verificaciones_encierros %}                      
+                                                <tr class="odd">
+                                                    <td class="sorting_1">{{verificacion.encierro}}</td>
+                                                    <td>{{verificacion.fecha_visita|date:"d-m-Y"}}</td>
+                                                    <td>{{verificacion.estado_verificacion}}</td>
+                                                    {% if verificacion.estado_verificacion == 'Realizada' %}
+                                                        <td></td>
+                                                    {% else %}
+                                                    <td><a href="{% url 'encierro-verificar' slug=verificacion.encierro.slug %}" ><button class="btn btn-primary btn-sm">Realizar verificación</button></a></td>
+                                                    {% endif%}
+                                                </td>
+                                                </tr>   
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <p>No tienes verficaciones asignadas</p>    
+                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.container-fluid -->
+                    </div>
                 </div>
             </div>
 

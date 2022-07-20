@@ -15,7 +15,7 @@
             <!-- Topbar -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="#">FleteSeguro</a>
+                  <a class="navbar-brand" href="{% url 'dashboard-admin' %}">FleteSeguro</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -33,7 +33,7 @@
             <div class="container-fluid mt-4">
                 <!-- Page Heading -->
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h3 mb-0 text-gray-800">Verificación de {{transportista}}</h1>
+                    <h1 class="h3 mb-0 text-gray-800">Verificación del encierro {{encierro}}</h1>
                 </div>
                 {% include 'includes/messages.html' %}
                 <!-- Content Row -->
@@ -60,9 +60,51 @@
                     </div>
                 </div>
                 <div class="row justify-content-center">
+                    {% if encierro %}
+                    <div class="card shadow mb-4 col-md-10">
+                        
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table class="table table-bordered" id="dataTable">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th>Encierro</th>
+                                                    <th>Dirección</th>
+                                                    <th>Verificado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody> 
+                                                <tr>
+                                                    <td>
+                                                        {{encierro}} {{encierro.id}}
+                                                    </td>
+                                                    <td>
+                                                        {{encierro.calle}} {{encierro.colonia}} A
+                                                    </td>
+                                                    <td>
+                                                        {% if encierro.is_verificado %}
+                                                            <i class="fas fa-check-circle"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-times-circle"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'encierro-direccion-verificar' encierro.id %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                                </tr> 
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if unidades %}
                     <div class="card shadow mb-4 col-md-10">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Licencias/Permisos</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">Unidades del encierro</h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -71,53 +113,27 @@
                                         <table class="table table-bordered" id="dataTable">
                                             <thead>
                                                 <tr role="row">
-                                                    <th>Nombre</th>
+                                                    <th>Unidad</th>
                                                     <th>Verificado</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody> 
+                                                {% for unidad in unidades %}  
                                                 <tr>
                                                     <td>
-                                                        Datos fiscales
+                                                        {{unidad}} {{unidad.marca}} {{unidad.modelo}}
                                                     </td>
                                                     <td>
-                                                        {% if transportista.user.datosfiscales.is_verificado %}
+                                                        {% if unidad.is_verificado %}
                                                             <i class="fas fa-check-circle"></i>
                                                         {% else %}
                                                             <i class="fas fa-times-circle"></i>
                                                         {% endif %}
                                                     </td>
-                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'datos-fiscales-verificar' transportista.pk %}')" class="btn btn-primary btn-sm">Verificar</button></td>
-                                                </tr>                 
-                                            <tr>
-                                                <td>
-                                                    Licencia de conducir
-                                                </td>
-                                                <td>
-                                                    {% if transportista.is_lc_verificado %}
-                                                        <i class="fas fa-check-circle"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-times-circle"></i>
-                                                    {% endif %}
-                                                </td>
-                                                <td><button onclick="abrir_modal_verificar_licencia('{% url 'lc-verificar' transportista.slug %}')" class="btn btn-primary btn-sm">Verificar</button></td>
-                                            </tr> 
-                                            {% if transportista.has_licencia_mp %}  
-                                            <tr>
-                                                <td>
-                                                    Licencia de conducir material peligroso
-                                                </td>
-                                                <td>
-                                                    {% if transportista.is_lmp_verificado %}
-                                                        <i class="fas fa-check-circle"></i>
-                                                    {% else %}
-                                                        <i class="fas fa-times-circle"></i>
-                                                    {% endif %}
-                                                </td>
-                                                <td><button onclick="abrir_modal_verificar_licencia('{% url 'lmp-verificar' transportista.slug %}')" class="btn btn-primary btn-sm">Verificar</button></td>
-                                            </tr> 
-                                            {% endif %}
+                                                    <td><button onclick="abrir_modal_verificar_licencia('{% url 'unidad-verificar' unidad.id %}')" class="btn btn-primary btn-sm">Verificar</button></td>
+                                                </tr> 
+                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
@@ -125,11 +141,12 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="container">
                 <div class="row justify-content-end col-12">
-                    <a href="{% url 'realizar-verificacion' verificacion.id %}" class="confirm-delete" title="Terminar verificación" data-bs-toggle="modal" data-bs-target="#terminarVerificacion" id="{{verificacion.id}}">
+                    <a href="{% url 'realizar-verificacion-encierro' verificacion.id %}" class="confirm-delete" title="Terminar verificación" data-bs-toggle="modal" data-bs-target="#terminarVerificacion" id="{{verificacion.id}}">
                         <button onclick="" class="btn btn-primary mb-4">TERMINAR VERIFICACIÓN</button>
                     </a>
                 </div>

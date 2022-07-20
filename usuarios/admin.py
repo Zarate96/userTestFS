@@ -5,7 +5,7 @@ from django.contrib.admin.models import LogEntry
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from rangefilter.filters import DateRangeFilter, DateTimeRangeFilter
-from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, AuditEntry, Verificador, Verifaciones
+from .models import MyUser, Cliente, Transportista, Contacto, DatosFiscales, Unidades, Encierro, AuditEntry, Verificador, Verifaciones, Verifaciones_encierros
 from fletes.models import Domicilios
 admin.site.register(MyUser)
 
@@ -123,6 +123,10 @@ class ContactoAdmin(admin.ModelAdmin):
     list_display = ('nombre','ape_pat','telefono','email','user')
     search_fields = ('user__username',)
 
+@admin.register(Encierro)
+class EncierroAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+    search_fields = ('nombre',)
 
 @admin.register(AuditEntry)
 class AuditEntryAdmin(ImportExportModelAdmin,admin.ModelAdmin):
@@ -132,10 +136,9 @@ class AuditEntryAdmin(ImportExportModelAdmin,admin.ModelAdmin):
         ('created_at', DateRangeFilter),
     )
     list_display = ('action','ip','username','created_at')
-    
 
 admin.site.register(DatosFiscales)
 admin.site.register(Unidades)
-admin.site.register(Encierro)
 admin.site.register(Verificador)
 admin.site.register(Verifaciones)
+admin.site.register(Verifaciones_encierros)
