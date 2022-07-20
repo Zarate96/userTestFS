@@ -12,6 +12,7 @@ dj-database-url==0.5.0
 Django==3.2
 django-admin-rangefilter==0.8.4
 django-bootstrap-form==3.4
+django-colorfield==0.7.1
 django-cors-headers==3.11.0
 django-crispy-forms==1.13.0
 django-filter==21.1
