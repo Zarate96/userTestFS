@@ -55,13 +55,45 @@
                                                     <th>Nombre</th>
                                                     <th>Foto transportista</th>
                                                     <th>Foto verificador</th>
+                                                    <th>Dirección ingresada por cliente</th>
+                                                    <th>Dirección ingresada por verificador</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>                 
+                                            <tbody>  
+                                            <tr>
+                                                <td>
+                                                    Domicilio fiscal
+                                                </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <div class="card" style="width: 18rem;">
+                                                        <img src="{{ transportista.user.datosfiscales.verificador_foto.url }}" class="card-img-top" alt="...">
+                                                        <div class="card-body">
+                                                            <div class="row justify-content-between">
+                                                                <div class="col-6">
+                                                                    <p class="card-text"><a href="{{transportista.user.datosfiscales.verificador_foto.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{ transportista.user.datosfiscales.direccion_completa }}
+                                                </td>
+                                                <td>
+                                                    {{ transportista.user.datosfiscales.verificador_direccion }}
+                                                </td>
+                                            </tr>                
                                             <tr>
                                                 <td>
                                                     Licencia de conducir
                                                 </td>
+                                                {% if transportista.licencia_conducir_foto %}
                                                 <td>
                                                     <div class="card" style="width: 18rem;">
                                                         <img src="{{ transportista.licencia_conducir_foto.url }}" class="card-img-top" alt="...">
@@ -77,6 +109,9 @@
                                                         </div>
                                                     </div>
                                                 </td>
+                                                {% else %}
+                                                <td><p>Transportista no ha subido licencia de conducir</p></td>
+                                                {% endif %}
                                                 <td>
                                                     <div class="card" style="width: 18rem;">
                                                         <img src="{{ transportista.licencia_conducir_verificador_foto.url }}" class="card-img-top" alt="...">
@@ -130,29 +165,7 @@
                                                 </td>
                                             </tr> 
                                             {% endif %}
-                                            <tr>
-                                                <td>
-                                                    Domicilio fiscal
-                                                </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <div class="card" style="width: 18rem;">
-                                                        <img src="{{ transportista.user.datosfiscales.verificador_foto.url }}" class="card-img-top" alt="...">
-                                                        <div class="card-body">
-                                                            <div class="row justify-content-between">
-                                                                <div class="col-6">
-                                                                    <p class="card-text"><a href="{{transportista.user.datosfiscales.verificador_foto.url}}"><button type="button" class="btn btn-warning btn-sm">Ver</button></a></p>                                                                            
-                                                                </div>
-                                                                <div class="col-6">
-                                                                   
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr> 
+                                            
                                             </tbody>
                                         </table>
                                     </div>

@@ -15,7 +15,7 @@
             <!-- Topbar -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="{% url 'dashboard-admin' %}">FleteSeguro</a>
+                  <a class="navbar-brand" href="{% url 'dashboard-verificador' %}">FleteSeguro</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -79,10 +79,10 @@
                                             <tbody> 
                                                 <tr>
                                                     <td>
-                                                        {{encierro}} {{encierro.id}}
+                                                        {{encierro}}
                                                     </td>
                                                     <td>
-                                                        {{encierro.calle}} {{encierro.colonia}} A
+                                                        {{encierro.direccion_completa}}
                                                     </td>
                                                     <td>
                                                         {% if encierro.is_verificado %}
@@ -146,6 +146,11 @@
             </div>
             <div class="container">
                 <div class="row justify-content-end col-12">
+                    <a href="{% url 'pendiente-verificacion-encierro' verificacion.id %}" class="confirm-delete" title="Verificación pendiente" data-bs-toggle="modal" data-bs-target="#pendienteVerififcacion" id="{{verificacion.id}}">
+                        <button onclick="" class="btn btn-secondary mb-4">VERIFICACIÓN PENDIENTE</button>
+                    </a>
+                </div>
+                <div class="row justify-content-end col-12">
                     <a href="{% url 'realizar-verificacion-encierro' verificacion.id %}" class="confirm-delete" title="Terminar verificación" data-bs-toggle="modal" data-bs-target="#terminarVerificacion" id="{{verificacion.id}}">
                         <button onclick="" class="btn btn-primary mb-4">TERMINAR VERIFICACIÓN</button>
                     </a>
@@ -172,6 +177,31 @@
 </div>
 
 <!--Delete button will redirect to the href of the element with 'id = caller-id' property in this modal-->
+<div class="modal fade" id="pendienteVerififcacion" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body confirm-delete">
+            ¿Estas seguro de cambiar a estado pendiente la verificación?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary"  id="pendiente">Aceptar</button>
+        </div>
+      </div>
+    </div>
+    <script>
+        $(document).on('click', '.confirm-delete', function () {
+            $("#pendienteVerififcacion").attr("caller-id", $(this).attr("id"));
+        });
+
+        $(document).on('click', '#pendiente', function () {
+            var caller = $("#pendiente").closest(".modal").attr("caller-id");
+            window.location = $("#".concat(caller)).attr("href");
+        });
+    </script>
+</div>
+
+<!--Delete button will redirect to the href of the element with 'id = caller-id' property in this modal-->
 <div class="modal fade" id="terminarVerificacion" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -195,6 +225,7 @@
         });
     </script>
 </div>
+
 
 {% block extrajs %}
     <script type="text/javascript">

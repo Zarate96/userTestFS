@@ -126,7 +126,7 @@ class ContactoAdmin(admin.ModelAdmin):
 @admin.register(Encierro)
 class EncierroAdmin(admin.ModelAdmin):
     list_display = ('nombre',)
-    search_fields = ('nombre',)
+    search_fields = ('nombre','pk')
 
 @admin.register(AuditEntry)
 class AuditEntryAdmin(ImportExportModelAdmin,admin.ModelAdmin):

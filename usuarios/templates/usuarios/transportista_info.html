@@ -111,7 +111,7 @@
                     <div class="row justify-content-evenly">
                         <div class="col-md-10 card shadow mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Estados actuales</h6>
+                                <h6 class="m-0 font-weight-bold text-primary">Transportista</h6>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -219,7 +219,7 @@
                                                             {{encierro}} 
                                                         </td>
                                                         <td>
-                                                            {{encierro.calle}} {{encierro.colonia}}
+                                                            {{encierro.direccion_completa}}
                                                         </td>
                                                         {% if encierro.es_validado %}
                                                             <td><i class="fas fa-check-circle"></i></td>
@@ -227,7 +227,7 @@
                                                         {% else %}
                                                             <td><i class="fas fa-times-circle"></i></td>
                                                             <td>
-                                                                <a href="{{site}}/admin/usuarios/encierro/?q={{encierro}}" class="btn btn-primary btn-sm" role="button" target="_blank">Validar</a>
+                                                                <a href="{{site}}/admin/usuarios/encierro/?q={{encierro.id}}" class="btn btn-primary btn-sm" role="button" target="_blank">Validar</a>
                                                             </td>
                                                         {% endif %}
                                                         {% if encierro.es_verificado%}
@@ -239,9 +239,15 @@
                                                             </td>
                                                             {% if encierro.es_validado %}
                                                                 {% if encierro.has_verificacion %}
-                                                                    <td>
-                                                                        <p>Verifiación en proceso</p> 
-                                                                    </td>
+                                                                    {% if encierro.verificacion.estado_verificacion == 'Pendiente' %}
+                                                                        <td>
+                                                                            <p>Verifiación pendiente</p> 
+                                                                        </td>
+                                                                    {% else %}
+                                                                        <td>
+                                                                            <p>Verifiación en proceso</p> 
+                                                                        </td>
+                                                                    {% endif %}
                                                                 {% else %}
                                                                     <td>
                                                                         <a href="{% url 'asginar-verificador-encierro' slug=encierro.slug %}" class="btn btn-primary btn-sm" role="button">Asignar</a>
@@ -264,9 +270,17 @@
                                                                 </td>
                                                             {% else %}
                                                                 <td><i class="fas fa-times-circle"></i></td>
-                                                                <td>
-                                                                    <button href="" class="btn btn-primary btn-sm" role="button" disabled>Activar</button>
-                                                                </td>
+                                                                {% if encierro.has_verificacion %}
+                                                                    {% if encierro.verificacion.estado_verificacion == 'Pendiente' %}
+                                                                        <td>
+                                                                            <button href="" class="btn btn-primary btn-sm" role="button" disabled>Activar</button>
+                                                                        </td>
+                                                                    {% else %}
+                                                                        <td>
+                                                                            <button href="" class="btn btn-primary btn-sm" role="button">Activar</button>
+                                                                        </td>
+                                                                    {% endif %}
+                                                                {% endif %}
                                                             {% endif %}
                                                         {% endif %}
                                                     </tr>

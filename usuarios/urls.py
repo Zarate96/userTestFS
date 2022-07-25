@@ -22,6 +22,7 @@ urlpatterns = [
     path('dashboardverificador/', login_required(ProfileVerificador.as_view()), name='dashboard-verificador'),
     path('dashboardverificador/realizarverificacion/<int:id>', realizarVerifiacion, name='realizar-verificacion'),
     path('dashboardverificador/realizarverificacion/encierro/<int:id>', realizarVerifiacionEncierro, name='realizar-verificacion-encierro'),
+    path('dashboardverificador/pendienteverificacion/encierro/<int:id>', pendienteVerifiacionEncierro, name='pendiente-verificacion-encierro'),
     path('dashboardverificador/verificar/<slug:slug>', login_required(VerificarTransportista.as_view()), name='transportista-verificar'),
     path('dashboardverificador/verificar/encierro/<slug:slug>', login_required(VerificarEncierro.as_view()), name='encierro-verificar'),
     path('dashboardverificador/verificar/licencia/<slug:slug>', verificarLicenciaConducir.as_view(), name='lc-verificar'),

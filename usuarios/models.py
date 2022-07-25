@@ -334,11 +334,18 @@ class DatosFiscales(models.Model):
         default=False,
         help_text="Las empresas son personas morales")
     verificador_foto = models.ImageField(verbose_name="Foto de encierro de verificador", upload_to='verificaciones', blank=True, null=True)
+    verificador_direccion = models.CharField(verbose_name="Dirección del domicilio fiscal", max_length=200, blank=True, null=True)
     es_verificado = models.BooleanField(default=False)
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
         verbose_name_plural = "Datos fiscales"
+
+    def save(self, *args, **kwargs):
+        if self.user.is_empresa:
+            self.es_empresa = True
+
+        super(DatosFiscales, self).save(*args, **kwargs)
 
     @property
     def has_rfc(self):
@@ -351,6 +358,10 @@ class DatosFiscales(models.Model):
     def is_verificado(self):
         return self.es_verificado 
 
+    @property
+    def direccion_completa(self):
+        return f'{self.calle } {self.num_ext} {self.num_int}, C.P  {self.cp}  {self.colonia}  {self.municipio},  {self.estado}'
+         
     def __str__(self):
         return f'{self.rfc} de {self.user.username}'
 
@@ -365,6 +376,7 @@ class Encierro(models.Model):
     estado = models.CharField(verbose_name="Estado", choices=ESTADOS, max_length=40)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     verificador_foto_encierro = models.ImageField(verbose_name="Foto de encierro de verificador", upload_to='verificaciones', blank=True, null=True)
+    verificador_direccion = models.CharField(verbose_name="Dirección del domicilio fiscal", max_length=200, blank=True, null=True)
     es_validado = models.BooleanField(default=False)
     es_verificado = models.BooleanField(default=False)
     es_activo = models.BooleanField(default=False)
@@ -394,6 +406,10 @@ class Encierro(models.Model):
     def has_verificacion(self):
         verificacion = Verifaciones_encierros.objects.filter(encierro=self)
         return False if len(verificacion) == 0 else True
+
+    @property
+    def direccion_completa(self):
+        return f'{self.calle } {self.num_ext} {self.num_int}, C.P  {self.cp}  {self.colonia}  {self.municipio},  {self.estado}'
 
 YEAR_CHOICES = [(r,r) for r in range(1950, datetime.date.today().year+1)]
 class Unidades(models.Model):
@@ -432,6 +448,7 @@ ESTADO_VERIFICACION =  (
     ('Disputa','Disputa'),
     ('Invalida','Invalida'),
     ('Realizada','Realizada'),
+    ('Pendiente','Pendiente'),
 )
 
 class Verifaciones_encierros(models.Model):
@@ -440,6 +457,7 @@ class Verifaciones_encierros(models.Model):
     estado_verificacion = models.CharField(verbose_name="Estado", choices=ESTADO_VERIFICACION, max_length=40)
     fecha_asignacion = models.DateTimeField(verbose_name="Fecha de asignación", validators=[validate_date])
     fecha_visita = models.DateTimeField(verbose_name="Fecha de visita a transportista", validators=[validate_date])
+    notas_verificador = models.CharField(verbose_name="Notas sobre la verificación del verifiador", max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Verificaciones a encierros"

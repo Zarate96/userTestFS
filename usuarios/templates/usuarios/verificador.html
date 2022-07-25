@@ -58,7 +58,7 @@
                                         <p class="mb-0">Nombre:</p>
                                     </div>
                                     <div class="col-sm-9">
-                                        <p class="text-muted mb-0">{{ object.first_name }} {{ object.last_name }} </p>
+                                        <p class="text-muted mb-0">{{ object.verificador.nombre }} {{ object.verificador.ape_pat }} {{ object.verificador.ape_mat }} </p>
                                     </div>
                                 </div>
                             </div>
@@ -82,6 +82,8 @@
                                                     <tr role="row">
                                                         <th>Transportista</th>
                                                         <th>Fecha de visita</th>
+                                                        <th>Teléfono</th>
+                                                        <th>Dirección</th>
                                                         <th>Estado de la verificación</th>
                                                         <th></th>
                                                     </tr>
@@ -91,6 +93,8 @@
                                                 <tr class="odd">
                                                     <td class="sorting_1">{{verificacion.transportista}}</td>
                                                     <td>{{verificacion.fecha_visita|date:"d-m-Y"}}</td>
+                                                    <td>{{verificacion.transportista.telefono}}</td>
+                                                    <td>{{verificacion.transportista.user.datosfiscales.direccion_completa}}</td>
                                                     <td>{{verificacion.estado_verificacion}}</td>
                                                     {% if verificacion.estado_verificacion == 'Realizada' %}
                                                         <td></td>
@@ -126,6 +130,9 @@
                                                 <thead>
                                                     <tr role="row">
                                                         <th>Encierro</th>
+                                                        <th>Transportista</th>
+                                                        <th>Teléfono</th>
+                                                        <th>Dirección encierro</th>
                                                         <th>Fecha de visita</th>
                                                         <th>Estado de la verificación</th>
                                                         <th></th>
@@ -135,10 +142,15 @@
                                                 {% for verificacion in verificaciones_encierros %}                      
                                                 <tr class="odd">
                                                     <td class="sorting_1">{{verificacion.encierro}}</td>
+                                                    <td>{{verificacion.encierro.user.transportista}}</td>
+                                                    <td>{{verificacion.encierro.user.transportista.telefono}}</td>
+                                                    <td>{{verificacion.encierro.direccion_completa}}</td>
                                                     <td>{{verificacion.fecha_visita|date:"d-m-Y"}}</td>
                                                     <td>{{verificacion.estado_verificacion}}</td>
                                                     {% if verificacion.estado_verificacion == 'Realizada' %}
                                                         <td></td>
+                                                    {% elif verificacion.estado_verificacion == 'Pendiente' %}
+                                                    <td><a href="{% url 'encierro-verificar' slug=verificacion.encierro.slug %}" ><button class="btn btn-primary btn-sm">Continuar con verificación</button></a></td>
                                                     {% else %}
                                                     <td><a href="{% url 'encierro-verificar' slug=verificacion.encierro.slug %}" ><button class="btn btn-primary btn-sm">Realizar verificación</button></a></td>
                                                     {% endif%}

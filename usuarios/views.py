@@ -216,7 +216,7 @@ class AsignarVerificacion(UserPassesTestMixin, CreateView):
             EmailThread(email).start()
 
         messages.success(self.request, f'Asignación agregada correctamente')
-        return redirect(reverse('dashboard-admin'))
+        return redirect(reverse('info-transportista', kwargs={'slug': self.kwargs['slug']}))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -230,7 +230,7 @@ class AsignarVerificacion(UserPassesTestMixin, CreateView):
         return context
 
     def get_success_url(self):
-        return redirect(reverse('dashboard-admin'))
+        return redirect(reverse('info-transportista', kwargs={'slug': self.kwargs['slug']}))
 
 class AsignarVerificacionEncierro(UserPassesTestMixin, CreateView):
     model = Verifaciones_encierros
@@ -272,7 +272,7 @@ class AsignarVerificacionEncierro(UserPassesTestMixin, CreateView):
             EmailThread(email).start()
 
         messages.success(self.request, f'Asignación agregada correctamente')
-        return redirect(reverse('dashboard-admin'))
+        return redirect(reverse('info-transportista', kwargs={'slug': self.object.encierro.user.transportista.slug}))
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -286,7 +286,7 @@ class AsignarVerificacionEncierro(UserPassesTestMixin, CreateView):
         return context
 
     def get_success_url(self):
-        return redirect(reverse('dashboard-admin'))
+        return redirect(reverse('info-transportista', kwargs={'slug': self.object.encierro.user.transportista.slug}))
 
 class VerificarTransportista(UserPassesTestMixin, TemplateView):
     template_name = 'usuarios/verificarTransportista.html'
@@ -297,7 +297,7 @@ class VerificarTransportista(UserPassesTestMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         current_user = self.request.user
-        transportista = Transportista.objects.get(slug=self.kwargs['slug'])
+        transportista = Transportista.objects.get(slug=self.kwargs['slug'].lower())
         context['transportista'] = transportista
         context['unidades'] = Unidades.objects.filter(user=transportista.user)
         context['encierros'] = Encierro.objects.filter(user=transportista.user)
@@ -420,9 +420,9 @@ class verificarUnidad(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        transportista = self.object.user.transportista
+        encierro = self.object.encierro.slug
         messages.success(self.request, f'Foto de verificación agregada correctamente')
-        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+        return redirect(reverse('encierro-verificar', kwargs={'slug': encierro}))
 
 class verificarEncierroDireccion(UpdateView):
     model = Encierro
@@ -439,9 +439,9 @@ class verificarEncierroDireccion(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        transportista = self.object.user.transportista
+        encierro = self.object.slug
         messages.success(self.request, f'Foto de verificación agregada correctamente')
-        return redirect(reverse('transportista-verificar', kwargs={'slug': transportista}))
+        return redirect(reverse('encierro-verificar', kwargs={'slug': encierro}))
 
 class verificarDatosFiscales(UpdateView):
     model = DatosFiscales
@@ -473,7 +473,7 @@ def realizarVerifiacion(request, id):
         raise PermissionDenied()
     transportista = verifacion.transportista
     if verifacion.estado_verificacion != 'Asignada':
-        messages.success(request, f'Esta de verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
+        messages.success(request, f'Esta verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
         raise PermissionDenied()
     
     #if solicitud.cliente_id == cliente:
@@ -498,7 +498,7 @@ def realizarVerifiacionEncierro(request, id):
         raise PermissionDenied()
     encierro = verifacion.encierro
     if verifacion.estado_verificacion != 'Asignada':
-        messages.success(request, f'Esta de verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
+        messages.success(request, f'Esta verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
         raise PermissionDenied()
     
     #if solicitud.cliente_id == cliente:
@@ -510,8 +510,25 @@ def realizarVerifiacionEncierro(request, id):
             estado_verificacion='Realizada')
     messages.success(request, f'Verifación terminada correctamente')
     return HttpResponseRedirect(reverse('dashboard-verificador'))
-    #else:
-    #    raise PermissionDenied()
+
+@login_required
+def pendienteVerifiacionEncierro(request, id):
+    verifacion = get_object_or_404(Verifaciones_encierros, id=id)
+    if request.user.is_verificador:
+        verifcador = request.user.verificador
+    else:
+        messages.success(request, f'Accion no permitida contacte al administrador para más información')
+        raise PermissionDenied()
+    encierro = verifacion.encierro
+    if verifacion.estado_verificacion != 'Asignada':
+        messages.success(request, f'Esta verifación esta en estado "{verifacion.estado_verificacion}" no es posible realizar esta acción')
+        raise PermissionDenied()
+    
+    Verifaciones_encierros.objects.filter(
+            pk=verifacion.pk).update(
+            estado_verificacion='Pendiente')
+    messages.success(request, f'Verifación en estado pendiente')
+    return HttpResponseRedirect(reverse('dashboard-verificador'))
 
 @login_required
 def activeTransportista(request,slug):

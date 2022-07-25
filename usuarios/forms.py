@@ -197,7 +197,7 @@ class UnidadesForm(forms.ModelForm):
 class EncierroForm(forms.ModelForm):
     class Meta:
         model = Encierro
-        exclude = ('user','verificador_foto_encierro','verificado','es_validado','es_verificado','es_activo','slug')
+        exclude = ('user','verificador_foto_encierro','verificado','es_validado','es_verificado','es_activo','slug','verificador_direccion')
 
 
 #FORMULARIOS VERIFICADORES
@@ -229,15 +229,17 @@ class verificarUnidadForm(forms.ModelForm):
 class verificarEncierroForm(forms.ModelForm):
     class Meta:
         model = Encierro
-        fields = ['verificador_foto_encierro',]
+        fields = ['verificador_foto_encierro','verificador_direccion']
         labels = {
-            'verificador_foto_encierro':'Foto de encierro'
+            'verificador_foto_encierro':'Foto de encierro',
+            'verificador_direccion':'Dirección completa del encierro'
         }
 
 class verificarDatosFiscalesForm(forms.ModelForm):
     class Meta:
         model = DatosFiscales
-        fields = ['verificador_foto',]
+        fields = ['verificador_foto','verificador_direccion']
         labels = {
-            'verificador_foto':'Foto de dirección fiscal'
+            'verificador_foto':'Foto de dirección fiscal',
+            'verificador_direccion':'Dirección completa del domicilio fiscal'
         }
